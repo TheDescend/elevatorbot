@@ -1,4 +1,4 @@
-from dis_snek import InteractionContext, Member, slash_command
+from naff import Member, slash_command
 
 from ElevatorBot.commandHelpers import autocomplete
 from ElevatorBot.commandHelpers.optionTemplates import (
@@ -9,14 +9,15 @@ from ElevatorBot.commandHelpers.optionTemplates import (
     default_time_option,
     default_user_option,
 )
-from ElevatorBot.commands.base import BaseScale
+from ElevatorBot.commands.base import BaseModule
 from ElevatorBot.core.destiny.activity import format_and_send_activity_data
+from ElevatorBot.discordEvents.base import ElevatorInteractionContext
 from ElevatorBot.misc.helperFunctions import parse_datetime_options
 from ElevatorBot.networking.destiny.activities import DestinyActivities
 from Shared.networkingSchemas.destiny import DestinyActivityInputModel
 
 
-class DestinyActivity(BaseScale):
+class DestinyActivity(BaseModule):
     @slash_command(name="activity", description="Display stats for Destiny 2 activities")
     @autocomplete_activity_option(description="Chose the activity you want to see the stats for", required=True)
     @default_class_option()
@@ -33,7 +34,7 @@ class DestinyActivity(BaseScale):
     @default_user_option()
     async def activity(
         self,
-        ctx: InteractionContext,
+        ctx: ElevatorInteractionContext,
         activity: str,
         destiny_class: str = None,
         expansion: str = None,

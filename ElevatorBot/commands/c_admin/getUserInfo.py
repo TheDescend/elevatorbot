@@ -1,13 +1,14 @@
-from dis_snek import InteractionContext, Member, OptionTypes, slash_command, slash_option
+from naff import Member, OptionTypes, slash_command, slash_option
 
-from ElevatorBot.commands.base import BaseScale
+from ElevatorBot.commands.base import BaseModule
+from ElevatorBot.discordEvents.base import ElevatorInteractionContext
 from ElevatorBot.misc.formatting import embed_message
 from ElevatorBot.networking.destiny.account import DestinyAccount
 from ElevatorBot.networking.destiny.clan import DestinyClan
 from ElevatorBot.networking.destiny.profile import DestinyProfile
 
 
-class UserInfo(BaseScale):
+class UserInfo(BaseModule):
     """
     Gets collected info for the specified user. Exactly one option needs to be filled out
     """
@@ -20,7 +21,11 @@ class UserInfo(BaseScale):
         name="fuzzy_name", description="If you know how the user is called", required=False, opt_type=OptionTypes.STRING
     )
     async def user_info(
-        self, ctx: InteractionContext, discord_user: Member = None, destiny_id: str = None, fuzzy_name: str = None
+        self,
+        ctx: ElevatorInteractionContext,
+        discord_user: Member = None,
+        destiny_id: str = None,
+        fuzzy_name: str = None,
     ):
         if ctx.author.id != 238388130581839872:
             await ctx.send(

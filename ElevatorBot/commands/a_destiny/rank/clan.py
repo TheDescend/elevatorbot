@@ -1,4 +1,4 @@
-from dis_snek import InteractionContext, Member, OptionTypes, SlashCommandChoice, slash_command, slash_option
+from naff import Member, OptionTypes, SlashCommandChoice, slash_command, slash_option
 
 from ElevatorBot.commandHelpers import autocomplete
 from ElevatorBot.commandHelpers.optionTemplates import (
@@ -6,11 +6,12 @@ from ElevatorBot.commandHelpers.optionTemplates import (
     autocomplete_weapon_option,
     default_user_option,
 )
-from ElevatorBot.commands.base import BaseScale
+from ElevatorBot.commands.base import BaseModule
 from ElevatorBot.core.destiny.rank import RankCommandHandler
+from ElevatorBot.discordEvents.base import ElevatorInteractionContext
 
 
-class RankClan(BaseScale):
+class RankClan(BaseModule):
     clan_mode = True
 
     discord_leaderboards = {
@@ -120,7 +121,7 @@ class RankClan(BaseScale):
     @default_user_option()
     async def rank(
         self,
-        ctx: InteractionContext,
+        ctx: ElevatorInteractionContext,
         discord_leaderboards: str = None,
         basic_leaderboards: str = None,
         endgame_leaderboards: str = None,

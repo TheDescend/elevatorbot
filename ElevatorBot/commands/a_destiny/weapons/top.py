@@ -2,17 +2,7 @@ import datetime
 from typing import Optional
 
 from anyio import to_thread
-from dis_snek import (
-    Embed,
-    InteractionContext,
-    Member,
-    OptionTypes,
-    SlashCommandChoice,
-    Timestamp,
-    TimestampStyles,
-    slash_command,
-    slash_option,
-)
+from naff import Embed, Member, OptionTypes, SlashCommandChoice, Timestamp, TimestampStyles, slash_command, slash_option
 
 from ElevatorBot.commandHelpers import autocomplete
 from ElevatorBot.commandHelpers.optionTemplates import (
@@ -27,7 +17,8 @@ from ElevatorBot.commandHelpers.optionTemplates import (
     default_user_option,
     default_weapon_type_option,
 )
-from ElevatorBot.commands.base import BaseScale
+from ElevatorBot.commands.base import BaseModule
+from ElevatorBot.discordEvents.base import ElevatorInteractionContext
 from ElevatorBot.misc.formatting import capitalize_string, embed_message, get_emoji_from_rank
 from ElevatorBot.misc.helperFunctions import get_emoji_by_name, parse_datetime_options
 from ElevatorBot.networking.destiny.weapons import DestinyWeapons
@@ -43,7 +34,7 @@ from Shared.networkingSchemas.destiny import (
 )
 
 
-class WeaponsTop(BaseScale):
+class WeaponsTop(BaseModule):
     """
     Shows your top Destiny 2 weapon ranking
 
@@ -80,7 +71,7 @@ class WeaponsTop(BaseScale):
     @default_user_option()
     async def top_weapons(
         self,
-        ctx: InteractionContext,
+        ctx: ElevatorInteractionContext,
         stat: str = "kills",
         weapon: str = None,
         mode: str = None,

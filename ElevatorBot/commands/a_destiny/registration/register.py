@@ -1,17 +1,18 @@
-from dis_snek import ActionRow, Button, ButtonStyles, ComponentContext, InteractionContext, slash_command
+from naff import ActionRow, Button, ButtonStyles, slash_command
 
-from ElevatorBot.commands.base import RegisteredScale
+from ElevatorBot.commands.base import RegisteredModule
+from ElevatorBot.discordEvents.base import ElevatorComponentContext, ElevatorInteractionContext
 from ElevatorBot.misc.formatting import embed_message
 from Shared.functions.readSettingsFile import get_setting
 
 
-class Register(RegisteredScale):
+class Register(RegisteredModule):
     @slash_command(name="register", description="Link your Destiny 2 account with ElevatorBot")
-    async def register(self, ctx: InteractionContext):
+    async def register(self, ctx: ElevatorInteractionContext):
         await send_registration(ctx)
 
 
-async def send_registration(ctx: InteractionContext | ComponentContext):
+async def send_registration(ctx: ElevatorInteractionContext | ElevatorComponentContext):
     """Send the user the message"""
 
     # send the link to click on in a hidden embed

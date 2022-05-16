@@ -1,7 +1,8 @@
 from typing import Optional
 
-from dis_snek import InteractionContext, Member
+from naff import Member
 
+from ElevatorBot.discordEvents.base import ElevatorInteractionContext
 from ElevatorBot.misc.formatting import embed_message
 from ElevatorBot.misc.helperFunctions import get_character_ids_from_class
 from ElevatorBot.networking.destiny.account import DestinyAccount
@@ -37,7 +38,7 @@ stat_translation = {
 
 
 async def get_stat_and_send(
-    ctx: InteractionContext,
+    ctx: ElevatorInteractionContext,
     stat_vanity_name: str,
     stat_bungie_name: str,
     scope: StatScope,

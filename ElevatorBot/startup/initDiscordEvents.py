@@ -1,8 +1,8 @@
 import logging
 
-from dis_snek import Listener
+from naff import Listener
 
-from ElevatorBot.discordEvents.base import ElevatorSnake
+from ElevatorBot.discordEvents.base import ElevatorClient
 from ElevatorBot.discordEvents.guildEvents import (
     on_channel_create,
     on_channel_delete,
@@ -37,7 +37,7 @@ class MyListener(Listener):
                 self.logger_events.exception(f"Event `{self.event}`", exc_info=error)
 
 
-def register_discord_events(client: ElevatorSnake):
+def register_discord_events(client: ElevatorClient):
     """Import all events and add then to the bot"""
 
     # message events

@@ -1,17 +1,18 @@
-from dis_snek import InteractionContext, Scale, slash_command
+from naff import Cog, slash_command
 
+from ElevatorBot.discordEvents.base import ElevatorInteractionContext
 from ElevatorBot.misc.formatting import embed_message
 from ElevatorBot.networking.destiny.profile import DestinyProfile
 
 
-class UnRegister(Scale):
+class UnRegister(Cog):
     def __init__(self, client):
         self.client = client
 
     @slash_command(name="unregister", description="Unlink your Destiny 2 account from ElevatorBot")
     async def unregister(
         self,
-        ctx: InteractionContext,
+        ctx: ElevatorInteractionContext,
     ):
         """Unlink your Destiny 2 account from ElevatorBot"""
 

@@ -1,13 +1,14 @@
 import datetime
 
-from dis_snek import InteractionContext, Member, Timestamp, TimestampStyles
+from naff import Member, Timestamp, TimestampStyles
 
+from ElevatorBot.discordEvents.base import ElevatorInteractionContext
 from ElevatorBot.misc.formatting import add_filler_field, embed_message, format_timedelta
 from Shared.networkingSchemas import DestinyActivityOutputModel
 
 
 async def format_and_send_activity_data(
-    ctx: InteractionContext,
+    ctx: ElevatorInteractionContext,
     member: Member,
     stats: DestinyActivityOutputModel,
     name: str,

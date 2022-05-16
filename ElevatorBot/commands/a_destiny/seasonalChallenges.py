@@ -1,32 +1,24 @@
 import asyncio
 
-from dis_snek import (
-    ActionRow,
-    ComponentContext,
-    InteractionContext,
-    Member,
-    Message,
-    Select,
-    SelectOption,
-    slash_command,
-)
-from dis_snek.api.events import Component
+from naff import ActionRow, Member, Message, Select, SelectOption, slash_command
+from naff.api.events import Component
 
 from ElevatorBot.commandHelpers.optionTemplates import default_user_option
-from ElevatorBot.commands.base import BaseScale
+from ElevatorBot.commands.base import BaseModule
+from ElevatorBot.discordEvents.base import ElevatorComponentContext, ElevatorInteractionContext
 from ElevatorBot.misc.formatting import embed_message, format_progress
 from ElevatorBot.networking.destiny.account import DestinyAccount
 from Shared.networkingSchemas.destiny import SeasonalChallengesTopicsModel
 
 
-class SeasonalChallenges(BaseScale):
+class SeasonalChallenges(BaseModule):
     @slash_command(
         name="challenges", description="Shows you the current Destiny 2 seasonal challenges and your completion status"
     )
     @default_user_option()
     async def challenges(
         self,
-        ctx: InteractionContext,
+        ctx: ElevatorInteractionContext,
         user: Member = None,
     ):
         member = user or ctx.author
@@ -71,8 +63,8 @@ class SeasonalChallenges(BaseScale):
         week: str,
         seasonal_challenges: list[SeasonalChallengesTopicsModel],
         select: list[ActionRow],
-        interaction_ctx: InteractionContext = None,
-        select_ctx: ComponentContext = None,
+        interaction_ctx: ElevatorInteractionContext = None,
+        select_ctx: ElevatorComponentContext = None,
         message: Message = None,
     ) -> None:
         """this is a recursive command. send the info to the user"""

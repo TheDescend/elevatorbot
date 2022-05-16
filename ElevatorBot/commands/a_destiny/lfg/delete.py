@@ -1,21 +1,22 @@
-from dis_snek import InteractionContext, slash_command
+from naff import slash_command
 
 from ElevatorBot.commandHelpers.optionTemplates import lfg_event_id
 from ElevatorBot.commandHelpers.subCommandTemplates import lfg_sub_command
-from ElevatorBot.commands.base import BaseScale
+from ElevatorBot.commands.base import BaseModule
 from ElevatorBot.core.destiny.lfg.lfgSystem import LfgMessage
+from ElevatorBot.discordEvents.base import ElevatorInteractionContext
 from ElevatorBot.misc.discordShortcutFunctions import has_admin_permission
 from ElevatorBot.misc.formatting import embed_message
 
 
-class LfgDelete(BaseScale):
+class LfgDelete(BaseModule):
     @slash_command(
         **lfg_sub_command,
         sub_cmd_name="delete",
         sub_cmd_description="When you fucked up and need to delete an event",
     )
     @lfg_event_id()
-    async def delete(self, ctx: InteractionContext, lfg_id: int):
+    async def delete(self, ctx: ElevatorInteractionContext, lfg_id: int):
         # get the message obj
         lfg_message = await LfgMessage.from_lfg_id(ctx=ctx, lfg_id=lfg_id, client=ctx.bot, guild=ctx.guild)
 

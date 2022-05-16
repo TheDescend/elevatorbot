@@ -1,9 +1,10 @@
 import dataclasses
 from typing import Optional
 
-from dis_snek import ActionRow, Embed, GuildChannel, InteractionContext, Message
+from naff import ActionRow, Embed, GuildChannel, Message
 
 from ElevatorBot.commandHelpers.responseTemplates import respond_wrong_author
+from ElevatorBot.discordEvents.base import ElevatorInteractionContext
 from ElevatorBot.misc.formatting import embed_message
 from ElevatorBot.networking.errors import BackendException
 from ElevatorBot.networking.misc.backendPersistentMessages import BackendPersistentMessages
@@ -24,7 +25,7 @@ class PersistentMessages(BackendPersistentMessages):
 
 
 async def handle_setup_command(
-    ctx: InteractionContext,
+    ctx: ElevatorInteractionContext,
     message_name: str,
     channel: GuildChannel,
     success_message: str = "None",

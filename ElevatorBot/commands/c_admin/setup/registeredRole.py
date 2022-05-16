@@ -1,14 +1,15 @@
-from dis_snek import InteractionContext, OptionTypes, Role, slash_command, slash_option
+from naff import OptionTypes, Role, slash_command, slash_option
 
 from ElevatorBot.commandHelpers.subCommandTemplates import setup_sub_command
-from ElevatorBot.commands.base import BaseScale
+from ElevatorBot.commands.base import BaseModule
 from ElevatorBot.core.misc.persistentMessages import PersistentMessages
+from ElevatorBot.discordEvents.base import ElevatorInteractionContext
 from ElevatorBot.misc.cache import registered_role_cache
 from ElevatorBot.misc.formatting import embed_message
 from ElevatorBot.networking.destiny.profile import DestinyProfile
 
 
-class RegisteredRole(BaseScale):
+class RegisteredRole(BaseModule):
 
     # todo perms
     @slash_command(
@@ -22,7 +23,7 @@ class RegisteredRole(BaseScale):
         required=True,
         opt_type=OptionTypes.ROLE,
     )
-    async def registered_role(self, ctx: InteractionContext, role: Role):
+    async def registered_role(self, ctx: ElevatorInteractionContext, role: Role):
         if ctx.author.id != 238388130581839872:
             await ctx.send(
                 "This is blocked for now, since it it waiting for a vital unreleased discord feature", ephemeral=True

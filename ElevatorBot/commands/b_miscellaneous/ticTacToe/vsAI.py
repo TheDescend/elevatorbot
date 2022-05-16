@@ -1,11 +1,12 @@
-from dis_snek import InteractionContext, OptionTypes, slash_command, slash_option
+from naff import OptionTypes, slash_command, slash_option
 
 from ElevatorBot.commandHelpers.subCommandTemplates import tictactoe_sub_command
-from ElevatorBot.commands.base import BaseScale
+from ElevatorBot.commands.base import BaseModule
 from ElevatorBot.core.misc.ticTacToe import TicTacToeGame
+from ElevatorBot.discordEvents.base import ElevatorInteractionContext
 
 
-class TicTacToeAI(BaseScale):
+class TicTacToeAI(BaseModule):
     @slash_command(
         **tictactoe_sub_command,
         sub_cmd_name="computer",
@@ -17,7 +18,7 @@ class TicTacToeAI(BaseScale):
         opt_type=OptionTypes.BOOLEAN,
         required=False,
     )
-    async def computer(self, ctx: InteractionContext, easy_mode: bool = False):
+    async def computer(self, ctx: ElevatorInteractionContext, easy_mode: bool = False):
         game = TicTacToeGame(ctx=ctx, easy_mode=easy_mode)
         await game.play_game()
 

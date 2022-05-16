@@ -1,21 +1,12 @@
-from dis_snek import (
-    ActionRow,
-    Button,
-    ButtonStyles,
-    ChannelTypes,
-    GuildChannel,
-    InteractionContext,
-    OptionTypes,
-    slash_command,
-    slash_option,
-)
+from naff import ActionRow, Button, ButtonStyles, ChannelTypes, GuildChannel, OptionTypes, slash_command, slash_option
 
 from ElevatorBot.commandHelpers.subCommandTemplates import setup_sub_command, setup_sub_command_clan_group
-from ElevatorBot.commands.base import BaseScale
+from ElevatorBot.commands.base import BaseModule
 from ElevatorBot.core.misc.persistentMessages import handle_setup_command
+from ElevatorBot.discordEvents.base import ElevatorInteractionContext
 
 
-class ClanJoin(BaseScale):
+class ClanJoin(BaseModule):
     """
     Designate a channel where players can join your Destiny 2 clan by pressing a button. They will receive an invite by the person which used `/setup clan link`
     """
@@ -40,7 +31,7 @@ class ClanJoin(BaseScale):
         required=False,
         opt_type=OptionTypes.STRING,
     )
-    async def join(self, ctx: InteractionContext, channel: GuildChannel, message_id: str = None):
+    async def join(self, ctx: ElevatorInteractionContext, channel: GuildChannel, message_id: str = None):
         if ctx.author.id != 238388130581839872:
             await ctx.send(
                 "This is blocked for now, since it it waiting for a vital unreleased discord feature", ephemeral=True

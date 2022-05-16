@@ -5,7 +5,7 @@ import textwrap
 
 import aiohttp
 import github
-from dis_snek import Message
+from naff import Message
 
 from ElevatorBot.misc.formatting import embed_message
 

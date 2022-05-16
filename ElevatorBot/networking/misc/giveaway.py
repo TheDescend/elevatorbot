@@ -1,6 +1,6 @@
 import dataclasses
 
-from dis_snek import Guild, Member
+from naff import Guild, Member
 
 from ElevatorBot.networking.http import BaseBackendConnection
 from ElevatorBot.networking.routes import giveaway_create, giveaway_get, giveaway_insert, giveaway_remove

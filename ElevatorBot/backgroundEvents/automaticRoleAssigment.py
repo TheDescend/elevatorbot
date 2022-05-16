@@ -1,6 +1,6 @@
 from ElevatorBot.backgroundEvents.base import BaseEvent
 from ElevatorBot.core.destiny.roles import Roles
-from ElevatorBot.discordEvents.base import ElevatorSnake
+from ElevatorBot.discordEvents.base import ElevatorClient
 from ElevatorBot.networking.destiny.profile import DestinyProfile
 
 
@@ -18,7 +18,7 @@ class AutomaticRoleAssignment(BaseEvent):
             dow_minute=dow_minute,
         )
 
-    async def run(self, client: ElevatorSnake):
+    async def run(self, client: ElevatorClient):
         # loop through all guilds members
         for guild in client.guilds:
             for member in guild.humans:

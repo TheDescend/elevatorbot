@@ -1,8 +1,8 @@
 import asyncio
 
-from dis_snek import ActionRow, Button, ButtonStyles, Member
-from dis_snek.api.events import Component, MemberAdd, MemberRemove, MemberUpdate
-from dis_snek.client.errors import Forbidden
+from naff import ActionRow, Button, ButtonStyles, Member
+from naff.api.events import Component, MemberAdd, MemberRemove, MemberUpdate
+from naff.client.errors import Forbidden
 
 from ElevatorBot.core.destiny.lfg.lfgSystem import LfgMessage
 from ElevatorBot.core.destiny.roles import Roles

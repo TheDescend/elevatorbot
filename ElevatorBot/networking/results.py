@@ -1,8 +1,9 @@
 import dataclasses
 from typing import Optional
 
-from dis_snek import Embed, InteractionContext
+from naff import Embed
 
+from ElevatorBot.discordEvents.base import ElevatorInteractionContext
 from ElevatorBot.misc.formatting import embed_message
 from ElevatorBot.networking.errorCodesAndResponses import error_codes_and_responses
 
@@ -49,7 +50,7 @@ class BackendResult:
 
     async def send_error_message(
         self,
-        ctx: InteractionContext,
+        ctx: ElevatorInteractionContext,
         hidden: bool = False,
         **format_kwargs,
     ):

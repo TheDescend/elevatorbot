@@ -1,15 +1,16 @@
-from dis_snek import InteractionContext, slash_command
+from naff import slash_command
 
 from ElevatorBot.commandHelpers import autocomplete
 from ElevatorBot.commandHelpers.optionTemplates import autocomplete_lore_option
-from ElevatorBot.commands.base import BaseScale
+from ElevatorBot.commands.base import BaseModule
+from ElevatorBot.discordEvents.base import ElevatorInteractionContext
 from ElevatorBot.misc.formatting import embed_message
 
 
-class DestinyLore(BaseScale):
+class DestinyLore(BaseModule):
     @slash_command(name="lore", description="Shows you Destiny 2 lore")
     @autocomplete_lore_option()
-    async def lore(self, ctx: InteractionContext, name: str):
+    async def lore(self, ctx: ElevatorInteractionContext, name: str):
         # get the lore item
         lore_item = autocomplete.lore[name.lower()]
 

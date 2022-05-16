@@ -2,19 +2,21 @@ import asyncio
 from copy import copy
 from typing import Any, Callable, Coroutine, Optional
 
-from dis_snek import ActionRow, Button, ButtonStyles, ComponentContext, Embed, InteractionContext, Member, Message
-from dis_snek.api.events import Component
+from naff import ActionRow, Button, ButtonStyles, Embed, Member, Message
+from naff.api.events import Component
+
+from ElevatorBot.discordEvents.base import ElevatorComponentContext, ElevatorInteractionContext
 
 
 async def paginate(
-    ctx: InteractionContext,
+    ctx: ElevatorInteractionContext,
     member: Member,
     embed: Embed,
     current_category: str,
     categories: list[str],
     callback: Callable[..., Coroutine],
     callback_data: Any,
-    button_ctx: Optional[ComponentContext] = None,
+    button_ctx: Optional[ElevatorComponentContext] = None,
     message: Optional[Message] = None,
 ):
     """Paginate the command by key"""

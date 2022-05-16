@@ -2,9 +2,10 @@ import dataclasses
 from typing import Optional
 
 from anyio import create_task_group
-from dis_snek import InteractionContext, Member, TimestampStyles
+from naff import Member, TimestampStyles
 
 from ElevatorBot.commandHelpers import autocomplete
+from ElevatorBot.discordEvents.base import ElevatorInteractionContext
 from ElevatorBot.misc.formatting import embed_message, format_timedelta, get_emoji_from_rank
 from ElevatorBot.misc.helperFunctions import get_emoji_by_name
 from ElevatorBot.networking.destiny.account import DestinyAccount
@@ -46,7 +47,7 @@ class RankCommandHandler:
 
     async def handle(
         self,
-        ctx: InteractionContext,
+        ctx: ElevatorInteractionContext,
         discord_leaderboards: Optional[str] = None,
         basic_leaderboards: Optional[str] = None,
         endgame_leaderboards: Optional[str] = None,
@@ -223,7 +224,7 @@ class RankCommandHandler:
     @staticmethod
     async def _handle_member(
         results: list[RankResult],
-        ctx: InteractionContext,
+        ctx: ElevatorInteractionContext,
         discord_member: Member,
         leaderboard_name: str,
         activity: Optional[DestinyActivityModel] = None,

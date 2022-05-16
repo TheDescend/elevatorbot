@@ -1,4 +1,4 @@
-from dis_snek.api.events import (
+from naff.api.events import (
     ChannelCreate,
     ChannelDelete,
     ChannelUpdate,

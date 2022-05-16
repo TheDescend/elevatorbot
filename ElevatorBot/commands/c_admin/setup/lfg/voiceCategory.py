@@ -1,11 +1,12 @@
-from dis_snek import ChannelTypes, GuildChannel, InteractionContext, OptionTypes, slash_command, slash_option
+from naff import ChannelTypes, GuildChannel, OptionTypes, slash_command, slash_option
 
 from ElevatorBot.commandHelpers.subCommandTemplates import setup_sub_command, setup_sub_command_lfg_group
-from ElevatorBot.commands.base import BaseScale
+from ElevatorBot.commands.base import BaseModule
 from ElevatorBot.core.misc.persistentMessages import handle_setup_command
+from ElevatorBot.discordEvents.base import ElevatorInteractionContext
 
 
-class LfgVoiceCategory(BaseScale):
+class LfgVoiceCategory(BaseModule):
     """
     Designate a category channel under which my LFG voice channels get created. If you want me to automatically create voice channels for each LFG event, use this to set it up
     """
@@ -24,7 +25,7 @@ class LfgVoiceCategory(BaseScale):
         opt_type=OptionTypes.CHANNEL,
         channel_types=[ChannelTypes.GUILD_CATEGORY],
     )
-    async def voice_category(self, ctx: InteractionContext, channel: GuildChannel):
+    async def voice_category(self, ctx: ElevatorInteractionContext, channel: GuildChannel):
         if ctx.author.id != 238388130581839872:
             await ctx.send(
                 "This is blocked for now, since it it waiting for a vital unreleased discord feature", ephemeral=True

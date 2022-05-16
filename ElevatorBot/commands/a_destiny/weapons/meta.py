@@ -2,7 +2,7 @@ import datetime
 from typing import Optional
 
 from anyio import create_task_group, to_thread
-from dis_snek import Embed, Guild, InteractionContext, Timestamp, TimestampStyles, slash_command
+from naff import Embed, Guild, Timestamp, TimestampStyles, slash_command
 
 from ElevatorBot.commandHelpers import autocomplete
 from ElevatorBot.commandHelpers.optionTemplates import (
@@ -15,7 +15,8 @@ from ElevatorBot.commandHelpers.optionTemplates import (
     default_time_option,
     default_weapon_type_option,
 )
-from ElevatorBot.commands.base import BaseScale
+from ElevatorBot.commands.base import BaseModule
+from ElevatorBot.discordEvents.base import ElevatorInteractionContext
 from ElevatorBot.misc.formatting import capitalize_string, embed_message
 from ElevatorBot.misc.helperFunctions import parse_datetime_options
 from ElevatorBot.networking.destiny.clan import DestinyClan
@@ -32,7 +33,7 @@ from Shared.networkingSchemas.destiny import (
 from Shared.networkingSchemas.destiny.clan import DestinyClanModel
 
 
-class WeaponsMeta(BaseScale):
+class WeaponsMeta(BaseModule):
     @slash_command(
         name="weapons_meta",
         description="Displays the most used Destiny 2 weapons by clan members from the linked clan",
@@ -54,7 +55,7 @@ class WeaponsMeta(BaseScale):
     )
     async def meta(
         self,
-        ctx: InteractionContext,
+        ctx: ElevatorInteractionContext,
         mode: str = None,
         activity: str = None,
         destiny_class: str = None,
@@ -123,7 +124,7 @@ class WeaponsMeta(BaseScale):
 
     @staticmethod
     async def handle_clan_member(
-        ctx: InteractionContext,
+        ctx: ElevatorInteractionContext,
         results: list,
         stat: DestinyTopWeaponsStatInputModelEnum,
         discord_id: int,

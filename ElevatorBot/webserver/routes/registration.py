@@ -1,5 +1,5 @@
 from aiohttp import web
-from dis_snek import User
+from naff import User
 
 from ElevatorBot.misc.cache import registered_role_cache
 from ElevatorBot.misc.formatting import embed_message

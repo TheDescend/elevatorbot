@@ -1,19 +1,20 @@
-from dis_snek import InteractionContext, Timestamp, TimestampStyles, slash_command
+from naff import Timestamp, TimestampStyles, slash_command
 
 from ElevatorBot.commandHelpers.subCommandTemplates import lfg_sub_command
-from ElevatorBot.commands.base import BaseScale
+from ElevatorBot.commands.base import BaseModule
+from ElevatorBot.discordEvents.base import ElevatorInteractionContext
 from ElevatorBot.misc.formatting import embed_message
 from ElevatorBot.networking.destiny.lfgSystem import DestinyLfgSystem
 from Shared.networkingSchemas import LfgOutputModel
 
 
-class LfgJoined(BaseScale):
+class LfgJoined(BaseModule):
     @slash_command(
         **lfg_sub_command,
         sub_cmd_name="joined",
         sub_cmd_description="Shows you an overview of all LFG events you have joined",
     )
-    async def joined(self, ctx: InteractionContext):
+    async def joined(self, ctx: ElevatorInteractionContext):
         # get all the lfg events the user joined
         backend = DestinyLfgSystem(ctx=ctx, discord_guild=ctx.guild)
         result = await backend.user_get_all(discord_member=ctx.author)

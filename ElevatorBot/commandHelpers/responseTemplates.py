@@ -1,12 +1,13 @@
 from typing import Optional
 
-from dis_snek import ComponentContext, InteractionContext, Member, Message, ModalContext, SnakeBotUser
+from naff import Member, Message, ModalContext, NaffUser
 
+from ElevatorBot.discordEvents.base import ElevatorComponentContext, ElevatorInteractionContext
 from ElevatorBot.misc.formatting import embed_message
 from ElevatorBot.networking.errorCodesAndResponses import error_codes_and_responses
 
 
-async def something_went_wrong(ctx: InteractionContext, hidden: bool = False) -> bool:
+async def something_went_wrong(ctx: ElevatorInteractionContext, hidden: bool = False) -> bool:
     """Respond to the given context"""
 
     if not ctx.responded:
@@ -21,7 +22,9 @@ async def something_went_wrong(ctx: InteractionContext, hidden: bool = False) ->
     return False
 
 
-async def respond_discord_member_unknown(ctx: InteractionContext, discord_member: Member, hidden: bool = False) -> bool:
+async def respond_discord_member_unknown(
+    ctx: ElevatorInteractionContext, discord_member: Member, hidden: bool = False
+) -> bool:
     """Respond to the given context"""
 
     if not ctx.responded:
@@ -36,7 +39,7 @@ async def respond_discord_member_unknown(ctx: InteractionContext, discord_member
     return False
 
 
-async def respond_destiny_id_unknown(ctx: InteractionContext, destiny_id: int, hidden: bool = False) -> bool:
+async def respond_destiny_id_unknown(ctx: ElevatorInteractionContext, destiny_id: int, hidden: bool = False) -> bool:
     """Respond to the given context"""
 
     if not ctx.responded:
@@ -51,7 +54,7 @@ async def respond_destiny_id_unknown(ctx: InteractionContext, destiny_id: int, h
     return False
 
 
-async def respond_invalid_time_input(ctx: InteractionContext, hidden: bool = True) -> bool:
+async def respond_invalid_time_input(ctx: ElevatorInteractionContext, hidden: bool = True) -> bool:
     """Respond to the given context"""
 
     if not ctx.responded:
@@ -65,7 +68,7 @@ async def respond_invalid_time_input(ctx: InteractionContext, hidden: bool = Tru
     return False
 
 
-async def respond_time_input_in_past(ctx: InteractionContext, hidden: bool = True) -> bool:
+async def respond_time_input_in_past(ctx: ElevatorInteractionContext, hidden: bool = True) -> bool:
     """Respond to the given context"""
 
     if not ctx.responded:
@@ -77,7 +80,9 @@ async def respond_time_input_in_past(ctx: InteractionContext, hidden: bool = Tru
     return False
 
 
-async def respond_timeout(message: Optional[Message] = None, ctx: Optional[InteractionContext | ModalContext] = None):
+async def respond_timeout(
+    message: Optional[Message] = None, ctx: Optional[ElevatorInteractionContext | ModalContext] = None
+):
     """Respond to the given context"""
 
     embed = embed_message(
@@ -91,7 +96,7 @@ async def respond_timeout(message: Optional[Message] = None, ctx: Optional[Inter
 
 
 async def respond_wrong_channel_type(
-    ctx: InteractionContext, channel_must_be: str = "text", hidden: bool = True
+    ctx: ElevatorInteractionContext, channel_must_be: str = "text", hidden: bool = True
 ) -> bool:
     """Respond to the given context"""
 
@@ -108,7 +113,7 @@ async def respond_wrong_channel_type(
 
 
 async def respond_wrong_author(
-    ctx: InteractionContext, author_must_be: Member | SnakeBotUser, hidden: bool = True
+    ctx: ElevatorInteractionContext, author_must_be: Member | NaffUser, hidden: bool = True
 ) -> bool:
     """Respond to the given context"""
 
@@ -124,7 +129,7 @@ async def respond_wrong_author(
     return False
 
 
-async def respond_pending(ctx: InteractionContext | ComponentContext) -> bool:
+async def respond_pending(ctx: ElevatorInteractionContext | ElevatorComponentContext) -> bool:
     """Respond to the given context"""
 
     if not ctx.responded:

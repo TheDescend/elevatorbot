@@ -1,7 +1,7 @@
 import dataclasses
 from typing import Optional
 
-from dis_snek import Guild, Role
+from naff import Guild, Role
 
 from ElevatorBot.misc.cache import registered_role_cache
 from ElevatorBot.networking.http import BaseBackendConnection

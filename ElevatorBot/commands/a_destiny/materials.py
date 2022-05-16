@@ -1,18 +1,19 @@
-from dis_snek import InteractionContext, Member, slash_command
+from naff import Member, slash_command
 
 from ElevatorBot.commandHelpers import autocomplete
 from ElevatorBot.commandHelpers.optionTemplates import autocomplete_lore_option, default_user_option
-from ElevatorBot.commands.base import BaseScale
+from ElevatorBot.commands.base import BaseModule
+from ElevatorBot.discordEvents.base import ElevatorInteractionContext
 from ElevatorBot.misc.formatting import add_filler_field, embed_message
 from ElevatorBot.networking.destiny.account import DestinyAccount
 from ElevatorBot.static.emojis import custom_emojis
 from Shared.networkingSchemas import DestinyNamedValueItemModel
 
 
-class DestinyMaterials(BaseScale):
+class DestinyMaterials(BaseModule):
     @slash_command(name="materials", description="Shows your number of Destiny 2 materials")
     @default_user_option()
-    async def materials(self, ctx: InteractionContext, user: Member = None):
+    async def materials(self, ctx: ElevatorInteractionContext, user: Member = None):
         member = user or ctx.author
 
         backend_account = DestinyAccount(ctx=ctx, discord_member=member, discord_guild=ctx.guild)

@@ -1,7 +1,7 @@
 import datetime
 from typing import Any, Optional
 
-from dis_snek import Colour, Embed, Guild, Member, User
+from naff import Colour, Embed, Guild, Member, User
 
 from ElevatorBot.static.emojis import custom_emojis
 

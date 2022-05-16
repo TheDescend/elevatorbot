@@ -6,11 +6,12 @@ from enum import Enum, EnumMeta
 from typing import Generator, Optional
 
 from dateutil.parser import ParserError, parse
-from dis_snek import ComponentContext, Context, InteractionContext
-from dis_snek.client.errors import HTTPException
-from dis_snek.models.snek.checks import TYPE_CHECK_FUNCTION
+from naff import Context
+from naff.client.errors import HTTPException
+from naff.models.naff.checks import TYPE_CHECK_FUNCTION
 
 from ElevatorBot.commandHelpers.responseTemplates import respond_invalid_time_input, respond_time_input_in_past
+from ElevatorBot.discordEvents.base import ElevatorComponentContext, ElevatorInteractionContext
 from ElevatorBot.misc.formatting import embed_message
 from ElevatorBot.networking.destiny.account import DestinyAccount
 from ElevatorBot.static.emojis import custom_emojis
@@ -19,7 +20,7 @@ from Shared.functions.readSettingsFile import get_setting
 
 
 async def parse_string_datetime(
-    ctx: InteractionContext, time: str, timezone: str = "UTC", can_start_in_past: bool = True
+    ctx: ElevatorInteractionContext, time: str, timezone: str = "UTC", can_start_in_past: bool = True
 ) -> Optional[datetime.datetime]:
     """Parse an input time and return it, or None if that fails"""
 
@@ -45,7 +46,7 @@ async def parse_string_datetime(
 
 
 async def parse_datetime_options(
-    ctx: InteractionContext,
+    ctx: ElevatorInteractionContext,
     expansion: Optional[str] = None,
     season: Optional[str] = None,
     start_time: Optional[str] = None,
@@ -108,7 +109,7 @@ async def parse_datetime_options(
 
 
 def parse_naff_errors(error: Exception) -> Optional[str]:
-    """Parses dis-snek error messages and logs that"""
+    """Parses naff error messages and logs that"""
 
     if isinstance(error, HTTPException):
         if error.errors:
@@ -123,12 +124,12 @@ def parse_naff_errors(error: Exception) -> Optional[str]:
 
 
 async def log_error(
-    ctx: Optional[InteractionContext | ComponentContext], error: Exception, logger: logging.Logger
+    ctx: Optional[ElevatorInteractionContext | ElevatorComponentContext], error: Exception, logger: logging.Logger
 ) -> None:
     """Respond to the context and log error"""
 
     # get the command name or the component name
-    if isinstance(ctx, ComponentContext):
+    if isinstance(ctx, ElevatorComponentContext):
         extra = f"CustomID `{ctx.custom_id}`"
     else:
         extra = f"CommandName `/{ctx.invoked_name}`"

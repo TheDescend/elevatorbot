@@ -1,6 +1,6 @@
 import asyncio
 
-from dis_snek import InteractionContext, Modal, OptionTypes, ParagraphText, slash_command, slash_option
+from naff import Modal, OptionTypes, ParagraphText, slash_command, slash_option
 
 from ElevatorBot.commandHelpers import autocomplete
 from ElevatorBot.commandHelpers.optionTemplates import (
@@ -11,14 +11,15 @@ from ElevatorBot.commandHelpers.optionTemplates import (
 )
 from ElevatorBot.commandHelpers.responseTemplates import respond_timeout
 from ElevatorBot.commandHelpers.subCommandTemplates import lfg_sub_command
-from ElevatorBot.commands.base import BaseScale
+from ElevatorBot.commands.base import BaseModule
 from ElevatorBot.core.destiny.lfg.lfgSystem import LfgMessage
+from ElevatorBot.discordEvents.base import ElevatorInteractionContext
 from ElevatorBot.misc.discordShortcutFunctions import has_admin_permission
 from ElevatorBot.misc.formatting import embed_message
 from ElevatorBot.misc.helperFunctions import parse_string_datetime
 
 
-class LfgEdit(BaseScale):
+class LfgEdit(BaseModule):
     @slash_command(
         **lfg_sub_command,
         sub_cmd_name="edit",
@@ -51,7 +52,7 @@ class LfgEdit(BaseScale):
     )
     async def edit(
         self,
-        ctx: InteractionContext,
+        ctx: ElevatorInteractionContext,
         lfg_id: int,
         activity: str = None,
         start_time: str = None,

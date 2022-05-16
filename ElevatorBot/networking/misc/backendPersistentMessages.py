@@ -1,7 +1,7 @@
 import dataclasses
 from typing import Optional
 
-from dis_snek import Guild, Member
+from naff import Guild, Member
 
 from ElevatorBot.networking.errors import BackendException
 from ElevatorBot.networking.http import BaseBackendConnection

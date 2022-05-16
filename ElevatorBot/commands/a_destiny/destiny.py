@@ -1,16 +1,17 @@
-from dis_snek import InteractionContext, Member, slash_command
+from naff import Member, slash_command
 
 from ElevatorBot.commandHelpers.optionTemplates import default_user_option
-from ElevatorBot.commands.base import BaseScale
+from ElevatorBot.commands.base import BaseModule
+from ElevatorBot.discordEvents.base import ElevatorInteractionContext
 from ElevatorBot.misc.formatting import embed_message, format_timedelta
 from ElevatorBot.networking.destiny.account import DestinyAccount
 from ElevatorBot.networking.destiny.profile import DestinyProfile
 
 
-class Destiny(BaseScale):
+class Destiny(BaseModule):
     @slash_command(name="destiny", description="Gives you an overview of your Destiny 2 stats")
     @default_user_option()
-    async def destiny(self, ctx: InteractionContext, user: Member = None):
+    async def destiny(self, ctx: ElevatorInteractionContext, user: Member = None):
         member = user or ctx.author
 
         # get destiny info

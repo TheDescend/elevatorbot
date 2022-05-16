@@ -1,17 +1,18 @@
-from dis_snek import CommandTypes, InteractionContext, context_menu
+from naff import CommandTypes, context_menu
 
-from ElevatorBot.commands.base import BaseScale
+from ElevatorBot.commands.base import BaseModule
 from ElevatorBot.core.misc.timestamps import get_timestamp_embed
+from ElevatorBot.discordEvents.base import ElevatorInteractionContext
 from ElevatorBot.misc.formatting import embed_message
 
 
-class TimestampsCommands(BaseScale):
+class TimestampsCommands(BaseModule):
     """
     Format all (relative) dates and times in the message
     """
 
     @context_menu(name="Get Timestamps", context_type=CommandTypes.MESSAGE)
-    async def get_timestamp(self, ctx: InteractionContext):
+    async def get_timestamp(self, ctx: ElevatorInteractionContext):
         # parse datetimes
         if embed := await get_timestamp_embed(search_string=ctx.target.content.upper()):
             await ctx.send(embeds=embed)

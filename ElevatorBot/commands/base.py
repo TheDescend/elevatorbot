@@ -1,29 +1,25 @@
-from typing import TYPE_CHECKING
-
-from dis_snek import InteractionContext, Scale, Snake
+from naff import Cog
 
 from ElevatorBot.commandHelpers.responseTemplates import respond_pending
+from ElevatorBot.discordEvents.base import ElevatorClient, ElevatorInteractionContext
 from ElevatorBot.misc.cache import registered_role_cache
 from ElevatorBot.misc.formatting import embed_message
 from ElevatorBot.networking.destiny.profile import DestinyProfile
 from ElevatorBot.networking.errors import BackendException
 
-if TYPE_CHECKING:
-    from ElevatorBot.elevator import Elevator
 
+class RegisteredModule(Cog):
+    """Add checks to every module"""
 
-class RegisteredScale(Scale):
-    """Add checks to every scale"""
+    bot: ElevatorClient
 
-    bot: "Elevator"
-
-    def __init__(self, client: "Elevator"):
+    def __init__(self, client: ElevatorClient):
         self.client = client
-        self.add_scale_check(self.no_dm_check)
-        self.add_scale_check(self.no_pending_check)
+        self.add_cog_check(self.no_dm_check)
+        self.add_cog_check(self.no_pending_check)
 
     @staticmethod
-    async def no_dm_check(ctx: InteractionContext) -> bool:
+    async def no_dm_check(ctx: ElevatorInteractionContext) -> bool:
         """
         Default command that is run before the command is handled
         Checks that the command is not invoked in dms
@@ -40,7 +36,7 @@ class RegisteredScale(Scale):
         return True
 
     @staticmethod
-    async def no_pending_check(ctx: InteractionContext) -> bool:
+    async def no_pending_check(ctx: ElevatorInteractionContext) -> bool:
         """
         Default command that is run before the command is handled
         Checks that the command is not invoked by pending members
@@ -52,15 +48,15 @@ class RegisteredScale(Scale):
         return True
 
 
-class BaseScale(RegisteredScale):
-    """Add a registered check to every scale"""
+class BaseModule(RegisteredModule):
+    """Add a registered check to every module"""
 
-    def __init__(self, client: Snake):
-        self.add_scale_check(self.registered_check)
+    def __init__(self, client: ElevatorClient):
+        self.add_cog_check(self.registered_check)
         super().__init__(client)
 
     @staticmethod
-    async def registered_check(ctx: InteractionContext) -> bool:
+    async def registered_check(ctx: ElevatorInteractionContext) -> bool:
         """
         Default command that is run before the command is handled
         Checks if the command invoker is registered

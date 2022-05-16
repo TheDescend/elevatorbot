@@ -1,12 +1,12 @@
 import asyncio
 
 from anyio import to_thread
-from dis_snek import (
+from github.GithubObject import NotSet
+from naff import (
     ActionRow,
     Attachment,
     Button,
     ButtonStyles,
-    InteractionContext,
     Modal,
     OptionTypes,
     ParagraphText,
@@ -14,10 +14,10 @@ from dis_snek import (
     slash_command,
     slash_option,
 )
-from github.GithubObject import NotSet
 
 from ElevatorBot.commandHelpers.responseTemplates import respond_timeout
-from ElevatorBot.commands.base import BaseScale
+from ElevatorBot.commands.base import BaseModule
+from ElevatorBot.discordEvents.base import ElevatorInteractionContext
 from ElevatorBot.misc.formatting import embed_message
 from ElevatorBot.networking.github import get_github_labels, get_github_repo
 from ElevatorBot.static.descendOnlyIds import descend_channels
@@ -28,7 +28,7 @@ from Shared.functions.readSettingsFile import get_setting
 # =============
 
 
-class Bug(BaseScale):
+class Bug(BaseModule):
     @slash_command(
         name="bug",
         description="Use this if you want to report any bugs to the developer",
@@ -40,7 +40,7 @@ class Bug(BaseScale):
         opt_type=OptionTypes.ATTACHMENT,
         required=False,
     )
-    async def bug(self, ctx: InteractionContext, image: Attachment = None):
+    async def bug(self, ctx: ElevatorInteractionContext, image: Attachment = None):
         affected_text = "What command / part of me is affected"
         description_text = "Please describe the bug in detail"
         wanted_text = "What did you want to happen"

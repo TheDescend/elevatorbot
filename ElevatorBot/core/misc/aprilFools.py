@@ -3,8 +3,8 @@ import os
 
 import aiohttp
 import gtts
-from dis_snek import ActiveVoiceState, Message
-from dis_snek.api.voice.audio import AudioVolume
+from naff import ActiveVoiceState, Message
+from naff.api.voice.audio import AudioVolume
 
 
 async def play_joke(bot_voice_state: ActiveVoiceState, message: Message | None = None):

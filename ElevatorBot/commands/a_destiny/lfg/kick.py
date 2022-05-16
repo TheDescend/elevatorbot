@@ -1,14 +1,15 @@
-from dis_snek import InteractionContext, Member, slash_command
+from naff import Member, slash_command
 
 from ElevatorBot.commandHelpers.optionTemplates import default_user_option, lfg_event_id
 from ElevatorBot.commandHelpers.subCommandTemplates import lfg_sub_command
-from ElevatorBot.commands.base import BaseScale
+from ElevatorBot.commands.base import BaseModule
 from ElevatorBot.core.destiny.lfg.lfgSystem import LfgMessage
+from ElevatorBot.discordEvents.base import ElevatorInteractionContext
 from ElevatorBot.misc.discordShortcutFunctions import has_admin_permission
 from ElevatorBot.misc.formatting import embed_message
 
 
-class LfgKick(BaseScale):
+class LfgKick(BaseModule):
     @slash_command(
         **lfg_sub_command,
         sub_cmd_name="kick",
@@ -16,7 +17,7 @@ class LfgKick(BaseScale):
     )
     @lfg_event_id()
     @default_user_option(description="The user you want to kick", required=True)
-    async def kick(self, ctx: InteractionContext, lfg_id: int, user: Member):
+    async def kick(self, ctx: ElevatorInteractionContext, lfg_id: int, user: Member):
         # get the message obj
         lfg_message = await LfgMessage.from_lfg_id(ctx=ctx, lfg_id=lfg_id, client=ctx.bot, guild=ctx.guild)
 

@@ -1,12 +1,13 @@
-from dis_snek import InteractionContext, slash_command
+from naff import slash_command
 
 from ElevatorBot.commandHelpers.subCommandTemplates import setup_sub_command, setup_sub_command_clan_group
-from ElevatorBot.commands.base import BaseScale
+from ElevatorBot.commands.base import BaseModule
+from ElevatorBot.discordEvents.base import ElevatorInteractionContext
 from ElevatorBot.misc.formatting import embed_message
 from ElevatorBot.networking.destiny.clan import DestinyClan
 
 
-class ClanUnlink(BaseScale):
+class ClanUnlink(BaseModule):
     """
     Unlinks the current Destiny 2 clan and the discord server this was executed in
     """
@@ -18,7 +19,7 @@ class ClanUnlink(BaseScale):
         sub_cmd_name="unlink",
         sub_cmd_description="Unlink the current Destiny 2 clan with this server",
     )
-    async def unlink(self, ctx: InteractionContext):
+    async def unlink(self, ctx: ElevatorInteractionContext):
         if ctx.author.id != 238388130581839872:
             await ctx.send(
                 "This is blocked for now, since it it waiting for a vital unreleased discord feature", ephemeral=True

@@ -2,7 +2,7 @@ import random
 
 from ElevatorBot.backgroundEvents.base import BaseEvent
 from ElevatorBot.core.misc.aprilFools import play_joke
-from ElevatorBot.discordEvents.base import ElevatorSnake
+from ElevatorBot.discordEvents.base import ElevatorClient
 from ElevatorBot.static.descendOnlyIds import descend_channels
 from Shared.functions.helperFunctions import get_now_with_tz
 
@@ -12,7 +12,7 @@ class AprilFoolsJokes(BaseEvent):
         interval_minutes = 30
         super().__init__(scheduler_type="interval", interval_minutes=interval_minutes)
 
-    async def run(self, client: ElevatorSnake):
+    async def run(self, client: ElevatorClient):
         # check if today is april first
         today = get_now_with_tz()
         if today.day != 1 or today.month != 4:

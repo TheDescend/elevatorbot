@@ -2,7 +2,7 @@ import json
 from copy import copy
 from typing import Optional
 
-from dis_snek import CommandTypes, ContextMenu, SlashCommand, SlashCommandOption
+from naff import CommandTypes, ContextMenu, SlashCommand, SlashCommandOption
 
 from ElevatorBot.misc.formatting import capitalize_string
 from Shared.functions.readSettingsFile import get_setting
@@ -40,7 +40,7 @@ def create_command_docs(client):
                 continue
 
             # get the docstring
-            docstring = data.scale.__doc__
+            docstring = data.cog.__doc__
             options = copy(data.options) if hasattr(data, "options") and data.options else []
             # todo
             permissions = copy(data.permissions)
@@ -68,7 +68,7 @@ def create_command_docs(client):
 
                 case SlashCommand():
                     # get the topic. The folder names are starting with numbers to define the order for this
-                    topic = f"""{capitalize_string(data.scale.extension_name.split(".")[2][2:])} Commands"""
+                    topic = f"""{capitalize_string(data.cog.extension_name.split(".")[2][2:])} Commands"""
 
                     # get the actual description
                     actual_description = data.sub_cmd_description if data.sub_cmd_name else data.description

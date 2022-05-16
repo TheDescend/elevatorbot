@@ -1,6 +1,6 @@
 import dataclasses
 
-from dis_snek import Member
+from naff import Member
 
 from ElevatorBot.networking.http import BaseBackendConnection
 from ElevatorBot.networking.routes import steam_player_get_route

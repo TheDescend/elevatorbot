@@ -1,15 +1,16 @@
 from anyio import create_task_group
-from dis_snek import InteractionContext, OptionTypes, SlashCommandChoice, slash_command, slash_option
+from naff import OptionTypes, SlashCommandChoice, slash_command, slash_option
 
 from ElevatorBot.commandHelpers.subCommandTemplates import day1completions_sub_command
-from ElevatorBot.commands.base import BaseScale
+from ElevatorBot.commands.base import BaseModule
+from ElevatorBot.discordEvents.base import ElevatorInteractionContext
 from ElevatorBot.misc.formatting import embed_message
 from ElevatorBot.networking.destiny.account import DestinyAccount
 from ElevatorBot.networking.errors import BackendException
 from ElevatorBot.static.destinyActivities import raid_to_emblem_hash
 
 
-class DayOneRaid(BaseScale):
+class DayOneRaid(BaseModule):
     @slash_command(
         **day1completions_sub_command,
         sub_cmd_name="raid",
@@ -22,7 +23,7 @@ class DayOneRaid(BaseScale):
         opt_type=OptionTypes.STRING,
         choices=[SlashCommandChoice(name=raid, value=raid) for raid in raid_to_emblem_hash],
     )
-    async def raid(self, ctx: InteractionContext, raid: str):
+    async def raid(self, ctx: ElevatorInteractionContext, raid: str):
         async def check_member(player: DestinyAccount):
             # check the members separately to make this faster
             if player:

@@ -1,19 +1,9 @@
 import dataclasses
 from typing import Optional
 
-from dis_snek import (
-    ActionRow,
-    ComponentContext,
-    Embed,
-    Guild,
-    GuildText,
-    InteractionContext,
-    Member,
-    Message,
-    Select,
-    SelectOption,
-)
+from naff import ActionRow, Embed, Guild, GuildText, Member, Message, Select, SelectOption
 
+from ElevatorBot.discordEvents.base import ElevatorComponentContext, ElevatorInteractionContext
 from ElevatorBot.misc.discordShortcutFunctions import has_admin_permission
 from ElevatorBot.misc.formatting import embed_message, replace_progress_formatting
 from ElevatorBot.networking.errors import BackendException
@@ -102,7 +92,7 @@ class Poll:
         )
 
     @classmethod
-    async def from_poll_id(cls, poll_id: int, ctx: InteractionContext):
+    async def from_poll_id(cls, poll_id: int, ctx: ElevatorInteractionContext):
         """Create the obj from the poll id"""
 
         backend = BackendPolls(ctx=ctx, discord_member=ctx.author, guild=ctx.guild)
@@ -111,7 +101,7 @@ class Poll:
 
         return await Poll.from_pydantic_model(client=ctx.bot, data=result)
 
-    async def add_new_option(self, ctx: InteractionContext, option: str):
+    async def add_new_option(self, ctx: ElevatorInteractionContext, option: str):
         """Add an option"""
 
         if not await self._check_permission(ctx=ctx):
@@ -128,7 +118,7 @@ class Poll:
 
         await self.send(ctx=ctx)
 
-    async def remove_option(self, ctx: InteractionContext, option: str):
+    async def remove_option(self, ctx: ElevatorInteractionContext, option: str):
         """Delete an option"""
 
         if not await self._check_permission(ctx=ctx):
@@ -152,7 +142,7 @@ class Poll:
 
         await new_poll.send(ctx=ctx)
 
-    async def delete(self, ctx: InteractionContext):
+    async def delete(self, ctx: ElevatorInteractionContext):
         """Delete the poll"""
 
         if not await self._check_permission(ctx=ctx):
@@ -166,7 +156,7 @@ class Poll:
             embeds=embed_message("Success", "The poll has been deleted"),
         )
 
-    async def _check_permission(self, ctx: InteractionContext) -> bool:
+    async def _check_permission(self, ctx: ElevatorInteractionContext) -> bool:
         """Checks permissions from the author"""
 
         # test that the guild is correct
@@ -181,7 +171,9 @@ class Poll:
 
         return True
 
-    async def send(self, ctx: Optional[InteractionContext | ComponentContext] = None, user_input: bool = False):
+    async def send(
+        self, ctx: Optional[ElevatorInteractionContext | ElevatorComponentContext] = None, user_input: bool = False
+    ):
         """Send the poll message"""
 
         if not self.id:
@@ -214,7 +206,7 @@ class Poll:
                 embeds=embed_message("Success", f"Check your poll [here]({self.message.jump_url})"),
             )
 
-    async def disable(self, ctx: InteractionContext):
+    async def disable(self, ctx: ElevatorInteractionContext):
         """Disable the poll and delete it from the DB"""
 
         if not await self._check_permission(ctx=ctx):

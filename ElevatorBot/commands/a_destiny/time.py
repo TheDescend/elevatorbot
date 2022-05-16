@@ -1,4 +1,4 @@
-from dis_snek import InteractionContext, Member, slash_command
+from naff import Member, slash_command
 
 from ElevatorBot.commandHelpers import autocomplete
 from ElevatorBot.commandHelpers.optionTemplates import (
@@ -7,7 +7,8 @@ from ElevatorBot.commandHelpers.optionTemplates import (
     default_mode_option,
     default_user_option,
 )
-from ElevatorBot.commands.base import BaseScale
+from ElevatorBot.commands.base import BaseModule
+from ElevatorBot.discordEvents.base import ElevatorInteractionContext
 from ElevatorBot.misc.formatting import embed_message, format_timedelta
 from ElevatorBot.networking.destiny.account import DestinyAccount
 from ElevatorBot.static.destinyDates import season_and_expansion_dates
@@ -15,7 +16,7 @@ from Shared.enums.destiny import UsableDestinyActivityModeTypeEnum
 from Shared.functions.helperFunctions import get_now_with_tz
 
 
-class Time(BaseScale):
+class Time(BaseModule):
     @slash_command(name="time", description="Shows you your Destiny 2 playtime split up by season")
     @default_mode_option()
     @autocomplete_activity_option()
@@ -23,7 +24,7 @@ class Time(BaseScale):
     @default_user_option()
     async def time(
         self,
-        ctx: InteractionContext,
+        ctx: ElevatorInteractionContext,
         destiny_class: str = None,
         mode: str = None,
         activity: str = None,

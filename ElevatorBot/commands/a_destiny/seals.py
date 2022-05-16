@@ -1,22 +1,23 @@
 from typing import Optional
 
-from dis_snek import ComponentContext, InteractionContext, Member, Message, slash_command
+from naff import Member, Message, slash_command
 
 from ElevatorBot.commandHelpers.optionTemplates import default_user_option
 from ElevatorBot.commandHelpers.paginator import paginate
-from ElevatorBot.commands.base import BaseScale
+from ElevatorBot.commands.base import BaseModule
+from ElevatorBot.discordEvents.base import ElevatorComponentContext, ElevatorInteractionContext
 from ElevatorBot.misc.formatting import capitalize_string, embed_message, format_progress, un_capitalize_string
 from ElevatorBot.networking.destiny.account import DestinyAccount
 from Shared.networkingSchemas.destiny import DestinySealsModel
 
 
-class Seals(BaseScale):
+class Seals(BaseModule):
     @slash_command(
         name="seals",
         description="View all Destiny 2 seals and your completion status",
     )
     @default_user_option()
-    async def seals(self, ctx: InteractionContext, user: Member = None):
+    async def seals(self, ctx: ElevatorInteractionContext, user: Member = None):
         member = user or ctx.author
 
         destiny_profile = DestinyAccount(ctx=ctx, discord_member=member, discord_guild=ctx.guild)
@@ -32,11 +33,11 @@ class Seals(BaseScale):
 
     async def display_seals_page(
         self,
-        ctx: InteractionContext,
+        ctx: ElevatorInteractionContext,
         member: Member,
         data: DestinySealsModel,
         key: str,
-        button_ctx: Optional[ComponentContext] = None,
+        button_ctx: Optional[ElevatorComponentContext] = None,
         message: Optional[Message] = None,
     ):
         """Displays the different pages of the command with an option to switch"""

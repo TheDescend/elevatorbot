@@ -1,15 +1,16 @@
-from dis_snek import InteractionContext, Member, slash_command
-from dis_snek.client.errors import Forbidden
+from naff import Member, slash_command
+from naff.client.errors import Forbidden
 
 from ElevatorBot.commandHelpers.optionTemplates import default_user_option, lfg_event_id
 from ElevatorBot.commandHelpers.subCommandTemplates import lfg_sub_command
-from ElevatorBot.commands.base import BaseScale
+from ElevatorBot.commands.base import BaseModule
 from ElevatorBot.core.destiny.lfg.lfgSystem import LfgMessage
+from ElevatorBot.discordEvents.base import ElevatorInteractionContext
 from ElevatorBot.misc.discordShortcutFunctions import has_admin_permission
 from ElevatorBot.misc.formatting import embed_message
 
 
-class LfgAdd(BaseScale):
+class LfgAdd(BaseModule):
     """
     This adds people into the main roster of an LFG event, even if is full
     """
@@ -21,7 +22,7 @@ class LfgAdd(BaseScale):
     )
     @lfg_event_id()
     @default_user_option(description="The user you want to add", required=True)
-    async def add(self, ctx: InteractionContext, lfg_id: int, user: Member):
+    async def add(self, ctx: ElevatorInteractionContext, lfg_id: int, user: Member):
         # get the message obj
         lfg_message = await LfgMessage.from_lfg_id(ctx=ctx, lfg_id=lfg_id, client=ctx.bot, guild=ctx.guild)
 

@@ -3,7 +3,7 @@ import datetime
 from typing import Optional
 
 from cachetools import TTLCache
-from dis_snek import Guild, GuildVoice, Message, Role, ThreadChannel
+from naff import Guild, GuildVoice, Message, Role, ThreadChannel
 
 from ElevatorBot.core.misc.persistentMessages import PersistentMessages
 from ElevatorBot.networking.destiny.items import DestinyItems

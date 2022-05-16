@@ -1,6 +1,6 @@
 from aiohttp import web
-from dis_snek.api.events import GuildLeft
-from dis_snek.client.errors import Forbidden
+from naff.api.events import GuildLeft
+from naff.client.errors import Forbidden
 
 from ElevatorBot.discordEvents.guildEvents import on_guild_left
 from ElevatorBot.misc.discordShortcutFunctions import assign_roles_to_member, remove_roles_from_member

@@ -1,23 +1,14 @@
 from typing import Optional
 
-from dis_snek import (
-    ActionRow,
-    Button,
-    ButtonStyles,
-    ChannelTypes,
-    GuildChannel,
-    InteractionContext,
-    OptionTypes,
-    slash_command,
-    slash_option,
-)
+from naff import ActionRow, Button, ButtonStyles, ChannelTypes, GuildChannel, OptionTypes, slash_command, slash_option
 
 from ElevatorBot.commandHelpers.subCommandTemplates import setup_sub_command
-from ElevatorBot.commands.base import BaseScale
+from ElevatorBot.commands.base import BaseModule
 from ElevatorBot.core.misc.persistentMessages import handle_setup_command
+from ElevatorBot.discordEvents.base import ElevatorInteractionContext
 
 
-class Registration(BaseScale):
+class Registration(BaseModule):
 
     # todo perms
     @slash_command(
@@ -38,7 +29,9 @@ class Registration(BaseScale):
         required=False,
         opt_type=OptionTypes.STRING,
     )
-    async def registration(self, ctx: InteractionContext, channel: GuildChannel, message_id: Optional[str] = None):
+    async def registration(
+        self, ctx: ElevatorInteractionContext, channel: GuildChannel, message_id: Optional[str] = None
+    ):
         if ctx.author.id != 238388130581839872:
             await ctx.send(
                 "This is blocked for now, since it it waiting for a vital unreleased discord feature", ephemeral=True

@@ -1,11 +1,12 @@
-from dis_snek import InteractionContext, OptionTypes, slash_command, slash_option
+from naff import OptionTypes, slash_command, slash_option
 
 from ElevatorBot.commandHelpers.subCommandTemplates import poll_sub_command
-from ElevatorBot.commands.base import BaseScale
+from ElevatorBot.commands.base import BaseModule
 from ElevatorBot.core.misc.poll import Poll
+from ElevatorBot.discordEvents.base import ElevatorInteractionContext
 
 
-class PollAdd(BaseScale):
+class PollAdd(BaseModule):
     @slash_command(
         **poll_sub_command,
         sub_cmd_name="add",
@@ -20,7 +21,7 @@ class PollAdd(BaseScale):
         opt_type=OptionTypes.STRING,
         required=True,
     )
-    async def add(self, ctx: InteractionContext, poll_id: int, option: str):
+    async def add(self, ctx: ElevatorInteractionContext, poll_id: int, option: str):
         poll = await Poll.from_poll_id(poll_id=poll_id, ctx=ctx)
 
         if poll:

@@ -1,16 +1,15 @@
 import copy
 
-from dis_snek import Snake
-
 from ElevatorBot.commandHelpers import autocomplete
 from ElevatorBot.commands.a_destiny.rank.clan import RankClan
+from ElevatorBot.discordEvents.base import ElevatorClient
 
 
 # inherit the rank command, just change the sub command name
 class RankServer(RankClan):
     clan_mode = False
 
-    def __new__(cls, bot: Snake, *args, **kwargs):
+    def __new__(cls, bot: ElevatorClient, *args, **kwargs):
         # copy the command
         cls.rank = copy.copy(cls.rank)
 
@@ -26,5 +25,5 @@ def setup(client):
     command = RankServer(client)
 
     # register the autocomplete callback
-    command.rank.autocomplete("weapon")(autocomplete.autocomplete_send_weapon_name)
-    command.rank.autocomplete("activity")(autocomplete.autocomplete_send_activity_name)
+    command.rank.autocomplete("weapon")(autocomplete.autocomplete_send_weapon_name)  # noqa
+    command.rank.autocomplete("activity")(autocomplete.autocomplete_send_activity_name)  # noqa

@@ -3,12 +3,13 @@ import io
 import re
 
 import aiohttp
-from dis_snek import CommandTypes, InteractionContext, Message, Modal, ShortText, context_menu
-from dis_snek.client.errors import HTTPException
+from naff import CommandTypes, Message, Modal, ShortText, context_menu
+from naff.client.errors import HTTPException
 from PIL import Image
 
 from ElevatorBot.commandHelpers.responseTemplates import respond_timeout
-from ElevatorBot.commands.base import BaseScale
+from ElevatorBot.commands.base import BaseModule
+from ElevatorBot.discordEvents.base import ElevatorInteractionContext
 from ElevatorBot.misc.formatting import embed_message
 from Shared.functions.readSettingsFile import get_setting
 
@@ -17,14 +18,14 @@ from Shared.functions.readSettingsFile import get_setting
 # =============
 
 
-class EmojiCommands(BaseScale):
+class EmojiCommands(BaseModule):
     """
     Add the selected image to the guild as an emoji
     """
 
     # todo perms
     @context_menu(name="Add Emoji", context_type=CommandTypes.MESSAGE, scopes=get_setting("COMMAND_GUILD_SCOPE"))
-    async def add_emoji(self, ctx: InteractionContext):
+    async def add_emoji(self, ctx: ElevatorInteractionContext):
         if ctx.author.id not in [238388130581839872, 206878830017773568]:
             await ctx.send(
                 "This is blocked for now, since it it waiting for a vital unreleased discord feature", ephemeral=True

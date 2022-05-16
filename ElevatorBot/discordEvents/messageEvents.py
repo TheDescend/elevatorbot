@@ -2,8 +2,8 @@ import random
 import re
 
 import github
-from dis_snek import AutoArchiveDuration, ChannelTypes, ThreadChannel, ThreadList
-from dis_snek.api.events import MessageCreate, MessageDelete, MessageUpdate
+from naff import AutoArchiveDuration, ChannelTypes, ThreadChannel, ThreadList
+from naff.api.events import MessageCreate, MessageDelete, MessageUpdate
 
 from ElevatorBot.core.misc.aprilFools import play_joke
 from ElevatorBot.core.misc.github import github_manager

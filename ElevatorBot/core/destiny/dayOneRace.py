@@ -8,9 +8,10 @@ from typing import Optional
 
 import aiohttp
 from anyio import create_task_group
-from dis_snek import File, GuildText, InteractionContext, Member, Message, Timestamp, TimestampStyles
+from naff import File, GuildText, Member, Message, Timestamp, TimestampStyles
 
 from ElevatorBot.commandHelpers.responseTemplates import something_went_wrong
+from ElevatorBot.discordEvents.base import ElevatorInteractionContext
 from ElevatorBot.misc.formatting import embed_message, format_timedelta
 from ElevatorBot.networking.destiny.account import DestinyAccount
 from ElevatorBot.networking.destiny.activities import DestinyActivities
@@ -59,7 +60,7 @@ class DayOneRace:
     location_name: str = "Ishtar Sink, Venus"
 
     # vars needed for the command
-    def __init__(self, ctx: InteractionContext):
+    def __init__(self, ctx: ElevatorInteractionContext):
         self.ctx = ctx
         self.channel = ctx.channel
 

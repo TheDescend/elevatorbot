@@ -1,4 +1,4 @@
-from dis_snek import InteractionContext, Member, slash_command
+from naff import Member, slash_command
 
 from ElevatorBot.commandHelpers.optionTemplates import (
     default_class_option,
@@ -8,15 +8,16 @@ from ElevatorBot.commandHelpers.optionTemplates import (
     default_time_option,
     default_user_option,
 )
-from ElevatorBot.commands.base import BaseScale
+from ElevatorBot.commands.base import BaseModule
 from ElevatorBot.core.destiny.activity import format_and_send_activity_data
+from ElevatorBot.discordEvents.base import ElevatorInteractionContext
 from ElevatorBot.misc.helperFunctions import parse_datetime_options
 from ElevatorBot.networking.destiny.activities import DestinyActivities
 from Shared.enums.destiny import UsableDestinyActivityModeTypeEnum
 from Shared.networkingSchemas.destiny import DestinyActivityInputModel
 
 
-class DestinyMode(BaseScale):
+class DestinyMode(BaseModule):
     @slash_command(name="mode", description="Display stats for Destiny 2 activity modes")
     @default_mode_option(description="Chose the mode you want to see the stats for", required=True)
     @default_class_option()
@@ -33,7 +34,7 @@ class DestinyMode(BaseScale):
     @default_user_option()
     async def mode(
         self,
-        ctx: InteractionContext,
+        ctx: ElevatorInteractionContext,
         mode: str,
         destiny_class: str = None,
         expansion: str = None,

@@ -1,6 +1,6 @@
 import asyncio
 
-from dis_snek import InteractionContext, Modal, OptionTypes, ParagraphText, slash_command, slash_option
+from naff import Modal, OptionTypes, ParagraphText, slash_command, slash_option
 
 from ElevatorBot.commandHelpers import autocomplete
 from ElevatorBot.commandHelpers.optionTemplates import (
@@ -10,12 +10,13 @@ from ElevatorBot.commandHelpers.optionTemplates import (
 )
 from ElevatorBot.commandHelpers.responseTemplates import respond_timeout
 from ElevatorBot.commandHelpers.subCommandTemplates import lfg_sub_command
-from ElevatorBot.commands.base import BaseScale
+from ElevatorBot.commands.base import BaseModule
 from ElevatorBot.core.destiny.lfg.lfgSystem import LfgMessage
+from ElevatorBot.discordEvents.base import ElevatorInteractionContext
 from ElevatorBot.misc.helperFunctions import parse_string_datetime
 
 
-class LfgCreate(BaseScale):
+class LfgCreate(BaseModule):
     @slash_command(
         **lfg_sub_command,
         sub_cmd_name="create",
@@ -43,7 +44,12 @@ class LfgCreate(BaseScale):
         max_value=50,
     )
     async def create(
-        self, ctx: InteractionContext, activity: str, start_time: str, timezone: str, overwrite_max_members: int = None
+        self,
+        ctx: ElevatorInteractionContext,
+        activity: str,
+        start_time: str,
+        timezone: str,
+        overwrite_max_members: int = None,
     ):
         # get the actual activity
         activity = autocomplete.activities[activity.lower()]

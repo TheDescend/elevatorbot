@@ -1,8 +1,9 @@
-from dis_snek import ChannelTypes, GuildChannel, InteractionContext, OptionTypes, slash_command, slash_option
+from naff import ChannelTypes, GuildChannel, OptionTypes, slash_command, slash_option
 
 from ElevatorBot.commandHelpers.subCommandTemplates import descend_setup_sub_command
-from ElevatorBot.commands.base import BaseScale
+from ElevatorBot.commands.base import BaseModule
 from ElevatorBot.core.misc.persistentMessages import handle_setup_command
+from ElevatorBot.discordEvents.base import ElevatorInteractionContext
 from ElevatorBot.misc.cache import descend_cache
 from ElevatorBot.misc.formatting import embed_message
 from Shared.functions.readSettingsFile import get_setting
@@ -12,7 +13,7 @@ from Shared.functions.readSettingsFile import get_setting
 # =============
 
 
-class Status(BaseScale):
+class Status(BaseModule):
     # todo perms
     @slash_command(
         **descend_setup_sub_command,
@@ -33,7 +34,7 @@ class Status(BaseScale):
         required=False,
         opt_type=OptionTypes.STRING,
     )
-    async def status(self, ctx: InteractionContext, channel: GuildChannel, message_id: str = None):
+    async def status(self, ctx: ElevatorInteractionContext, channel: GuildChannel, message_id: str = None):
         if ctx.author.id != 238388130581839872:
             await ctx.send(
                 "This is blocked for now, since it it waiting for a vital unreleased discord feature", ephemeral=True

@@ -2,15 +2,16 @@ import asyncio
 import dataclasses
 from typing import Optional
 
-from dis_snek import ActionRow, Button, ButtonStyles, ComponentContext, InteractionContext, Message
-from dis_snek.api.events import Component
+from naff import ActionRow, Button, ButtonStyles, Message
+from naff.api.events import Component
 
+from ElevatorBot.discordEvents.base import ElevatorComponentContext, ElevatorInteractionContext
 from ElevatorBot.misc.formatting import embed_message
 
 
 @dataclasses.dataclass()
 class Calculator:
-    ctx: InteractionContext
+    ctx: ElevatorInteractionContext
 
     message: Optional[Message] = None
     buttons: list[ActionRow] = dataclasses.field(init=False)
@@ -139,7 +140,7 @@ class Calculator:
         self,
         text: str = "Please Input Your Equation",
         timeout: bool = False,
-        button_ctx: Optional[ComponentContext] = None,
+        button_ctx: Optional[ElevatorComponentContext] = None,
     ):
         if not self.message:
             embed = embed_message("Calculator", f"```{text}```", member=self.ctx.author)
@@ -151,7 +152,7 @@ class Calculator:
             if "=" in text:
                 try:
                     embed.description = f"```{eval(embed.description[3:-3])}```"
-                except Exception:
+                except Exception as e:
                     embed.description = "```Error: Please Try again```"
 
             # check if user pressed c
@@ -214,7 +215,7 @@ class Calculator:
             await self.send_message(timeout=True)
             return
         else:
-            button_ctx = component.context
+            button_ctx: ElevatorComponentContext = component.context  # noqa
             text = button_ctx.custom_id
 
             if text not in [

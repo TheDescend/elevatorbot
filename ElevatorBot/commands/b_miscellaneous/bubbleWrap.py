@@ -1,15 +1,16 @@
 import asyncio
 
-from dis_snek import ActionRow, Button, ButtonStyles, InteractionContext, Message, slash_command
-from dis_snek.api.events import Component
+from naff import ActionRow, Button, ButtonStyles, Message, slash_command
+from naff.api.events import Component
 
-from ElevatorBot.commands.base import BaseScale
+from ElevatorBot.commands.base import BaseModule
+from ElevatorBot.discordEvents.base import ElevatorInteractionContext
 from ElevatorBot.misc.formatting import embed_message
 
 
-class BubbleWrap(BaseScale):
+class BubbleWrap(BaseModule):
     @slash_command(name="bubble_wrap", description="This 100% recreates the happy feeling of popping bubble wrap")
-    async def bubble_wrap(self, ctx: InteractionContext):
+    async def bubble_wrap(self, ctx: ElevatorInteractionContext):
         components = [
             ActionRow(
                 *[

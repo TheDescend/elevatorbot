@@ -1,9 +1,8 @@
-from dis_snek import ComponentContext
-
 from ElevatorBot.commandHelpers.responseTemplates import respond_pending
+from ElevatorBot.discordEvents.base import ElevatorComponentContext
 
 
-async def check_pending(ctx: ComponentContext) -> bool:
+async def check_pending(ctx: ElevatorComponentContext) -> bool:
     """Returns False is the author is pending"""
 
     if ctx.author.pending:

@@ -1,17 +1,18 @@
-from dis_snek import InteractionContext, slash_command
+from naff import slash_command
 
 from ElevatorBot.commandHelpers.subCommandTemplates import tictactoe_sub_command
-from ElevatorBot.commands.base import BaseScale
+from ElevatorBot.commands.base import BaseModule
 from ElevatorBot.core.misc.ticTacToe import TicTacToeGame
+from ElevatorBot.discordEvents.base import ElevatorInteractionContext
 
 
-class TicTacToeHuman(BaseScale):
+class TicTacToeHuman(BaseModule):
     @slash_command(
         **tictactoe_sub_command,
         sub_cmd_name="versus",
         sub_cmd_description="Play against other humans",
     )
-    async def versus(self, ctx: InteractionContext):
+    async def versus(self, ctx: ElevatorInteractionContext):
         game = TicTacToeGame(ctx=ctx, versus=True)
         await game.play_game()
 

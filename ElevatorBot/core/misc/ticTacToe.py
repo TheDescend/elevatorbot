@@ -4,15 +4,16 @@ import random
 from typing import Optional
 
 from anyio import to_thread
-from dis_snek import ActionRow, Button, ButtonStyles, ComponentContext, InteractionContext, Member, Message
-from dis_snek.api.events import Component
+from naff import ActionRow, Button, ButtonStyles, Member, Message
+from naff.api.events import Component
 
+from ElevatorBot.discordEvents.base import ElevatorComponentContext, ElevatorInteractionContext
 from ElevatorBot.misc.formatting import embed_message
 
 
 @dataclasses.dataclass()
 class TicTacToeGame:
-    ctx: InteractionContext
+    ctx: ElevatorInteractionContext
 
     # if versus is off
     easy_mode: bool = False
@@ -144,7 +145,9 @@ class TicTacToeGame:
         return check
 
     # play the move and change the board
-    async def make_move(self, x: int, y: int, symbol: str, button_ctx: Optional[ComponentContext] = None) -> bool:
+    async def make_move(
+        self, x: int, y: int, symbol: str, button_ctx: Optional[ElevatorComponentContext] = None
+    ) -> bool:
         if self.is_valid(x, y):
             self.current_state[x][y] = symbol
             self.buttons[x].components[y].style = (
@@ -203,7 +206,7 @@ class TicTacToeGame:
             await self.send_message(timeout=True, disable_buttons=True)
             return
         else:
-            button_ctx = component.context
+            button_ctx: ElevatorComponentContext = component.context  # noqa
 
             # make sure the players are set
             if self.versus:
@@ -319,7 +322,7 @@ class TicTacToeGame:
         disable_buttons: bool = False,
         enable_buttons: bool = False,
         timeout: bool = False,
-        button_ctx: Optional[ComponentContext] = None,
+        button_ctx: Optional[ElevatorComponentContext] = None,
     ):
         if disable_buttons:
             self.disable_buttons()

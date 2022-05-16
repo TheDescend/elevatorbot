@@ -2,27 +2,20 @@ import asyncio
 import inspect
 import logging
 
-from apscheduler.schedulers.asyncio import AsyncIOScheduler
-from dis_snek import (
-    AutoDefer,
-    Intents,
-    InteractionCommand,
-    InteractionContext,
-    Listener,
-    Snake,
-    Task,
-    listen,
-    logger_name,
-    slash_command,
-)
-from dis_snek.ext.debug_scale import DebugScale
+from naff import AutoDefer, Intents, InteractionCommand, Listener, Task, listen, logger_name, slash_command
+from naff.ext.debug_cog import DebugCog
 from rich.console import Console
-from rich.padding import PaddingDimensions
 from rich.panel import Panel
 from rich.progress import Progress
 from rich.text import Text
 
-from ElevatorBot.discordEvents.base import ElevatorSnake
+from ElevatorBot.discordEvents.base import (
+    ElevatorAutocompleteContext,
+    ElevatorClient,
+    ElevatorComponentContext,
+    ElevatorInteractionContext,
+    ElevatorPrefixedContext,
+)
 from ElevatorBot.misc.cache import descend_cache
 from ElevatorBot.misc.helperFunctions import check_is_guild, yield_files_in_folder
 from ElevatorBot.misc.status import update_discord_bot_status
@@ -39,10 +32,7 @@ from Shared.functions.logging import DESCEND_COLOUR, ColourHighlighter, Elevator
 from Shared.functions.readSettingsFile import get_setting
 
 
-class Elevator(ElevatorSnake):
-    # register the scheduler for easier access
-    scheduler = AsyncIOScheduler(timezone="UTC")
-
+class Elevator(ElevatorClient):
     # load startup event
     @listen()
     async def on_startup(self):
@@ -80,8 +70,8 @@ class Elevator(ElevatorSnake):
         startup_progress.stop()
 
 
-def load_commands(client: Elevator) -> int:
-    """Load all commands scales. Returns number of local commands"""
+def load_commands(client: ElevatorClient) -> int:
+    """Load all command modules. Returns number of local commands"""
 
     # load commands
     client.logger_exceptions.debug("Loading Commands...")
@@ -163,11 +153,15 @@ if __name__ == "__main__":
         asyncio_debug=get_setting("ENABLE_DEBUG_MODE"),
         fetch_members=True,
         auto_defer=AutoDefer(enabled=True),
+        interaction_context=ElevatorInteractionContext,
+        prefixed_context=ElevatorPrefixedContext,
+        component_context=ElevatorComponentContext,
+        autocomplete_context=ElevatorAutocompleteContext,
     )
 
     # install uvloop for faster asyncio (docker only)
     try:
-        import uvloop
+        import uvloop  # noqa
     except ModuleNotFoundError:
         logger.debug("Uvloop not installed, skipping")
     else:
@@ -175,13 +169,13 @@ if __name__ == "__main__":
         uvloop.install()
     startup_progress.update(startup_task, advance=1)
 
-    # load the debug scale for the debug guilds only
-    class CustomDebugScale(DebugScale):
-        def __init__(self, bot: Snake):
+    # load the debug module for the debug guilds only
+    class CustomDebugModule(DebugCog):
+        def __init__(self, bot: ElevatorClient):
             super().__init__(bot)
-            self.add_scale_check(check_is_guild())
+            self.add_cog_check(check_is_guild())
 
-        def __new__(cls, bot: Snake, *args, **kwargs):
+        def __new__(cls, bot: ElevatorClient, *args, **kwargs):
             for name, val in inspect.getmembers(cls):
                 if isinstance(val, InteractionCommand):
                     val.scopes = get_setting("COMMAND_GUILD_SCOPE")
@@ -189,12 +183,12 @@ if __name__ == "__main__":
                     setattr(cls, name, None)
             return super().__new__(cls=cls, bot=bot, *args, **kwargs)
 
-        @slash_command(name="debug", sub_cmd_name="reload", sub_cmd_description="Reload all scales")
-        async def my_command_function(self, ctx: InteractionContext):
+        @slash_command(name="debug", sub_cmd_name="reload", sub_cmd_description="Reload all modules")
+        async def my_command_function(self, ctx: ElevatorInteractionContext):
             load_commands(client=ctx.bot)
             await ctx.send("Reload successful!")
 
-    CustomDebugScale(bot=client)
+    CustomDebugModule(bot=client)
 
     logger.debug("Loading Discord Events...")
     register_discord_events(client)

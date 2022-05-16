@@ -1,23 +1,24 @@
 import asyncio
 
-from dis_snek import InteractionContext, Member, Modal, ParagraphText, slash_command
+from naff import Modal, ParagraphText, slash_command
 
 from ElevatorBot.commandHelpers.optionTemplates import lfg_event_id
 from ElevatorBot.commandHelpers.responseTemplates import respond_timeout
 from ElevatorBot.commandHelpers.subCommandTemplates import lfg_sub_command
-from ElevatorBot.commands.base import BaseScale
+from ElevatorBot.commands.base import BaseModule
 from ElevatorBot.core.destiny.lfg.lfgSystem import LfgMessage
+from ElevatorBot.discordEvents.base import ElevatorInteractionContext
 from ElevatorBot.misc.formatting import embed_message
 
 
-class LfgAlert(BaseScale):
+class LfgAlert(BaseModule):
     @slash_command(
         **lfg_sub_command,
         sub_cmd_name="alert",
         sub_cmd_description="Message all users in the event",
     )
     @lfg_event_id()
-    async def alert(self, ctx: InteractionContext, lfg_id: int):
+    async def alert(self, ctx: ElevatorInteractionContext, lfg_id: int):
         # get the message obj
         lfg_message = await LfgMessage.from_lfg_id(ctx=ctx, lfg_id=lfg_id, client=ctx.bot, guild=ctx.guild)
 

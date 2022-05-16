@@ -3,10 +3,11 @@ import datetime
 from io import BytesIO
 
 import matplotlib.pyplot as plt
-from dis_snek import File, InteractionContext, slash_command
+from naff import File, slash_command
 from pandas import DataFrame
 
-from ElevatorBot.commands.base import BaseScale
+from ElevatorBot.commands.base import BaseModule
+from ElevatorBot.discordEvents.base import ElevatorInteractionContext
 from ElevatorBot.misc.cache import pop_timeline_cache
 from ElevatorBot.misc.formatting import embed_message
 from ElevatorBot.networking.destiny.steamPlayers import SteamPlayers
@@ -20,9 +21,9 @@ from ElevatorBot.static.destinyDates import (
 pop_timeline_lock = asyncio.Lock()
 
 
-class PopTimeline(BaseScale):
+class PopTimeline(BaseModule):
     @slash_command(name="pop_timeline", description="Shows you the Destiny 2 steam maximum population timeline")
-    async def pop_timeline(self, ctx: InteractionContext):
+    async def pop_timeline(self, ctx: ElevatorInteractionContext):
         async with pop_timeline_lock:
             embed = embed_message("Maximum Destiny 2 Steam Player Count")
 

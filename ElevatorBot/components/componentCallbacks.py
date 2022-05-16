@@ -1,12 +1,12 @@
 from copy import copy
 
 from anyio import to_thread
-from dis_snek import ComponentContext
 from github.GithubObject import NotSet
 
 from ElevatorBot.commands.a_destiny.registration.register import send_registration
 from ElevatorBot.core.destiny.lfg.lfgSystem import LfgMessage
 from ElevatorBot.core.misc.poll import Poll
+from ElevatorBot.discordEvents.base import ElevatorComponentContext
 from ElevatorBot.misc.discordShortcutFunctions import assign_roles_to_member, remove_roles_from_member
 from ElevatorBot.misc.formatting import embed_message
 from ElevatorBot.networking.destiny.clan import DestinyClan
@@ -20,7 +20,7 @@ from ElevatorBot.static.emojis import custom_emojis
 
 class ComponentCallbacks:
     @staticmethod
-    async def poll(ctx: ComponentContext):
+    async def poll(ctx: ElevatorComponentContext):
         """Handles when a component with the custom_id 'poll' gets interacted with"""
 
         backend = BackendPolls(ctx=ctx, discord_member=ctx.author, guild=ctx.guild)
@@ -37,14 +37,14 @@ class ComponentCallbacks:
         await poll_obj.send(ctx, user_input=True)
 
     @staticmethod
-    async def registration(ctx: ComponentContext):
+    async def registration(ctx: ElevatorComponentContext):
         """Handles when a component with the custom_id 'registration' gets interacted with"""
 
         # send them the message
         await send_registration(ctx)
 
     @staticmethod
-    async def other_game_roles(ctx: ComponentContext):
+    async def other_game_roles(ctx: ElevatorComponentContext):
         """Handles when a component with the custom_id 'other_game_roles' gets interacted with"""
 
         # assign or remove the wanted roles
@@ -78,7 +78,7 @@ class ComponentCallbacks:
         await ctx.send(ephemeral=True, embeds=embed)
 
     @staticmethod
-    async def increment_button(ctx: ComponentContext):
+    async def increment_button(ctx: ElevatorComponentContext):
         """Handles when a component with the custom_id 'increment_button' gets interacted with"""
 
         # increment the button by 1
@@ -95,7 +95,7 @@ class ComponentCallbacks:
             await ctx.edit_origin(components=[new_component], embeds=embed)
 
     @staticmethod
-    async def lfg_join(ctx: ComponentContext):
+    async def lfg_join(ctx: ElevatorComponentContext):
         """Handles when a component with the custom_id 'lfg_join' gets interacted with"""
 
         lfg_message = await LfgMessage.from_component_button(ctx=ctx)
@@ -112,7 +112,7 @@ class ComponentCallbacks:
             raise BackendException
 
     @staticmethod
-    async def lfg_leave(ctx: ComponentContext):
+    async def lfg_leave(ctx: ElevatorComponentContext):
         """Handles when a component with the custom_id 'lfg_leave' gets interacted with"""
 
         lfg_message = await LfgMessage.from_component_button(ctx=ctx)
@@ -126,7 +126,7 @@ class ComponentCallbacks:
             )
 
     @staticmethod
-    async def lfg_backup(ctx: ComponentContext):
+    async def lfg_backup(ctx: ElevatorComponentContext):
         """Handles when a component with the custom_id 'lfg_backup' gets interacted with"""
 
         lfg_message = await LfgMessage.from_component_button(ctx=ctx)
@@ -140,7 +140,7 @@ class ComponentCallbacks:
             )
 
     @staticmethod
-    async def clan_join_request(ctx: ComponentContext):
+    async def clan_join_request(ctx: ElevatorComponentContext):
         """Handles when a component with the custom_id 'clan_join_request' gets interacted with"""
 
         await ctx.defer(ephemeral=True)
@@ -165,7 +165,7 @@ class ComponentCallbacks:
         await ctx.send(ephemeral=True, embeds=embed)
 
     @staticmethod
-    async def github(ctx: ComponentContext):
+    async def github(ctx: ElevatorComponentContext):
         """Handles when a component with the custom_id 'github' gets interacted with"""
 
         await ctx.defer(edit_origin=True)
@@ -184,7 +184,7 @@ class ComponentCallbacks:
         await ctx.edit_origin(components=components)
 
     @staticmethod
-    async def giveaway(ctx: ComponentContext):
+    async def giveaway(ctx: ElevatorComponentContext):
         """Handles when a component with the custom_id 'giveaway' gets interacted with"""
 
         giveaway = BackendGiveaway(

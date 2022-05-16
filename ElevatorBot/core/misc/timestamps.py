@@ -1,5 +1,5 @@
 from dateparser.search import search_dates
-from dis_snek import Embed, Timestamp, TimestampStyles
+from naff import Embed, Timestamp, TimestampStyles
 
 from ElevatorBot.misc.formatting import embed_message
 from ElevatorBot.static.emojis import custom_emojis

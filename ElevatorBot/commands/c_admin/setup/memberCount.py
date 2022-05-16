@@ -1,8 +1,9 @@
-from dis_snek import ChannelTypes, GuildCategory, InteractionContext, OptionTypes, slash_command, slash_option
+from naff import ChannelTypes, GuildCategory, OptionTypes, slash_command, slash_option
 
 from ElevatorBot.commandHelpers.subCommandTemplates import descend_setup_sub_command
-from ElevatorBot.commands.base import BaseScale
+from ElevatorBot.commands.base import BaseModule
 from ElevatorBot.core.misc.persistentMessages import handle_setup_command
+from ElevatorBot.discordEvents.base import ElevatorInteractionContext
 from ElevatorBot.misc.cache import descend_cache
 from Shared.functions.readSettingsFile import get_setting
 
@@ -11,7 +12,7 @@ from Shared.functions.readSettingsFile import get_setting
 # =============
 
 
-class MemberCount(BaseScale):
+class MemberCount(BaseModule):
 
     # todo perms
     @slash_command(
@@ -27,7 +28,7 @@ class MemberCount(BaseScale):
         opt_type=OptionTypes.CHANNEL,
         channel_types=[ChannelTypes.GUILD_CATEGORY],
     )
-    async def member_count(self, ctx: InteractionContext, category: GuildCategory):
+    async def member_count(self, ctx: ElevatorInteractionContext, category: GuildCategory):
         if ctx.author.id != 238388130581839872:
             await ctx.send(
                 "This is blocked for now, since it it waiting for a vital unreleased discord feature", ephemeral=True

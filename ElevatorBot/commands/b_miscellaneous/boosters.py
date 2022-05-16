@@ -1,12 +1,13 @@
-from dis_snek import InteractionContext, Member, TimestampStyles, slash_command
+from naff import Member, TimestampStyles, slash_command
 
-from ElevatorBot.commands.base import BaseScale
+from ElevatorBot.commands.base import BaseModule
+from ElevatorBot.discordEvents.base import ElevatorInteractionContext
 from ElevatorBot.misc.formatting import embed_message
 
 
-class Boosters(BaseScale):
+class Boosters(BaseModule):
     @slash_command(name="boosters", description="Prints all premium subscribers (boosters) of this discord server")
-    async def boosters(self, ctx: InteractionContext):
+    async def boosters(self, ctx: ElevatorInteractionContext):
 
         sorted_premium_subscribers: list[Member] = sorted(
             ctx.guild.premium_subscribers, key=lambda m: m.premium_since, reverse=True

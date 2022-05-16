@@ -1,21 +1,22 @@
 from typing import Optional
 
-from dis_snek import ComponentContext, InteractionContext, Member, Message, slash_command
+from naff import Member, Message, slash_command
 
 from ElevatorBot.commandHelpers.optionTemplates import default_user_option
 from ElevatorBot.commandHelpers.paginator import paginate
-from ElevatorBot.commands.base import BaseScale
+from ElevatorBot.commands.base import BaseModule
+from ElevatorBot.discordEvents.base import ElevatorComponentContext, ElevatorInteractionContext
 from ElevatorBot.misc.formatting import embed_message, format_timedelta
 from ElevatorBot.networking.destiny.account import DestinyAccount
 from Shared.networkingSchemas import DestinyUpdatedLowManModel
 
 
-class Solos(BaseScale):
+class Solos(BaseModule):
     @slash_command(
         name="solos", description="Shows you an overview of your notable Destiny 2 solo activity completions"
     )
     @default_user_option()
-    async def solos(self, ctx: InteractionContext, user: Member = None):
+    async def solos(self, ctx: ElevatorInteractionContext, user: Member = None):
         member = user or ctx.author
         account = DestinyAccount(ctx=ctx, discord_member=member, discord_guild=ctx.guild)
 
@@ -28,11 +29,11 @@ class Solos(BaseScale):
 
     async def display_solo_page(
         self,
-        ctx: InteractionContext,
+        ctx: ElevatorInteractionContext,
         member: Member,
         data: dict[str, list[DestinyUpdatedLowManModel]],
         key: str,
-        button_ctx: Optional[ComponentContext] = None,
+        button_ctx: Optional[ElevatorComponentContext] = None,
         message: Optional[Message] = None,
     ):
         """Displays the different pages of the command with an option to switch"""

@@ -1,20 +1,20 @@
-from xxlimited import foo
-from ElevatorBot.networking.destiny.clan import DestinyClan
-from Shared.networkingSchemas.destiny.clan import DestinyClanLink, DestinyClanMembersModel, DestinyClanModel
-from dis_snek import InteractionContext, Member, slash_command
+import asyncio
+
+import aiohttp
+from naff import Member, slash_command
 
 from ElevatorBot.commandHelpers.optionTemplates import default_user_option
-from ElevatorBot.commands.base import BaseScale
-from ElevatorBot.misc.formatting import embed_message, format_timedelta
+from ElevatorBot.commands.base import BaseModule
+from ElevatorBot.discordEvents.base import ElevatorInteractionContext
+from ElevatorBot.misc.formatting import embed_message
 from ElevatorBot.networking.destiny.account import DestinyAccount
+from ElevatorBot.networking.destiny.clan import DestinyClan
 
-import asyncio, aiohttp
 
-
-class EventStats(BaseScale):
+class EventStats(BaseModule):
     @slash_command(name="gg_rank", description="Gives you your current gg_rank")
     @default_user_option()
-    async def destiny(self, ctx: InteractionContext, user: Member = None):
+    async def destiny(self, ctx: ElevatorInteractionContext, user: Member = None):
         member = user or ctx.author
 
         # get destiny info

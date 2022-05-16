@@ -1,4 +1,4 @@
-from dis_snek import InteractionContext, Member, Timestamp, TimestampStyles, slash_command
+from naff import Member, Timestamp, TimestampStyles, slash_command
 
 from ElevatorBot.commandHelpers import autocomplete
 from ElevatorBot.commandHelpers.optionTemplates import (
@@ -7,14 +7,15 @@ from ElevatorBot.commandHelpers.optionTemplates import (
     default_mode_option,
     default_user_option,
 )
-from ElevatorBot.commands.base import BaseScale
+from ElevatorBot.commands.base import BaseModule
+from ElevatorBot.discordEvents.base import ElevatorInteractionContext
 from ElevatorBot.misc.formatting import capitalize_string, embed_message, format_timedelta
 from ElevatorBot.networking.destiny.activities import DestinyActivities
 from ElevatorBot.static.emojis import custom_emojis
 from Shared.enums.destiny import UsableDestinyActivityModeTypeEnum
 
 
-class Last(BaseScale):
+class Last(BaseModule):
     @slash_command(name="last", description="Stats for the last Destiny 2 activity you played")
     @default_mode_option()
     @autocomplete_activity_option()
@@ -22,7 +23,7 @@ class Last(BaseScale):
     @default_user_option()
     async def last(
         self,
-        ctx: InteractionContext,
+        ctx: ElevatorInteractionContext,
         mode: str = None,
         activity: str = None,
         destiny_class: str = None,

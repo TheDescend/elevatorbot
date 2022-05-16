@@ -1,14 +1,15 @@
 import aiohttp
-from dis_snek import InteractionContext, slash_command
+from naff import slash_command
 from orjson import orjson
 
-from ElevatorBot.commands.base import BaseScale
+from ElevatorBot.commands.base import BaseModule
+from ElevatorBot.discordEvents.base import ElevatorInteractionContext
 from ElevatorBot.misc.formatting import embed_message
 
 
-class FunFact(BaseScale):
+class FunFact(BaseModule):
     @slash_command(name="funfact", description="Get a fun fact, which most of the time is even pretty interesting")
-    async def fun_fact(self, ctx: InteractionContext):
+    async def fun_fact(self, ctx: ElevatorInteractionContext):
 
         url = "https://uselessfacts.jsph.pl/random.json?language=en"
 

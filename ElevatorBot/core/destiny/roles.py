@@ -2,9 +2,10 @@ import dataclasses
 from typing import Optional
 from urllib.parse import urljoin
 
-from dis_snek import Button, ButtonStyles, Guild, InteractionContext, Member, Role
+from naff import Button, ButtonStyles, Guild, Member, Role
 
 from ElevatorBot.commandHelpers import autocomplete
+from ElevatorBot.discordEvents.base import ElevatorInteractionContext
 from ElevatorBot.misc.cache import collectible_cache, triumph_cache
 from ElevatorBot.misc.discordShortcutFunctions import assign_roles_to_member, remove_roles_from_member
 from ElevatorBot.misc.formatting import embed_message
@@ -20,7 +21,7 @@ class Roles:
 
     guild: Guild
     member: Member
-    ctx: Optional[InteractionContext] = None
+    ctx: Optional[ElevatorInteractionContext] = None
 
     def __post_init__(self):
         self.roles = DestinyRoles(ctx=self.ctx, discord_guild=self.guild, discord_member=self.member)

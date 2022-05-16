@@ -22,7 +22,7 @@ def try_import(name: str):
 
 
 # try to import the libs to suppress here
-to_suppress = ["dis-snek", "sqlalchemy", "pydantic", "fastapi", "asyncpg", "aiohttp"]
+to_suppress = ["naff", "sqlalchemy", "pydantic", "fastapi", "asyncpg", "aiohttp"]
 for lib in []:
     try_import(lib)
 

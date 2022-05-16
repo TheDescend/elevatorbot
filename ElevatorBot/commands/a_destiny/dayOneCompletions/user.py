@@ -1,21 +1,22 @@
-from dis_snek import InteractionContext, Member, slash_command
+from naff import Member, slash_command
 
 from ElevatorBot.commandHelpers.optionTemplates import default_user_option
 from ElevatorBot.commandHelpers.subCommandTemplates import day1completions_sub_command
-from ElevatorBot.commands.base import BaseScale
+from ElevatorBot.commands.base import BaseModule
+from ElevatorBot.discordEvents.base import ElevatorInteractionContext
 from ElevatorBot.misc.formatting import embed_message
 from ElevatorBot.networking.destiny.account import DestinyAccount
 from ElevatorBot.static.destinyActivities import raid_to_emblem_hash
 
 
-class DayOneUser(BaseScale):
+class DayOneUser(BaseModule):
     @slash_command(
         **day1completions_sub_command,
         sub_cmd_name="user",
         sub_cmd_description="Look up the Day One raid completions",
     )
     @default_user_option()
-    async def user(self, ctx: InteractionContext, user: Member = None):
+    async def user(self, ctx: ElevatorInteractionContext, user: Member = None):
         member = user or ctx.author
 
         embed = embed_message("Day One Completions", member=member)

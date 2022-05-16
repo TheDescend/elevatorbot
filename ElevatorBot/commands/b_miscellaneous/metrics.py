@@ -3,12 +3,13 @@ import datetime
 import dateutil.parser
 import psutil as psutil
 from anyio import open_file
-from dis_snek import InteractionContext, Timestamp, TimestampStyles, slash_command
+from naff import Timestamp, TimestampStyles, slash_command
 
 # noinspection PyProtectedMember
 from psutil._common import bytes2human
 
-from ElevatorBot.commands.base import BaseScale
+from ElevatorBot.commands.base import BaseModule
+from ElevatorBot.discordEvents.base import ElevatorInteractionContext
 from ElevatorBot.misc.formatting import embed_message
 from ElevatorBot.static.descendOnlyIds import descend_channels
 from Shared.functions.helperFunctions import get_now_with_tz
@@ -20,12 +21,12 @@ from version import __version__
 # =============
 
 
-class Metrics(BaseScale):
+class Metrics(BaseModule):
     # todo perms
     @slash_command(
         name="metrics", description="Shows interesting ElevatorBot metrics", scopes=get_setting("COMMAND_GUILD_SCOPE")
     )
-    async def metrics(self, ctx: InteractionContext):
+    async def metrics(self, ctx: ElevatorInteractionContext):
         if ctx.author.id != 238388130581839872:
             await ctx.send(
                 "This is blocked for now, since it it waiting for a vital unreleased discord feature", ephemeral=True

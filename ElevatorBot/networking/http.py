@@ -10,8 +10,9 @@ import aiohttp
 import aiohttp_client_cache
 import orjson
 from aiohttp import ClientTimeout
-from dis_snek import ComponentContext, InteractionContext, Member
+from naff import Member
 
+from ElevatorBot.discordEvents.base import ElevatorComponentContext, ElevatorInteractionContext
 from ElevatorBot.networking.errors import BackendException
 from ElevatorBot.networking.results import BackendResult
 from Shared.functions.ratelimiter import RateLimiter
@@ -54,7 +55,7 @@ class BaseBackendConnection:
     discord_member: Optional[Member]
 
     # used to send error messages
-    ctx: Optional[InteractionContext | ComponentContext]
+    ctx: Optional[ElevatorInteractionContext | ElevatorComponentContext]
 
     # get logger
     logger: logging.Logger = dataclasses.field(

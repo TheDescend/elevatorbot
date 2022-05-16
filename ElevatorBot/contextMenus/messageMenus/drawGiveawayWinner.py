@@ -1,8 +1,9 @@
 import random
 
-from dis_snek import CommandTypes, InteractionContext, Message, context_menu
+from naff import CommandTypes, Message, context_menu
 
-from ElevatorBot.commands.base import BaseScale
+from ElevatorBot.commands.base import BaseModule
+from ElevatorBot.discordEvents.base import ElevatorInteractionContext
 from ElevatorBot.misc.formatting import embed_message
 from ElevatorBot.networking.misc.giveaway import BackendGiveaway
 from Shared.functions.readSettingsFile import get_setting
@@ -12,7 +13,7 @@ from Shared.functions.readSettingsFile import get_setting
 # =============
 
 
-class GiveawayWinners(BaseScale):
+class GiveawayWinners(BaseModule):
     """
     Close the giveaway and draw a winner from the giveaway. Use multiple times if you want multiple winners
     """
@@ -21,7 +22,7 @@ class GiveawayWinners(BaseScale):
     @context_menu(
         name="Draw Giveaway Winner", context_type=CommandTypes.MESSAGE, scopes=get_setting("COMMAND_GUILD_SCOPE")
     )
-    async def draw_winner(self, ctx: InteractionContext):
+    async def draw_winner(self, ctx: ElevatorInteractionContext):
         if ctx.author.id != 238388130581839872:
             await ctx.send(
                 "This is blocked for now, since it it waiting for a vital unreleased discord feature", ephemeral=True

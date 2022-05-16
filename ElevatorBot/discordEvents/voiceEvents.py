@@ -1,6 +1,6 @@
 import asyncio
 
-from dis_snek.api.events import VoiceStateUpdate
+from naff.api.events import VoiceStateUpdate
 
 from ElevatorBot.core.misc.persistentMessages import PersistentMessages
 from ElevatorBot.networking.destiny.lfgSystem import DestinyLfgSystem

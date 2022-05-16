@@ -8,33 +8,30 @@ import logging
 from typing import Optional
 
 from apscheduler.jobstores.base import JobLookupError
-from dis_snek import (
+from ics import Calendar, Event
+from naff import (
     ActionRow,
     Button,
     ButtonStyles,
-    ComponentContext,
     Embed,
     File,
     Guild,
     GuildCategory,
     GuildText,
     GuildVoice,
-    InteractionContext,
     Member,
     Message,
     OverwriteTypes,
     PermissionOverwrite,
     Permissions,
-    Snake,
     Timestamp,
     TimestampStyles,
 )
-from dis_snek.client.errors import Forbidden, NotFound
-from ics import Calendar, Event
+from naff.client.errors import Forbidden, NotFound
 
 from ElevatorBot.commandHelpers import autocomplete
 from ElevatorBot.core.destiny.lfg.scheduledEvents import delete_lfg_scheduled_events
-from ElevatorBot.discordEvents.base import ElevatorSnake
+from ElevatorBot.discordEvents.base import ElevatorClient, ElevatorComponentContext, ElevatorInteractionContext
 from ElevatorBot.misc.formatting import embed_message, replace_progress_formatting
 from ElevatorBot.networking.destiny.lfgSystem import DestinyLfgSystem
 from ElevatorBot.networking.errors import BackendException
@@ -52,7 +49,7 @@ sort_lfg_messages_lock = asyncio.Lock()
 class LfgMessage:
     """Class to hold an LFG message"""
 
-    client: ElevatorSnake | Snake
+    client: ElevatorClient
     backend: DestinyLfgSystem
 
     id: int
@@ -158,7 +155,7 @@ class LfgMessage:
         return lfg_message
 
     @classmethod
-    async def from_component_button(cls, ctx: ComponentContext) -> LfgMessage:
+    async def from_component_button(cls, ctx: ElevatorComponentContext) -> LfgMessage:
         """Get the LFG data from an embed send by me"""
 
         # read the lfg id from the embed
@@ -192,7 +189,11 @@ class LfgMessage:
 
     @classmethod
     async def from_lfg_id(
-        cls, lfg_id: int, client: ElevatorSnake | Snake, guild: Guild, ctx: Optional[InteractionContext] = None
+        cls,
+        lfg_id: int,
+        client: ElevatorClient,
+        guild: Guild,
+        ctx: Optional[ElevatorInteractionContext | ElevatorComponentContext] = None,
     ) -> Optional[LfgMessage]:
         """
         Classmethod to get with a known lfg_id
@@ -210,7 +211,7 @@ class LfgMessage:
     @classmethod
     async def create(
         cls,
-        ctx: InteractionContext,
+        ctx: ElevatorInteractionContext,
         activity: str,
         description: str,
         start_time: datetime.datetime | str,
@@ -264,7 +265,7 @@ class LfgMessage:
     async def add_joined(
         self,
         member: Member,
-        ctx: Optional[ComponentContext] = None,
+        ctx: Optional[ElevatorComponentContext] = None,
         force_into_joined: bool = False,
     ) -> bool:
         """Add a member"""
@@ -290,7 +291,7 @@ class LfgMessage:
             return True
         return False
 
-    async def add_backup(self, member: Member, ctx: Optional[ComponentContext] = None) -> bool:
+    async def add_backup(self, member: Member, ctx: Optional[ElevatorComponentContext] = None) -> bool:
         """Add a backup or move a member to backup"""
 
         if member.id not in self.backup_ids:
@@ -303,7 +304,7 @@ class LfgMessage:
             return True
         return False
 
-    async def remove_member(self, member: Member, ctx: Optional[ComponentContext] = None) -> bool:
+    async def remove_member(self, member: Member, ctx: Optional[ElevatorComponentContext] = None) -> bool:
         """Delete a member"""
 
         if member.id in self.joined_ids:
@@ -319,7 +320,9 @@ class LfgMessage:
             return True
         return False
 
-    async def send(self, ctx: ComponentContext | InteractionContext | None = None, force_sort: bool = False):
+    async def send(
+        self, ctx: ElevatorComponentContext | ElevatorInteractionContext | None = None, force_sort: bool = False
+    ):
         """Send / edit the message in the channel"""
 
         embed = await self.__return_embed()

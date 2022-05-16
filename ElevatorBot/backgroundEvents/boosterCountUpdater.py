@@ -1,5 +1,5 @@
 from ElevatorBot.backgroundEvents.base import BaseEvent
-from ElevatorBot.discordEvents.base import ElevatorSnake
+from ElevatorBot.discordEvents.base import ElevatorClient
 from ElevatorBot.misc.cache import descend_cache
 from ElevatorBot.networking.errors import BackendException
 from ElevatorBot.static.descendOnlyIds import descend_channels
@@ -12,7 +12,7 @@ class BoosterCountUpdater(BaseEvent):
         interval_minutes = 30
         super().__init__(scheduler_type="interval", interval_minutes=interval_minutes)
 
-    async def run(self, client: ElevatorSnake):
+    async def run(self, client: ElevatorClient):
         # get the channel if exists and update that message
         try:
             channel = await descend_cache.get_booster_count()

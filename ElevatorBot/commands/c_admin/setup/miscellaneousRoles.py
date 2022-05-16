@@ -1,20 +1,11 @@
 from typing import Optional
 
-from dis_snek import (
-    ActionRow,
-    ChannelTypes,
-    GuildChannel,
-    InteractionContext,
-    OptionTypes,
-    Select,
-    SelectOption,
-    slash_command,
-    slash_option,
-)
+from naff import ActionRow, ChannelTypes, GuildChannel, OptionTypes, Select, SelectOption, slash_command, slash_option
 
 from ElevatorBot.commandHelpers.subCommandTemplates import descend_setup_sub_command
-from ElevatorBot.commands.base import BaseScale
+from ElevatorBot.commands.base import BaseModule
 from ElevatorBot.core.misc.persistentMessages import handle_setup_command
+from ElevatorBot.discordEvents.base import ElevatorInteractionContext
 from ElevatorBot.misc.formatting import embed_message
 from ElevatorBot.static.emojis import custom_emojis
 from Shared.functions.readSettingsFile import get_setting
@@ -24,7 +15,7 @@ from Shared.functions.readSettingsFile import get_setting
 # =============
 
 
-class MiscellaneousRoles(BaseScale):
+class MiscellaneousRoles(BaseModule):
     _MISC_ROLES: Optional[dict[str, dict]] = None
 
     def get_misc_roles(self) -> dict[str, dict]:
@@ -91,7 +82,7 @@ class MiscellaneousRoles(BaseScale):
         required=False,
         opt_type=OptionTypes.STRING,
     )
-    async def miscellaneous_roles(self, ctx: InteractionContext, channel: GuildChannel, message_id: str = None):
+    async def miscellaneous_roles(self, ctx: ElevatorInteractionContext, channel: GuildChannel, message_id: str = None):
         if ctx.author.id != 238388130581839872:
             await ctx.send(
                 "This is blocked for now, since it it waiting for a vital unreleased discord feature", ephemeral=True

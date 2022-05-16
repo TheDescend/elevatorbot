@@ -1,13 +1,14 @@
-from dis_snek import InteractionContext, Member, slash_command
+from naff import Member, slash_command
 
 from ElevatorBot.commandHelpers.optionTemplates import default_class_option, default_stat_option, default_user_option
 from ElevatorBot.commandHelpers.subCommandTemplates import stat_sub_command
-from ElevatorBot.commands.base import BaseScale
+from ElevatorBot.commands.base import BaseModule
 from ElevatorBot.core.destiny.stat import get_stat_and_send, stat_translation
+from ElevatorBot.discordEvents.base import ElevatorInteractionContext
 from ElevatorBot.static.destinyEnums import StatScope
 
 
-class StatEverything(BaseScale):
+class StatEverything(BaseModule):
     @slash_command(
         **stat_sub_command,
         sub_cmd_name="everything",
@@ -16,7 +17,9 @@ class StatEverything(BaseScale):
     @default_stat_option()
     @default_class_option()
     @default_user_option()
-    async def everything(self, ctx: InteractionContext, name: str, destiny_class: str = None, user: Member = None):
+    async def everything(
+        self, ctx: ElevatorInteractionContext, name: str, destiny_class: str = None, user: Member = None
+    ):
         member = user or ctx.author
         await get_stat_and_send(
             ctx=ctx,

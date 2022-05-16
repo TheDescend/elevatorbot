@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import dataclasses
 
-from dis_snek import Guild, Member
+from naff import Guild, Member
 
 from ElevatorBot.misc.cache import registered_role_cache
 from ElevatorBot.misc.formatting import embed_message

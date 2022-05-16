@@ -1,12 +1,13 @@
-from dis_snek import Attachment, InteractionContext, OptionTypes, slash_command, slash_option
+from naff import Attachment, OptionTypes, slash_command, slash_option
 
 from ElevatorBot.commandHelpers.subCommandTemplates import poll_sub_command
-from ElevatorBot.commands.base import BaseScale
+from ElevatorBot.commands.base import BaseModule
 from ElevatorBot.core.misc.poll import Poll
+from ElevatorBot.discordEvents.base import ElevatorInteractionContext
 from ElevatorBot.networking.misc.polls import BackendPolls
 
 
-class PollCreate(BaseScale):
+class PollCreate(BaseModule):
     @slash_command(
         **poll_sub_command,
         sub_cmd_name="create",
@@ -30,7 +31,7 @@ class PollCreate(BaseScale):
         opt_type=OptionTypes.ATTACHMENT,
         required=False,
     )
-    async def create(self, ctx: InteractionContext, name: str, description: str, image: Attachment = None):
+    async def create(self, ctx: ElevatorInteractionContext, name: str, description: str, image: Attachment = None):
         poll = Poll(
             backend=BackendPolls(ctx=ctx, discord_member=ctx.author, guild=ctx.guild),
             name=name,

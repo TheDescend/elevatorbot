@@ -3,7 +3,7 @@ import itertools
 import re
 from copy import copy
 
-from dis_snek import Activity, Embed, Timestamp, TimestampStyles
+from naff import Activity, Embed, Timestamp, TimestampStyles
 
 from ElevatorBot.misc.cache import descend_cache
 from Shared.functions.helperFunctions import get_now_with_tz
@@ -24,6 +24,7 @@ async def update_discord_bot_status(client):
         "@Feedy's has managed to find errors in three of my statuses so far and all he got was this 🍪",
         "Now using Descend™ green",
         "Join the Descend discord: `discord.gg/descend`",
+        "I love debugging parallel asynchronous functions!!!",
     ]
 
     for element in itertools.cycle(status_messages):

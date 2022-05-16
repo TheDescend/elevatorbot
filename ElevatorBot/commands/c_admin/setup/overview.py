@@ -1,15 +1,16 @@
-from dis_snek import InteractionContext, slash_command
+from naff import slash_command
 
 from ElevatorBot.commandHelpers.subCommandTemplates import setup_sub_command
-from ElevatorBot.commands.base import BaseScale
+from ElevatorBot.commands.base import BaseModule
 from ElevatorBot.core.misc.persistentMessages import PersistentMessages
+from ElevatorBot.discordEvents.base import ElevatorInteractionContext
 from ElevatorBot.misc.formatting import embed_message
 from ElevatorBot.networking.destiny.clan import DestinyClan
 from ElevatorBot.static.descendOnlyIds import descend_channels
 from Shared.networkingSchemas.misc.persistentMessages import PersistentMessage
 
 
-class Overview(BaseScale):
+class Overview(BaseModule):
 
     # todo perms
     @slash_command(
@@ -17,7 +18,7 @@ class Overview(BaseScale):
         sub_cmd_name="overview",
         sub_cmd_description="Gives you an overview over my setting for this server",
     )
-    async def overview(self, ctx: InteractionContext):
+    async def overview(self, ctx: ElevatorInteractionContext):
         if ctx.author.id != 238388130581839872:
             await ctx.send(
                 "This is blocked for now, since it it waiting for a vital unreleased discord feature", ephemeral=True

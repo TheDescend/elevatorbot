@@ -2,7 +2,7 @@ import dataclasses
 import datetime
 from typing import Optional
 
-from dis_snek import Guild
+from naff import Guild
 
 from ElevatorBot.networking.http import BaseBackendConnection
 from ElevatorBot.networking.routes import (

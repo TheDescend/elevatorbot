@@ -1,21 +1,12 @@
-from dis_snek import (
-    ActionRow,
-    Button,
-    ButtonStyles,
-    InteractionContext,
-    Member,
-    OptionTypes,
-    SlashCommandChoice,
-    slash_command,
-    slash_option,
-)
+from naff import ActionRow, Button, ButtonStyles, Member, OptionTypes, SlashCommandChoice, slash_command, slash_option
 
 from ElevatorBot.commandHelpers.optionTemplates import default_user_option
-from ElevatorBot.commands.base import BaseScale
+from ElevatorBot.commands.base import BaseModule
+from ElevatorBot.discordEvents.base import ElevatorInteractionContext
 from ElevatorBot.networking.destiny.profile import DestinyProfile
 
 
-class Website(BaseScale):
+class Website(BaseModule):
 
     system_to_name = {1: "xb", 2: "ps", 3: "pc"}
 
@@ -43,7 +34,7 @@ class Website(BaseScale):
         ],
     )
     @default_user_option()
-    async def website(self, ctx: InteractionContext, website: str, user: Member = None):
+    async def website(self, ctx: ElevatorInteractionContext, website: str, user: Member = None):
         if not user:
             user = ctx.author
 

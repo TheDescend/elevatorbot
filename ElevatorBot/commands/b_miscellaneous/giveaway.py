@@ -1,15 +1,7 @@
-from dis_snek import (
-    ActionRow,
-    Button,
-    ButtonStyles,
-    InteractionContext,
-    Member,
-    OptionTypes,
-    slash_command,
-    slash_option,
-)
+from naff import ActionRow, Button, ButtonStyles, Member, OptionTypes, slash_command, slash_option
 
-from ElevatorBot.commands.base import BaseScale
+from ElevatorBot.commands.base import BaseModule
+from ElevatorBot.discordEvents.base import ElevatorInteractionContext
 from ElevatorBot.misc.formatting import embed_message
 from ElevatorBot.networking.misc.giveaway import BackendGiveaway
 from Shared.functions.readSettingsFile import get_setting
@@ -19,7 +11,7 @@ from Shared.functions.readSettingsFile import get_setting
 # =============
 
 
-class Giveaway(BaseScale):
+class Giveaway(BaseModule):
     # todo perm
     @slash_command(name="giveaway", description="Creates a giveaway", scopes=get_setting("COMMAND_GUILD_SCOPE"))
     @slash_option(
@@ -31,7 +23,7 @@ class Giveaway(BaseScale):
         opt_type=OptionTypes.USER,
         required=False,
     )
-    async def giveaway(self, ctx: InteractionContext, description: str, host: Member = None):
+    async def giveaway(self, ctx: ElevatorInteractionContext, description: str, host: Member = None):
         if ctx.author.id != 238388130581839872:
             await ctx.send(
                 "This is blocked for now, since it it waiting for a vital unreleased discord feature", ephemeral=True

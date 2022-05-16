@@ -1,4 +1,4 @@
-from dis_snek import InteractionContext, Member, Timestamp, TimestampStyles, slash_command
+from naff import Member, Timestamp, TimestampStyles, slash_command
 
 from ElevatorBot.commandHelpers import autocomplete
 from ElevatorBot.commandHelpers.optionTemplates import (
@@ -11,7 +11,8 @@ from ElevatorBot.commandHelpers.optionTemplates import (
     default_time_option,
     default_user_option,
 )
-from ElevatorBot.commands.base import BaseScale
+from ElevatorBot.commands.base import BaseModule
+from ElevatorBot.discordEvents.base import ElevatorInteractionContext
 from ElevatorBot.misc.formatting import capitalize_string, embed_message
 from ElevatorBot.misc.helperFunctions import get_emoji_by_name, parse_datetime_options
 from ElevatorBot.networking.destiny.weapons import DestinyWeapons
@@ -25,7 +26,7 @@ from Shared.enums.destiny import (
 from Shared.networkingSchemas.destiny import DestinyWeaponStatsInputModel
 
 
-class WeaponsWeapon(BaseScale):
+class WeaponsWeapon(BaseModule):
     @slash_command(
         name="weapons_weapon",
         description="Shows Destiny 2 weapon stats for the specified weapon",
@@ -47,7 +48,7 @@ class WeaponsWeapon(BaseScale):
     @default_user_option()
     async def weapon(
         self,
-        ctx: InteractionContext,
+        ctx: ElevatorInteractionContext,
         weapon: str,
         mode: str = None,
         activity: str = None,

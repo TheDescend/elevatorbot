@@ -1,11 +1,14 @@
 from typing import Optional
 
-from dis_snek import InteractionContext, Member, Permissions
+from naff import Member, Permissions
 
+from ElevatorBot.discordEvents.base import ElevatorInteractionContext
 from ElevatorBot.misc.formatting import embed_message
 
 
-async def has_admin_permission(member: Member, ctx: Optional[InteractionContext] = None, hidden: bool = True) -> bool:
+async def has_admin_permission(
+    member: Member, ctx: Optional[ElevatorInteractionContext] = None, hidden: bool = True
+) -> bool:
     """Returns if the member has admin permission"""
 
     result = member.has_permission(Permissions.ADMINISTRATOR)

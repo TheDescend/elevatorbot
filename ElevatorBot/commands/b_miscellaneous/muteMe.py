@@ -4,11 +4,12 @@ import io
 import random
 
 import aiohttp
-from dis_snek import File, InteractionContext, Member, slash_command
-from dis_snek.client.errors import Forbidden
+from naff import File, Member, slash_command
+from naff.client.errors import Forbidden
 
 from ElevatorBot.commandHelpers.optionTemplates import default_user_option
-from ElevatorBot.commands.base import BaseScale
+from ElevatorBot.commands.base import BaseModule
+from ElevatorBot.discordEvents.base import ElevatorInteractionContext
 from Shared.functions.helperFunctions import get_now_with_tz
 from Shared.functions.readSettingsFile import get_setting
 
@@ -17,10 +18,10 @@ from Shared.functions.readSettingsFile import get_setting
 # =============
 
 
-class MuteMe(BaseScale):
+class MuteMe(BaseModule):
     @slash_command(name="mute_me", description="I wonder what this does...", scopes=get_setting("COMMAND_GUILD_SCOPE"))
     @default_user_option()
-    async def mute_me(self, ctx: InteractionContext, user: Member = None):
+    async def mute_me(self, ctx: ElevatorInteractionContext, user: Member = None):
 
         # no mentioning others here smiley face
         if user:

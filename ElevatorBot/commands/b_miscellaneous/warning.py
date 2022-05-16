@@ -1,7 +1,8 @@
-from dis_snek import InteractionContext, Member, OptionTypes, Timestamp, TimestampStyles, slash_command, slash_option
+from naff import Member, OptionTypes, Timestamp, TimestampStyles, slash_command, slash_option
 
 from ElevatorBot.commandHelpers.optionTemplates import default_user_option
-from ElevatorBot.commands.base import BaseScale
+from ElevatorBot.commands.base import BaseModule
+from ElevatorBot.discordEvents.base import ElevatorInteractionContext
 from ElevatorBot.misc.formatting import embed_message
 from ElevatorBot.networking.misc.moderation import Moderation
 from Shared.functions.readSettingsFile import get_setting
@@ -11,7 +12,7 @@ from Shared.functions.readSettingsFile import get_setting
 # =============
 
 
-class ModWarning(BaseScale):
+class ModWarning(BaseModule):
 
     # todo perm
     @slash_command(name="warning", description="Warns the specified user", scopes=get_setting("COMMAND_GUILD_SCOPE"))
@@ -22,7 +23,7 @@ class ModWarning(BaseScale):
         required=True,
         opt_type=OptionTypes.STRING,
     )
-    async def warning(self, ctx: InteractionContext, user: Member, reason: str):
+    async def warning(self, ctx: ElevatorInteractionContext, user: Member, reason: str):
         if ctx.author.id != 238388130581839872:
             await ctx.send(
                 "This is blocked for now, since it it waiting for a vital unreleased discord feature", ephemeral=True
