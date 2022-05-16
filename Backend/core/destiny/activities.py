@@ -209,7 +209,7 @@ class DestinyActivities:
 
                 # add info to DB
                 await crud_activities.insert(
-                    db=self.db, instance_id=activity.instance_id, activity_time=activity.period, pgcr=pgcr.content
+                    instance_id=activity.instance_id, activity_time=activity.period, pgcr=pgcr.content
                 )
 
                 # delete from to-do DB
