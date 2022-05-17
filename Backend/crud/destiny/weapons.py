@@ -4,7 +4,6 @@ from typing import Optional
 from sqlalchemy import func, select
 from sqlalchemy.engine import Row
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import joinedload
 from sqlalchemy.sql import Select
 
 from Backend.crud.base import CRUDBase
@@ -29,12 +28,6 @@ class CRUDWeapons(CRUDBase):
         """Return where the specified weapon was used"""
 
         query = select(ActivitiesUsersWeapons)
-
-        # join the relationships
-        query = query.join(ActivitiesUsers)
-        query = query.join(Activities)
-        # todo remove all joinedloads (configed in models)
-        query = query.options(joinedload(ActivitiesUsersWeapons.user).joinedload(ActivitiesUsers.activity))
 
         # filter by weapon ids
         query = query.filter(ActivitiesUsersWeapons.weapon_id.in_(weapon_ids))
@@ -83,8 +76,6 @@ class CRUDWeapons(CRUDBase):
         )
 
         # join the tables together
-        query = query.join(ActivitiesUsers)
-        query = query.join(Activities)
         query = query.filter(ActivitiesUsersWeapons.weapon_id == DestinyInventoryItemDefinition.reference_id)
 
         # group them

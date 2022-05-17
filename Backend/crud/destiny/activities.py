@@ -4,7 +4,6 @@ from typing import Optional
 
 from sqlalchemy import distinct, func, not_, select
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import joinedload
 
 from Backend.core.errors import CustomException
 from Backend.crud.base import CRUDBase
@@ -202,7 +201,6 @@ class CRUDActivities(CRUDBase):
         """Gets a list of all Activities that fulfill the get_requirements"""
 
         query = select(ActivitiesUsers)
-        query = query.join(Activities)
 
         query = query.group_by(ActivitiesUsers.id)
         query = query.group_by(Activities.instance_id)
@@ -279,7 +277,6 @@ class CRUDActivities(CRUDBase):
         # limit max users to player_count
         if maximum_allowed_players is not None:
             subquery = select(Activities.instance_id)
-            subquery = subquery.join(ActivitiesUsers)
             subquery = subquery.group_by(Activities.instance_id)
 
             subquery = subquery.having(func.count(distinct(ActivitiesUsers.destiny_id)) <= maximum_allowed_players)
@@ -310,8 +307,6 @@ class CRUDActivities(CRUDBase):
         if activity_ids:
             query = query.filter(Activities.director_activity_hash.in_(activity_ids))
 
-        query = query.join(ActivitiesUsers)
-        query = query.options(joinedload(Activities.users))
         query = query.group_by(Activities.instance_id)
         query = query.group_by(ActivitiesUsers.id)
 
@@ -350,8 +345,6 @@ class CRUDActivities(CRUDBase):
         """Calculate the time played (in seconds) from the DB"""
 
         query = select(func.sum(ActivitiesUsers.time_played_seconds))
-        query = query.join(ActivitiesUsers.activity)
-
         # filter mode
         if mode != 0:
             query = query.filter(Activities.modes.any(mode))
