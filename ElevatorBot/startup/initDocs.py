@@ -3,6 +3,7 @@ from copy import copy
 from typing import Optional
 
 from naff import CommandTypes, ContextMenu, SlashCommand, SlashCommandOption
+from naff.models.naff.localisation import LocalisedField
 
 from ElevatorBot.misc.formatting import capitalize_string
 from Shared.functions.readSettingsFile import get_setting
@@ -42,16 +43,21 @@ def create_command_docs(client):
             # get the docstring
             docstring = data.cog.__doc__
             options = copy(data.options) if hasattr(data, "options") and data.options else []
-            # todo
-            permissions = copy(data.permissions)
+            if data.default_member_permissions:
+                default_required_permissions = data.default_member_permissions.name.capitalize()
+            else:
+                default_required_permissions = "Everyone"
+            enabled_in_dm = copy(data.dm_permission)
             docstring, options = overwrite_options_text(options=options, docstring=docstring)
 
             # check what type of interaction this is
             match data:
                 case ContextMenu():
                     doc = {
-                        "name": resolved_name,
+                        "name": convert_markdown(resolved_name),
                         "description": convert_markdown(str(docstring)),
+                        "default_required_permissions": default_required_permissions,
+                        "enabled_in_dm": enabled_in_dm,
                     }
 
                     match data.type:
@@ -82,7 +88,7 @@ def create_command_docs(client):
 
                     for option in options:
                         option_dict = {
-                            "name": option.name,
+                            "name": convert_markdown(option.name),
                             "description": convert_markdown(option.description),
                             "required": option.required,
                             "autocomplete": option.autocomplete,
@@ -91,7 +97,7 @@ def create_command_docs(client):
                         if option.choices:
                             option_dict.update({"choices": []})
                             for choice in option.choices:
-                                option_dict["choices"].append(choice.name)
+                                option_dict["choices"].append(convert_markdown(choice.name))
 
                         doc["options"].append(option_dict)
 
@@ -115,13 +121,21 @@ def create_command_docs(client):
                         if not found:
                             commands[topic][scope].append(
                                 {
-                                    "base_name": base_name,
+                                    "base_name": convert_markdown(base_name),
                                     "base_description": convert_markdown(data.description),
+                                    "default_required_permissions": default_required_permissions,
+                                    "enabled_in_dm": enabled_in_dm,
                                     "sub_commands": [doc],
                                 }
                             )
 
                     else:
+                        doc.update(
+                            {
+                                "default_required_permissions": default_required_permissions,
+                                "enabled_in_dm": enabled_in_dm,
+                            }
+                        )
                         commands[topic][scope].append(doc)
 
     # sort the commands
@@ -187,7 +201,9 @@ def overwrite_options_text(
     return None, options
 
 
-def convert_markdown(text: str) -> str:
+def convert_markdown(text: str | LocalisedField) -> str:
     """Removes the markdown tags"""
 
+    if isinstance(text, LocalisedField):
+        text = text.default
     return text.replace("`", "")

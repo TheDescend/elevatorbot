@@ -3,17 +3,23 @@
         "Only Available in the Descend Server": [
             {
                 "name": "Add Emoji",
-                "description": "Add the selected image to the guild as an emoji"
+                "description": "Add the selected image to the guild as an emoji",
+                "default_required_permissions": "Administrator",
+                "enabled_in_dm": false
             },
             {
                 "name": "Draw Giveaway Winner",
-                "description": "Close the giveaway and draw a winner from the giveaway. Use multiple times if you want multiple winners"
+                "description": "Close the giveaway and draw a winner from the giveaway. Use multiple times if you want multiple winners",
+                "default_required_permissions": "Administrator",
+                "enabled_in_dm": false
             }
         ],
         "Available Globally": [
             {
                 "name": "Get Timestamps",
-                "description": "Format all (relative) dates and times in the message"
+                "description": "Format all (relative) dates and times in the message",
+                "default_required_permissions": "Everyone",
+                "enabled_in_dm": false
             }
         ]
     },
@@ -21,7 +27,9 @@
         "Available Globally": [
             {
                 "name": "Get Join Code",
-                "description": "Gets the selected users Destiny 2 join code, like /join Name#1234"
+                "description": "Gets the selected users Destiny 2 join code, like /join Name#1234",
+                "default_required_permissions": "Everyone",
+                "enabled_in_dm": false
             }
         ]
     }

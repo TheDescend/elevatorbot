@@ -16,7 +16,6 @@ class RegisteredModule(Cog):
 
     def __init__(self, client: ElevatorClient):
         self.client = client
-        self.add_cog_check(self.no_dm_check)  # noqa
         self.add_cog_check(self.no_pending_check)  # noqa
 
     @staticmethod

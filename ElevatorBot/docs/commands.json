@@ -3,13 +3,17 @@
         "Only Available in the Descend Server": [
             {
                 "name": "day_one_raid_race",
-                "description": "Starts the Day One raid completion announcer"
+                "description": "Starts the Day One raid completion announcer",
+                "default_required_permissions": "Administrator",
+                "enabled_in_dm": false
             }
         ],
         "Available Globally": [
             {
                 "base_name": "Day One Commands",
                 "base_description": "Everything concerning Destiny 2 Day One raid completions",
+                "default_required_permissions": "Everyone",
+                "enabled_in_dm": false,
                 "sub_commands": [
                     {
                         "name": "day_one raid",
@@ -48,6 +52,8 @@
             {
                 "base_name": "Lfg Commands",
                 "base_description": "Everything concerning my awesome Destiny 2 LFG system",
+                "default_required_permissions": "Everyone",
+                "enabled_in_dm": false,
                 "sub_commands": [
                     {
                         "name": "lfg add",
@@ -202,6 +208,8 @@
             {
                 "base_name": "Roles Commands",
                 "base_description": "Various commands concerning Destiny 2 achievement discord roles",
+                "default_required_permissions": "Everyone",
+                "enabled_in_dm": false,
                 "sub_commands": [
                     {
                         "name": "roles get",
@@ -242,6 +250,8 @@
             {
                 "base_name": "Stat Commands",
                 "base_description": "Shows you various Destiny 2 stats",
+                "default_required_permissions": "Everyone",
+                "enabled_in_dm": false,
                 "sub_commands": [
                     {
                         "name": "stat everything",
@@ -489,7 +499,9 @@
                         "required": false,
                         "autocomplete": false
                     }
-                ]
+                ],
+                "default_required_permissions": "Everyone",
+                "enabled_in_dm": false
             },
             {
                 "name": "catalysts",
@@ -501,7 +513,9 @@
                         "required": false,
                         "autocomplete": false
                     }
-                ]
+                ],
+                "default_required_permissions": "Everyone",
+                "enabled_in_dm": false
             },
             {
                 "name": "challenges",
@@ -513,19 +527,9 @@
                         "required": false,
                         "autocomplete": false
                     }
-                ]
-            },
-            {
-                "name": "craftables",
-                "description": "View your craftables",
-                "options": [
-                    {
-                        "name": "user",
-                        "description": "The user you want to look up",
-                        "required": false,
-                        "autocomplete": false
-                    }
-                ]
+                ],
+                "default_required_permissions": "Everyone",
+                "enabled_in_dm": false
             },
             {
                 "name": "destiny",
@@ -537,7 +541,23 @@
                         "required": false,
                         "autocomplete": false
                     }
-                ]
+                ],
+                "default_required_permissions": "Everyone",
+                "enabled_in_dm": false
+            },
+            {
+                "name": "gg_rank",
+                "description": "Gives you your current gg_rank",
+                "options": [
+                    {
+                        "name": "user",
+                        "description": "The user you want to look up",
+                        "required": false,
+                        "autocomplete": false
+                    }
+                ],
+                "default_required_permissions": "Everyone",
+                "enabled_in_dm": false
             },
             {
                 "name": "id",
@@ -549,7 +569,9 @@
                         "required": false,
                         "autocomplete": false
                     }
-                ]
+                ],
+                "default_required_permissions": "Everyone",
+                "enabled_in_dm": false
             },
             {
                 "name": "last",
@@ -599,7 +621,9 @@
                         "required": false,
                         "autocomplete": false
                     }
-                ]
+                ],
+                "default_required_permissions": "Everyone",
+                "enabled_in_dm": false
             },
             {
                 "name": "lore",
@@ -611,7 +635,9 @@
                         "required": true,
                         "autocomplete": true
                     }
-                ]
+                ],
+                "default_required_permissions": "Everyone",
+                "enabled_in_dm": false
             },
             {
                 "name": "materials",
@@ -623,7 +649,9 @@
                         "required": false,
                         "autocomplete": false
                     }
-                ]
+                ],
+                "default_required_permissions": "Everyone",
+                "enabled_in_dm": false
             },
             {
                 "name": "mode",
@@ -716,11 +744,15 @@
                         "required": false,
                         "autocomplete": false
                     }
-                ]
+                ],
+                "default_required_permissions": "Everyone",
+                "enabled_in_dm": false
             },
             {
                 "name": "pop_timeline",
-                "description": "Shows you the Destiny 2 steam maximum population timeline"
+                "description": "Shows you the Destiny 2 steam maximum population timeline",
+                "default_required_permissions": "Everyone",
+                "enabled_in_dm": false
             },
             {
                 "name": "rank_clan",
@@ -831,7 +863,9 @@
                         "required": false,
                         "autocomplete": false
                     }
-                ]
+                ],
+                "default_required_permissions": "Everyone",
+                "enabled_in_dm": false
             },
             {
                 "name": "rank_server",
@@ -942,11 +976,15 @@
                         "required": false,
                         "autocomplete": false
                     }
-                ]
+                ],
+                "default_required_permissions": "Everyone",
+                "enabled_in_dm": false
             },
             {
                 "name": "register",
-                "description": "Link your Destiny 2 account with ElevatorBot"
+                "description": "Link your Destiny 2 account with ElevatorBot",
+                "default_required_permissions": "Everyone",
+                "enabled_in_dm": false
             },
             {
                 "name": "seals",
@@ -958,7 +996,9 @@
                         "required": false,
                         "autocomplete": false
                     }
-                ]
+                ],
+                "default_required_permissions": "Everyone",
+                "enabled_in_dm": false
             },
             {
                 "name": "solos",
@@ -970,7 +1010,9 @@
                         "required": false,
                         "autocomplete": false
                     }
-                ]
+                ],
+                "default_required_permissions": "Everyone",
+                "enabled_in_dm": false
             },
             {
                 "name": "time",
@@ -1020,11 +1062,15 @@
                         "required": false,
                         "autocomplete": false
                     }
-                ]
+                ],
+                "default_required_permissions": "Everyone",
+                "enabled_in_dm": false
             },
             {
                 "name": "unregister",
-                "description": "Unlink your Destiny 2 account from ElevatorBot"
+                "description": "Unlink your Destiny 2 account from ElevatorBot",
+                "default_required_permissions": "Everyone",
+                "enabled_in_dm": true
             },
             {
                 "name": "weapons_meta",
@@ -1156,7 +1202,9 @@
                         "required": false,
                         "autocomplete": false
                     }
-                ]
+                ],
+                "default_required_permissions": "Everyone",
+                "enabled_in_dm": false
             },
             {
                 "name": "weapons_top",
@@ -1174,7 +1222,7 @@
                     },
                     {
                         "name": "weapon",
-                        "description": "If you want a specific weapon to be included in the ranking. Otherwise the command will only show your top eight weapons per slot",
+                        "description": "If you want a specific weapon to be included in the ranking",
                         "required": false,
                         "autocomplete": true
                     },
@@ -1310,7 +1358,9 @@
                         "required": false,
                         "autocomplete": false
                     }
-                ]
+                ],
+                "default_required_permissions": "Everyone",
+                "enabled_in_dm": false
             },
             {
                 "name": "weapons_weapon",
@@ -1415,7 +1465,9 @@
                         "required": false,
                         "autocomplete": false
                     }
-                ]
+                ],
+                "default_required_permissions": "Everyone",
+                "enabled_in_dm": false
             },
             {
                 "name": "website",
@@ -1449,7 +1501,9 @@
                         "required": false,
                         "autocomplete": false
                     }
-                ]
+                ],
+                "default_required_permissions": "Everyone",
+                "enabled_in_dm": false
             }
         ]
     },
@@ -1457,7 +1511,9 @@
         "Only Available in the Descend Server": [
             {
                 "name": "api_key",
-                "description": "Get your own Destiny 2 oauth api key"
+                "description": "Get your own Destiny 2 oauth api key",
+                "default_required_permissions": "Administrator",
+                "enabled_in_dm": true
             },
             {
                 "name": "bug",
@@ -1469,7 +1525,9 @@
                         "required": false,
                         "autocomplete": false
                     }
-                ]
+                ],
+                "default_required_permissions": "Everyone",
+                "enabled_in_dm": false
             },
             {
                 "name": "giveaway",
@@ -1487,11 +1545,15 @@
                         "required": false,
                         "autocomplete": false
                     }
-                ]
+                ],
+                "default_required_permissions": "Administrator",
+                "enabled_in_dm": false
             },
             {
                 "name": "metrics",
-                "description": "Shows interesting ElevatorBot metrics"
+                "description": "Shows interesting ElevatorBot metrics",
+                "default_required_permissions": "Administrator",
+                "enabled_in_dm": false
             },
             {
                 "name": "mute",
@@ -1525,7 +1587,9 @@
                         "required": true,
                         "autocomplete": false
                     }
-                ]
+                ],
+                "default_required_permissions": "Administrator",
+                "enabled_in_dm": false
             },
             {
                 "name": "mute_me",
@@ -1537,11 +1601,15 @@
                         "required": false,
                         "autocomplete": false
                     }
-                ]
+                ],
+                "default_required_permissions": "Everyone",
+                "enabled_in_dm": false
             },
             {
                 "name": "socialist",
-                "description": "Spams #socialist \ud83d\ude43"
+                "description": "Spams #socialist \ud83d\ude43",
+                "default_required_permissions": "Everyone",
+                "enabled_in_dm": false
             },
             {
                 "name": "warning",
@@ -1559,13 +1627,17 @@
                         "required": true,
                         "autocomplete": false
                     }
-                ]
+                ],
+                "default_required_permissions": "Administrator",
+                "enabled_in_dm": false
             }
         ],
         "Available Globally": [
             {
                 "base_name": "Poll Commands",
                 "base_description": "Making polls easy",
+                "default_required_permissions": "Everyone",
+                "enabled_in_dm": false,
                 "sub_commands": [
                     {
                         "name": "poll add",
@@ -1656,6 +1728,8 @@
             {
                 "base_name": "Tictactoe Commands",
                 "base_description": "You know and love it - TicTacToe",
+                "default_required_permissions": "Everyone",
+                "enabled_in_dm": false,
                 "sub_commands": [
                     {
                         "name": "tictactoe computer",
@@ -1677,15 +1751,21 @@
             },
             {
                 "name": "boosters",
-                "description": "Prints all premium subscribers (boosters) of this discord server"
+                "description": "Prints all premium subscribers (boosters) of this discord server",
+                "default_required_permissions": "Everyone",
+                "enabled_in_dm": false
             },
             {
                 "name": "bubble_wrap",
-                "description": "This 100% recreates the happy feeling of popping bubble wrap"
+                "description": "This 100% recreates the happy feeling of popping bubble wrap",
+                "default_required_permissions": "Everyone",
+                "enabled_in_dm": false
             },
             {
                 "name": "calculator",
-                "description": "Summons a handy calculator"
+                "description": "Summons a handy calculator",
+                "default_required_permissions": "Everyone",
+                "enabled_in_dm": false
             },
             {
                 "name": "discord_join_date",
@@ -1697,11 +1777,15 @@
                         "required": false,
                         "autocomplete": false
                     }
-                ]
+                ],
+                "default_required_permissions": "Everyone",
+                "enabled_in_dm": false
             },
             {
                 "name": "funfact",
-                "description": "Get a fun fact, which most of the time is even pretty interesting"
+                "description": "Get a fun fact, which most of the time is even pretty interesting",
+                "default_required_permissions": "Everyone",
+                "enabled_in_dm": false
             }
         ]
     },
@@ -1710,6 +1794,8 @@
             {
                 "base_name": "Descend Setup Commands",
                 "base_description": "Use these commands to setup ElevatorBot on this server",
+                "default_required_permissions": "Administrator",
+                "enabled_in_dm": false,
                 "sub_commands": [
                     {
                         "name": "descend_setup booster_count",
@@ -1778,6 +1864,8 @@
             {
                 "base_name": "Setup Commands",
                 "base_description": "Use these commands to setup ElevatorBot on this server",
+                "default_required_permissions": "Administrator",
+                "enabled_in_dm": false,
                 "sub_commands": [
                     {
                         "name": "setup bungie_feed",
@@ -1923,7 +2011,9 @@
                         "required": false,
                         "autocomplete": false
                     }
-                ]
+                ],
+                "default_required_permissions": "Administrator",
+                "enabled_in_dm": false
             }
         ]
     }
