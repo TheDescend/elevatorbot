@@ -7,10 +7,11 @@ anyio==3.5.0
 apscheduler==3.9.1
 cachetools==5.0.0
 dateparser==1.1.1
+git+https://github.com/Discord-Snake-Pit/NAFF@9d001ff81168aea569e4190b7def0f9c999715f5
 gtts==2.2.4
 ics==0.7
 matplotlib==3.5.1
-naff[voice]==1.0.0
+# naff[voice]==1.0.0
 orjson==3.6.8
 pandas==1.4.1
 pillow==9.1.0
