@@ -78,16 +78,13 @@ export default function ServerRolePage({
         const newRole = {
             "role_id": null,
             "guild_id": guild_id,
-            "role_data": {
-                "category": "Destiny Role",
-                "deprecated": false,
-                "acquirable": true,
-                "replaced_by_role_id": null,
-                "require_activity_completions": [],
-                "require_collectibles": [],
-                "require_records": [],
-                "require_role_ids": [],
-            }
+            "category": "Destiny Role",
+            "deprecated": false,
+            "acquirable": true,
+            "require_activity_completions": [],
+            "require_collectibles": [],
+            "require_records": [],
+            "require_role_ids": [],
         }
         updateGuildRoles([...guildRoles, newRole])
     }

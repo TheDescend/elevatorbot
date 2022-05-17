@@ -76,16 +76,14 @@ export default function RoleForm({
         let data = {
             "role_id": form.role_id.value,
             "guild_id": form.guild_id.value,
-            "role_data": {
-                "category": form.category.value,
-                "deprecated": form.deprecated.checked,
-                "acquirable": form.acquirable.checked,
-                "replaced_by_role_id": replacedByRoleId,
-                "require_activity_completions": [],
-                "require_collectibles": [],
-                "require_records": [],
-                "require_role_ids": [],
-            }
+            "category": form.category.value,
+            "deprecated": form.deprecated.checked,
+            "acquirable": form.acquirable.checked,
+            "require_activity_completions": [],
+            "require_collectibles": [],
+            "require_records": [],
+            "require_role_ids": [],
+            "replaced_by_role_id": replacedByRoleId,
         }
         for (const [_, value] of Object.entries(form)) {
             if (!(value.id)) {
@@ -105,10 +103,10 @@ export default function RoleForm({
             })
 
             if (parts.length > 1) {
-                if (data["role_data"][parts[0]].length <= parts[1]) {
+                if (data[parts[0]].length <= parts[1]) {
                     switch (parts[0]) {
                         case "require_activity_completions":
-                            data["role_data"][parts[0]].push({
+                            data[parts[0]].push({
                                 "allowed_activity_hashes": [],
                                 "count": 1,
                                 "allow_checkpoints": false,
@@ -127,11 +125,11 @@ export default function RoleForm({
                             break
 
                         case "require_role_ids":
-                            data["role_data"][parts[0]].push(null)
+                            data[parts[0]].push(null)
                             break
 
                         default:
-                            data["role_data"][parts[0]].push({
+                            data[parts[0]].push({
                                 "bungie_id": null,
                                 "inverse": false,
                             })
@@ -141,20 +139,20 @@ export default function RoleForm({
                 switch (parts[2]) {
                     case "allow_time_periods":
                     case "disallow_time_periods":
-                        if (data["role_data"][parts[0]][parts[1]][parts[2]].length <= parts[3]) {
-                            data["role_data"][parts[0]][parts[1]][parts[2]].push({
+                        if (data[parts[0]][parts[1]][parts[2]].length <= parts[3]) {
+                            data[parts[0]][parts[1]][parts[2]].push({
                                 "start_time": null,
                                 "end_time": null,
                             })
                         }
-                        data["role_data"][parts[0]][parts[1]][parts[2]][parts[3]][parts[4]] = new Date(value.value)
+                        data[parts[0]][parts[1]][parts[2]][parts[3]][parts[4]] = new Date(value.value)
                         break
 
                     case "inverse":
                     case "allow_checkpoints":
                     case "require_team_flawless":
                     case "require_individual_flawless":
-                        data["role_data"][parts[0]][parts[1]][parts[2]] = value.checked
+                        data[parts[0]][parts[1]][parts[2]] = value.checked
                         break
 
                     case "allowed_activity_hashes":
@@ -162,7 +160,7 @@ export default function RoleForm({
                         for (const [_, item] of Object.entries(value.selectedOptions)) {
                             a.push(...item.value.split(","))
                         }
-                        data["role_data"][parts[0]][parts[1]][parts[2]] = a
+                        data[parts[0]][parts[1]][parts[2]] = a
                         break
 
                     default:
@@ -173,7 +171,7 @@ export default function RoleForm({
                         if (b === "") {
                             b = null
                         }
-                        data["role_data"][parts[0]][parts[1]][parts[2]] = b
+                        data[parts[0]][parts[1]][parts[2]] = b
                         break
                 }
             }
@@ -215,15 +213,15 @@ export default function RoleForm({
             updateDiscordRole(discordRoles[data["role_id"]])
 
             updateRoleId(data["role_id"])
-            updateCategory(data["role_data"]["category"])
-            updateDeprecated(data["role_data"]["deprecated"])
-            updateAcquirable(data["role_data"]["acquirable"])
-            updateReplacedBy(data["role_data"]["replaced_by_role_id"])
+            updateCategory(data["category"])
+            updateDeprecated(data["deprecated"])
+            updateAcquirable(data["acquirable"])
+            updateReplacedBy(data["replaced_by_role_id"])
 
-            updateActivities(data["role_data"]["require_activity_completions"])
-            updateCollectibles(data["role_data"]["require_collectibles"])
-            updateRecords(data["role_data"]["require_records"])
-            updateReqRoles(data["role_data"]["require_role_ids"])
+            updateActivities(data["require_activity_completions"])
+            updateCollectibles(data["require_collectibles"])
+            updateRecords(data["require_records"])
+            updateReqRoles(data["require_role_ids"])
 
             if (!rolesIds.includes(data["role_id"])) {
                 updateRolesIds([...rolesIds, data["role_id"]])
@@ -242,15 +240,15 @@ export default function RoleForm({
     const [discordRole, updateDiscordRole] = useState(discordRoles[role["role_id"]])
 
     const [roleId, updateRoleId] = useState(role["role_id"])
-    const [category, updateCategory] = useState(role["role_data"]["category"])
-    const [deprecated, updateDeprecated] = useState(role["role_data"]["deprecated"])
-    const [acquirable, updateAcquirable] = useState(role["role_data"]["acquirable"])
-    const [replacedBy, updateReplacedBy] = useState(role["role_data"]["replaced_by_role_id"])
+    const [category, updateCategory] = useState(role["category"])
+    const [deprecated, updateDeprecated] = useState(role["deprecated"])
+    const [acquirable, updateAcquirable] = useState(role["acquirable"])
+    const [replacedBy, updateReplacedBy] = useState(role["replaced_by_role_id"])
 
-    const [activities, updateActivities] = useState(role["role_data"]["require_activity_completions"])
-    const [collectibles, updateCollectibles] = useState(role["role_data"]["require_collectibles"])
-    const [records, updateRecords] = useState(role["role_data"]["require_records"])
-    const [reqRoles, updateReqRoles] = useState(role["role_data"]["require_role_ids"])
+    const [activities, updateActivities] = useState(role["require_activity_completions"])
+    const [collectibles, updateCollectibles] = useState(role["require_collectibles"])
+    const [records, updateRecords] = useState(role["require_records"])
+    const [reqRoles, updateReqRoles] = useState(role["require_role_ids"])
 
     // disable the button while exchanging data with the backend
     const [buttonDisabled, updateButtonDisabled] = useState(false)
@@ -324,7 +322,7 @@ export default function RoleForm({
                         return
 
                     default:
-                        updateRecords([...reqRoles, data])
+                        updateRecords([...records, data])
                         return
                 }
         }
@@ -1155,7 +1153,7 @@ function HandleRecords({data, adminPerms, destinyTriumphs, handleDelete, buttonD
                             <div className="grid grid-cols-1 gap-4">
                                 <div className={`${textInputDivFormatting} `}>
                                     <label className={labelFormatting} htmlFor={`require_records-${index}-bungie_id`}>
-                                        Require Record
+                                        Require Triumph
                                     </label>
                                     <select
                                         className={selectInputFormatting}
@@ -1163,7 +1161,7 @@ function HandleRecords({data, adminPerms, destinyTriumphs, handleDelete, buttonD
                                         name={`require_records-${index}-bungie_id`}
                                         disabled={!adminPerms} required
                                     >
-                                        <option value="" disabled selected>Select the Record</option>
+                                        <option value="" disabled selected>Select the Triumph</option>
                                         {
                                             destinyTriumphs["triumphs"].map((destinyTriumph) => {
                                                 if (record["bungie_id"] === (destinyTriumph["reference_id"])) {
