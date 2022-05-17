@@ -19,7 +19,6 @@ export async function getStaticProps() {
     }
 }
 
-// todo add permissions here
 export default function ContextMenus({allContextMenus}) {
     const gridStyle = "grid grid-flow-row gap-2 pl-2 pt-2"
 
