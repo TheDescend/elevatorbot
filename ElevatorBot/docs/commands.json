@@ -12,12 +12,12 @@
             {
                 "base_name": "Day One Commands",
                 "base_description": "Everything concerning Destiny 2 Day One raid completions",
-                "default_required_permissions": "Everyone",
-                "enabled_in_dm": false,
                 "sub_commands": [
                     {
                         "name": "day_one raid",
                         "description": "Get the users with a Day One raid completion of the specified raid",
+                        "default_required_permissions": null,
+                        "enabled_in_dm": false,
                         "options": [
                             {
                                 "name": "raid",
@@ -38,6 +38,8 @@
                     {
                         "name": "day_one user",
                         "description": "Look up the Day One raid completions",
+                        "default_required_permissions": null,
+                        "enabled_in_dm": false,
                         "options": [
                             {
                                 "name": "user",
@@ -52,12 +54,12 @@
             {
                 "base_name": "Lfg Commands",
                 "base_description": "Everything concerning my awesome Destiny 2 LFG system",
-                "default_required_permissions": "Everyone",
-                "enabled_in_dm": false,
                 "sub_commands": [
                     {
                         "name": "lfg add",
                         "description": "This adds people into the main roster of an LFG event, even if is full",
+                        "default_required_permissions": null,
+                        "enabled_in_dm": false,
                         "options": [
                             {
                                 "name": "lfg_id",
@@ -76,6 +78,8 @@
                     {
                         "name": "lfg alert",
                         "description": "Message all users in the event",
+                        "default_required_permissions": null,
+                        "enabled_in_dm": false,
                         "options": [
                             {
                                 "name": "lfg_id",
@@ -88,6 +92,8 @@
                     {
                         "name": "lfg create",
                         "description": "Creates an LFG event",
+                        "default_required_permissions": null,
+                        "enabled_in_dm": false,
                         "options": [
                             {
                                 "name": "activity",
@@ -127,6 +133,8 @@
                     {
                         "name": "lfg delete",
                         "description": "When you fucked up and need to delete an event",
+                        "default_required_permissions": null,
+                        "enabled_in_dm": false,
                         "options": [
                             {
                                 "name": "lfg_id",
@@ -139,6 +147,8 @@
                     {
                         "name": "lfg edit",
                         "description": "When you fucked up and need to edit an event",
+                        "default_required_permissions": null,
+                        "enabled_in_dm": false,
                         "options": [
                             {
                                 "name": "lfg_id",
@@ -183,11 +193,15 @@
                     },
                     {
                         "name": "lfg joined",
-                        "description": "Shows you an overview of all LFG events you have joined"
+                        "description": "Shows you an overview of all LFG events you have joined",
+                        "default_required_permissions": null,
+                        "enabled_in_dm": false
                     },
                     {
                         "name": "lfg kick",
                         "description": "Kick a user from an lfg event",
+                        "default_required_permissions": null,
+                        "enabled_in_dm": false,
                         "options": [
                             {
                                 "name": "lfg_id",
@@ -208,16 +222,18 @@
             {
                 "base_name": "Roles Commands",
                 "base_description": "Various commands concerning Destiny 2 achievement discord roles",
-                "default_required_permissions": "Everyone",
-                "enabled_in_dm": false,
                 "sub_commands": [
                     {
                         "name": "roles get",
-                        "description": "Assigns you all the Destiny 2 achievement roles you have earned"
+                        "description": "Assigns you all the Destiny 2 achievement roles you have earned",
+                        "default_required_permissions": null,
+                        "enabled_in_dm": false
                     },
                     {
                         "name": "roles missing",
                         "description": "Shows you what Destiny 2 achievement roles you can still achieve",
+                        "default_required_permissions": null,
+                        "enabled_in_dm": false,
                         "options": [
                             {
                                 "name": "user",
@@ -230,6 +246,8 @@
                     {
                         "name": "roles requirements",
                         "description": "Shows you what you still need to do to get the specified Destiny 2 achievement role",
+                        "default_required_permissions": null,
+                        "enabled_in_dm": false,
                         "options": [
                             {
                                 "name": "role",
@@ -250,12 +268,12 @@
             {
                 "base_name": "Stat Commands",
                 "base_description": "Shows you various Destiny 2 stats",
-                "default_required_permissions": "Everyone",
-                "enabled_in_dm": false,
                 "sub_commands": [
                     {
                         "name": "stat everything",
                         "description": "Displays the specified stat for all activities",
+                        "default_required_permissions": null,
+                        "enabled_in_dm": false,
                         "options": [
                             {
                                 "name": "name",
@@ -312,6 +330,8 @@
                     {
                         "name": "stat pve",
                         "description": "Displays the specified stat for all PvE activities",
+                        "default_required_permissions": null,
+                        "enabled_in_dm": false,
                         "options": [
                             {
                                 "name": "name",
@@ -368,6 +388,8 @@
                     {
                         "name": "stat pvp",
                         "description": "Displays the specified stat for all PvP activities",
+                        "default_required_permissions": null,
+                        "enabled_in_dm": false,
                         "options": [
                             {
                                 "name": "name",
@@ -426,6 +448,8 @@
             {
                 "name": "activity",
                 "description": "Display stats for Destiny 2 activities",
+                "default_required_permissions": null,
+                "enabled_in_dm": false,
                 "options": [
                     {
                         "name": "activity",
@@ -499,13 +523,13 @@
                         "required": false,
                         "autocomplete": false
                     }
-                ],
-                "default_required_permissions": "Everyone",
-                "enabled_in_dm": false
+                ]
             },
             {
                 "name": "catalysts",
                 "description": "Shows you Destiny 2 exotic weapon catalysts and their completion status",
+                "default_required_permissions": null,
+                "enabled_in_dm": false,
                 "options": [
                     {
                         "name": "user",
@@ -513,13 +537,13 @@
                         "required": false,
                         "autocomplete": false
                     }
-                ],
-                "default_required_permissions": "Everyone",
-                "enabled_in_dm": false
+                ]
             },
             {
                 "name": "challenges",
                 "description": "Shows you the current Destiny 2 seasonal challenges and your completion status",
+                "default_required_permissions": null,
+                "enabled_in_dm": false,
                 "options": [
                     {
                         "name": "user",
@@ -527,13 +551,13 @@
                         "required": false,
                         "autocomplete": false
                     }
-                ],
-                "default_required_permissions": "Everyone",
-                "enabled_in_dm": false
+                ]
             },
             {
                 "name": "destiny",
                 "description": "Gives you an overview of your Destiny 2 stats",
+                "default_required_permissions": null,
+                "enabled_in_dm": false,
                 "options": [
                     {
                         "name": "user",
@@ -541,13 +565,13 @@
                         "required": false,
                         "autocomplete": false
                     }
-                ],
-                "default_required_permissions": "Everyone",
-                "enabled_in_dm": false
+                ]
             },
             {
                 "name": "gg_rank",
                 "description": "Gives you your current gg_rank",
+                "default_required_permissions": null,
+                "enabled_in_dm": false,
                 "options": [
                     {
                         "name": "user",
@@ -555,13 +579,13 @@
                         "required": false,
                         "autocomplete": false
                     }
-                ],
-                "default_required_permissions": "Everyone",
-                "enabled_in_dm": false
+                ]
             },
             {
                 "name": "id",
                 "description": "Get a users Bungie Name. It can be used to join people in Destiny 2 without adding them as a friend",
+                "default_required_permissions": null,
+                "enabled_in_dm": false,
                 "options": [
                     {
                         "name": "user",
@@ -569,13 +593,13 @@
                         "required": false,
                         "autocomplete": false
                     }
-                ],
-                "default_required_permissions": "Everyone",
-                "enabled_in_dm": false
+                ]
             },
             {
                 "name": "last",
                 "description": "Stats for the last Destiny 2 activity you played",
+                "default_required_permissions": null,
+                "enabled_in_dm": false,
                 "options": [
                     {
                         "name": "mode",
@@ -621,13 +645,13 @@
                         "required": false,
                         "autocomplete": false
                     }
-                ],
-                "default_required_permissions": "Everyone",
-                "enabled_in_dm": false
+                ]
             },
             {
                 "name": "lore",
                 "description": "Shows you Destiny 2 lore",
+                "default_required_permissions": null,
+                "enabled_in_dm": false,
                 "options": [
                     {
                         "name": "name",
@@ -635,13 +659,13 @@
                         "required": true,
                         "autocomplete": true
                     }
-                ],
-                "default_required_permissions": "Everyone",
-                "enabled_in_dm": false
+                ]
             },
             {
                 "name": "materials",
                 "description": "Shows your number of Destiny 2 materials",
+                "default_required_permissions": null,
+                "enabled_in_dm": false,
                 "options": [
                     {
                         "name": "user",
@@ -649,13 +673,13 @@
                         "required": false,
                         "autocomplete": false
                     }
-                ],
-                "default_required_permissions": "Everyone",
-                "enabled_in_dm": false
+                ]
             },
             {
                 "name": "mode",
                 "description": "Display stats for Destiny 2 activity modes",
+                "default_required_permissions": null,
+                "enabled_in_dm": false,
                 "options": [
                     {
                         "name": "mode",
@@ -744,19 +768,19 @@
                         "required": false,
                         "autocomplete": false
                     }
-                ],
-                "default_required_permissions": "Everyone",
-                "enabled_in_dm": false
+                ]
             },
             {
                 "name": "pop_timeline",
                 "description": "Shows you the Destiny 2 steam maximum population timeline",
-                "default_required_permissions": "Everyone",
+                "default_required_permissions": null,
                 "enabled_in_dm": false
             },
             {
                 "name": "rank_clan",
                 "description": "Display Destiny 2 clan leaderboards. Pick **only** one leaderboard from all options",
+                "default_required_permissions": null,
+                "enabled_in_dm": false,
                 "options": [
                     {
                         "name": "discord_leaderboards",
@@ -863,13 +887,13 @@
                         "required": false,
                         "autocomplete": false
                     }
-                ],
-                "default_required_permissions": "Everyone",
-                "enabled_in_dm": false
+                ]
             },
             {
                 "name": "rank_server",
                 "description": "Display Destiny 2 leaderboards. Pick **only** one leaderboard from all options",
+                "default_required_permissions": null,
+                "enabled_in_dm": false,
                 "options": [
                     {
                         "name": "discord_leaderboards",
@@ -976,19 +1000,19 @@
                         "required": false,
                         "autocomplete": false
                     }
-                ],
-                "default_required_permissions": "Everyone",
-                "enabled_in_dm": false
+                ]
             },
             {
                 "name": "register",
                 "description": "Link your Destiny 2 account with ElevatorBot",
-                "default_required_permissions": "Everyone",
+                "default_required_permissions": null,
                 "enabled_in_dm": false
             },
             {
                 "name": "seals",
                 "description": "View all Destiny 2 seals and your completion status",
+                "default_required_permissions": null,
+                "enabled_in_dm": false,
                 "options": [
                     {
                         "name": "user",
@@ -996,13 +1020,13 @@
                         "required": false,
                         "autocomplete": false
                     }
-                ],
-                "default_required_permissions": "Everyone",
-                "enabled_in_dm": false
+                ]
             },
             {
                 "name": "solos",
                 "description": "Shows you an overview of your notable Destiny 2 solo activity completions",
+                "default_required_permissions": null,
+                "enabled_in_dm": false,
                 "options": [
                     {
                         "name": "user",
@@ -1010,13 +1034,13 @@
                         "required": false,
                         "autocomplete": false
                     }
-                ],
-                "default_required_permissions": "Everyone",
-                "enabled_in_dm": false
+                ]
             },
             {
                 "name": "time",
                 "description": "Shows you your Destiny 2 playtime split up by season",
+                "default_required_permissions": null,
+                "enabled_in_dm": false,
                 "options": [
                     {
                         "name": "mode",
@@ -1062,19 +1086,19 @@
                         "required": false,
                         "autocomplete": false
                     }
-                ],
-                "default_required_permissions": "Everyone",
-                "enabled_in_dm": false
+                ]
             },
             {
                 "name": "unregister",
                 "description": "Unlink your Destiny 2 account from ElevatorBot",
-                "default_required_permissions": "Everyone",
+                "default_required_permissions": null,
                 "enabled_in_dm": true
             },
             {
                 "name": "weapons_meta",
                 "description": "Displays the most used Destiny 2 weapons by clan members from the linked clan",
+                "default_required_permissions": null,
+                "enabled_in_dm": false,
                 "options": [
                     {
                         "name": "mode",
@@ -1202,13 +1226,13 @@
                         "required": false,
                         "autocomplete": false
                     }
-                ],
-                "default_required_permissions": "Everyone",
-                "enabled_in_dm": false
+                ]
             },
             {
                 "name": "weapons_top",
                 "description": "Shows your top Destiny 2 weapon ranking",
+                "default_required_permissions": null,
+                "enabled_in_dm": false,
                 "options": [
                     {
                         "name": "stat",
@@ -1358,13 +1382,13 @@
                         "required": false,
                         "autocomplete": false
                     }
-                ],
-                "default_required_permissions": "Everyone",
-                "enabled_in_dm": false
+                ]
             },
             {
                 "name": "weapons_weapon",
                 "description": "Shows Destiny 2 weapon stats for the specified weapon",
+                "default_required_permissions": null,
+                "enabled_in_dm": false,
                 "options": [
                     {
                         "name": "weapon",
@@ -1465,13 +1489,13 @@
                         "required": false,
                         "autocomplete": false
                     }
-                ],
-                "default_required_permissions": "Everyone",
-                "enabled_in_dm": false
+                ]
             },
             {
                 "name": "website",
                 "description": "Gets your personalised link to curated Destiny 2 stat websites",
+                "default_required_permissions": null,
+                "enabled_in_dm": false,
                 "options": [
                     {
                         "name": "website",
@@ -1501,9 +1525,7 @@
                         "required": false,
                         "autocomplete": false
                     }
-                ],
-                "default_required_permissions": "Everyone",
-                "enabled_in_dm": false
+                ]
             }
         ]
     },
@@ -1518,6 +1540,8 @@
             {
                 "name": "bug",
                 "description": "Use this if you want to report any bugs to the developer",
+                "default_required_permissions": null,
+                "enabled_in_dm": false,
                 "options": [
                     {
                         "name": "image",
@@ -1525,13 +1549,13 @@
                         "required": false,
                         "autocomplete": false
                     }
-                ],
-                "default_required_permissions": "Everyone",
-                "enabled_in_dm": false
+                ]
             },
             {
                 "name": "giveaway",
                 "description": "Creates a giveaway",
+                "default_required_permissions": "Administrator",
+                "enabled_in_dm": false,
                 "options": [
                     {
                         "name": "description",
@@ -1545,9 +1569,7 @@
                         "required": false,
                         "autocomplete": false
                     }
-                ],
-                "default_required_permissions": "Administrator",
-                "enabled_in_dm": false
+                ]
             },
             {
                 "name": "metrics",
@@ -1558,6 +1580,8 @@
             {
                 "name": "mute",
                 "description": "Mutes the specified user",
+                "default_required_permissions": "Administrator",
+                "enabled_in_dm": false,
                 "options": [
                     {
                         "name": "user",
@@ -1587,13 +1611,13 @@
                         "required": true,
                         "autocomplete": false
                     }
-                ],
-                "default_required_permissions": "Administrator",
-                "enabled_in_dm": false
+                ]
             },
             {
                 "name": "mute_me",
                 "description": "I wonder what this does...",
+                "default_required_permissions": null,
+                "enabled_in_dm": false,
                 "options": [
                     {
                         "name": "user",
@@ -1601,19 +1625,19 @@
                         "required": false,
                         "autocomplete": false
                     }
-                ],
-                "default_required_permissions": "Everyone",
-                "enabled_in_dm": false
+                ]
             },
             {
                 "name": "socialist",
                 "description": "Spams #socialist \ud83d\ude43",
-                "default_required_permissions": "Everyone",
+                "default_required_permissions": null,
                 "enabled_in_dm": false
             },
             {
                 "name": "warning",
                 "description": "Warns the specified user",
+                "default_required_permissions": "Administrator",
+                "enabled_in_dm": false,
                 "options": [
                     {
                         "name": "user",
@@ -1627,21 +1651,19 @@
                         "required": true,
                         "autocomplete": false
                     }
-                ],
-                "default_required_permissions": "Administrator",
-                "enabled_in_dm": false
+                ]
             }
         ],
         "Available Globally": [
             {
                 "base_name": "Poll Commands",
                 "base_description": "Making polls easy",
-                "default_required_permissions": "Everyone",
-                "enabled_in_dm": false,
                 "sub_commands": [
                     {
                         "name": "poll add",
                         "description": "Add an option to an existing poll",
+                        "default_required_permissions": null,
+                        "enabled_in_dm": false,
                         "options": [
                             {
                                 "name": "poll_id",
@@ -1660,6 +1682,8 @@
                     {
                         "name": "poll create",
                         "description": "Create a new poll",
+                        "default_required_permissions": null,
+                        "enabled_in_dm": false,
                         "options": [
                             {
                                 "name": "name",
@@ -1684,6 +1708,8 @@
                     {
                         "name": "poll delete",
                         "description": "Delete an existing poll",
+                        "default_required_permissions": null,
+                        "enabled_in_dm": false,
                         "options": [
                             {
                                 "name": "poll_id",
@@ -1696,6 +1722,8 @@
                     {
                         "name": "poll disable",
                         "description": "Disable an existing poll",
+                        "default_required_permissions": null,
+                        "enabled_in_dm": false,
                         "options": [
                             {
                                 "name": "poll_id",
@@ -1708,6 +1736,8 @@
                     {
                         "name": "poll remove",
                         "description": "Remove an existing option from an existing poll",
+                        "default_required_permissions": null,
+                        "enabled_in_dm": false,
                         "options": [
                             {
                                 "name": "poll_id",
@@ -1728,12 +1758,12 @@
             {
                 "base_name": "Tictactoe Commands",
                 "base_description": "You know and love it - TicTacToe",
-                "default_required_permissions": "Everyone",
-                "enabled_in_dm": false,
                 "sub_commands": [
                     {
                         "name": "tictactoe computer",
                         "description": "Try to beat me in a tic tac toe game",
+                        "default_required_permissions": null,
+                        "enabled_in_dm": false,
                         "options": [
                             {
                                 "name": "easy_mode",
@@ -1745,31 +1775,35 @@
                     },
                     {
                         "name": "tictactoe versus",
-                        "description": "Play against other humans"
+                        "description": "Play against other humans",
+                        "default_required_permissions": null,
+                        "enabled_in_dm": false
                     }
                 ]
             },
             {
                 "name": "boosters",
                 "description": "Prints all premium subscribers (boosters) of this discord server",
-                "default_required_permissions": "Everyone",
+                "default_required_permissions": null,
                 "enabled_in_dm": false
             },
             {
                 "name": "bubble_wrap",
                 "description": "This 100% recreates the happy feeling of popping bubble wrap",
-                "default_required_permissions": "Everyone",
+                "default_required_permissions": null,
                 "enabled_in_dm": false
             },
             {
                 "name": "calculator",
                 "description": "Summons a handy calculator",
-                "default_required_permissions": "Everyone",
+                "default_required_permissions": null,
                 "enabled_in_dm": false
             },
             {
                 "name": "discord_join_date",
                 "description": "Check your join date of the discord server where you execute the command",
+                "default_required_permissions": null,
+                "enabled_in_dm": false,
                 "options": [
                     {
                         "name": "user",
@@ -1777,14 +1811,12 @@
                         "required": false,
                         "autocomplete": false
                     }
-                ],
-                "default_required_permissions": "Everyone",
-                "enabled_in_dm": false
+                ]
             },
             {
                 "name": "funfact",
                 "description": "Get a fun fact, which most of the time is even pretty interesting",
-                "default_required_permissions": "Everyone",
+                "default_required_permissions": null,
                 "enabled_in_dm": false
             }
         ]
@@ -1794,12 +1826,12 @@
             {
                 "base_name": "Descend Setup Commands",
                 "base_description": "Use these commands to setup ElevatorBot on this server",
-                "default_required_permissions": "Administrator",
-                "enabled_in_dm": false,
                 "sub_commands": [
                     {
                         "name": "descend_setup booster_count",
                         "description": "Designate a voice channel that will always show the current booster count",
+                        "default_required_permissions": "Administrator",
+                        "enabled_in_dm": false,
                         "options": [
                             {
                                 "name": "category",
@@ -1812,6 +1844,8 @@
                     {
                         "name": "descend_setup member_count",
                         "description": "Designate a voice channel that will always show the current member count",
+                        "default_required_permissions": "Administrator",
+                        "enabled_in_dm": false,
                         "options": [
                             {
                                 "name": "category",
@@ -1824,6 +1858,8 @@
                     {
                         "name": "descend_setup miscellaneous_roles",
                         "description": "Designate a channel in which user can assign themselves miscellaneous roles",
+                        "default_required_permissions": "Administrator",
+                        "enabled_in_dm": false,
                         "options": [
                             {
                                 "name": "channel",
@@ -1842,6 +1878,8 @@
                     {
                         "name": "descend_setup status",
                         "description": "Designate a channel in which status messages get posted and updated",
+                        "default_required_permissions": "Administrator",
+                        "enabled_in_dm": false,
                         "options": [
                             {
                                 "name": "channel",
@@ -1864,12 +1902,12 @@
             {
                 "base_name": "Setup Commands",
                 "base_description": "Use these commands to setup ElevatorBot on this server",
-                "default_required_permissions": "Administrator",
-                "enabled_in_dm": false,
                 "sub_commands": [
                     {
                         "name": "setup bungie_feed",
                         "description": "Designate a channel where bungie articles get posted",
+                        "default_required_permissions": "Administrator",
+                        "enabled_in_dm": false,
                         "options": [
                             {
                                 "name": "channel",
@@ -1888,6 +1926,8 @@
                     {
                         "name": "setup clan join",
                         "description": "Designate a channel where players can join your Destiny 2 clan by pressing a button. They will receive an invite by the person which used /setup clan link",
+                        "default_required_permissions": "Administrator",
+                        "enabled_in_dm": false,
                         "options": [
                             {
                                 "name": "channel",
@@ -1905,15 +1945,21 @@
                     },
                     {
                         "name": "setup clan link",
-                        "description": "Links your own Destiny 2 clan with the discord server this was executed in"
+                        "description": "Links your own Destiny 2 clan with the discord server this was executed in",
+                        "default_required_permissions": "Administrator",
+                        "enabled_in_dm": false
                     },
                     {
                         "name": "setup clan unlink",
-                        "description": "Unlinks the current Destiny 2 clan and the discord server this was executed in"
+                        "description": "Unlinks the current Destiny 2 clan and the discord server this was executed in",
+                        "default_required_permissions": "Administrator",
+                        "enabled_in_dm": false
                     },
                     {
                         "name": "setup increment_button",
                         "description": "Creates a button that users can click and increment. Whoever gets the 69420 click wins",
+                        "default_required_permissions": "Administrator",
+                        "enabled_in_dm": false,
                         "options": [
                             {
                                 "name": "channel",
@@ -1932,6 +1978,8 @@
                     {
                         "name": "setup lfg channel",
                         "description": "Designate a channel where my LFG events get posted",
+                        "default_required_permissions": "Administrator",
+                        "enabled_in_dm": false,
                         "options": [
                             {
                                 "name": "channel",
@@ -1944,6 +1992,8 @@
                     {
                         "name": "setup lfg voice_category",
                         "description": "Designate a category channel under which my LFG voice channels get created. If you want me to automatically create voice channels for each LFG event, use this to set it up",
+                        "default_required_permissions": "Administrator",
+                        "enabled_in_dm": false,
                         "options": [
                             {
                                 "name": "channel",
@@ -1955,11 +2005,15 @@
                     },
                     {
                         "name": "setup overview",
-                        "description": "Gives you an overview over my setting for this server"
+                        "description": "Gives you an overview over my setting for this server",
+                        "default_required_permissions": "Administrator",
+                        "enabled_in_dm": false
                     },
                     {
                         "name": "setup registered_role",
                         "description": "Designate the role that is given to people that /register with me",
+                        "default_required_permissions": "Administrator",
+                        "enabled_in_dm": false,
                         "options": [
                             {
                                 "name": "role",
@@ -1972,6 +2026,8 @@
                     {
                         "name": "setup registration",
                         "description": "Designate a channel in which user can register with me by pressing a button",
+                        "default_required_permissions": "Administrator",
+                        "enabled_in_dm": false,
                         "options": [
                             {
                                 "name": "channel",
@@ -1992,6 +2048,8 @@
             {
                 "name": "user_info",
                 "description": "Gets collected info for the specified user. Exactly one option needs to be filled out",
+                "default_required_permissions": "Administrator",
+                "enabled_in_dm": false,
                 "options": [
                     {
                         "name": "discord_user",
@@ -2011,9 +2069,7 @@
                         "required": false,
                         "autocomplete": false
                     }
-                ],
-                "default_required_permissions": "Administrator",
-                "enabled_in_dm": false
+                ]
             }
         ]
     }

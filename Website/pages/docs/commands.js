@@ -74,6 +74,9 @@ export default function Commands({allCommandData}) {
                 <div className={`${gridStyle} gap-6`}>
                     {commands}
                 </div>
+                <div className="pt-6 pl-2 italic text-xs text-descend">
+                    Unless otherwise specified, commands are not available in DMs.
+                </div>
             </Description>
         </Layout>
     )

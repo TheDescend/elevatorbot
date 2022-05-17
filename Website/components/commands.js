@@ -8,6 +8,20 @@ function Command({command, gridStyle, otherStyleFirst}) {
                     <code>
                         /{command.name}
                     </code>
+                    {command["default_required_permissions"] !== null &&
+                        <span
+                        className="italic text-xs text-descend float-right pr-2 py-1"
+                        >
+                            {command["default_required_permissions"]}
+                        </span>
+                    }
+                    {command["enabled_in_dm"] === true &&
+                        <span
+                        className="italic text-xs text-descend float-right pr-2 py-1"
+                        >
+                            Allowed In DMs
+                        </span>
+                    }
                 </summary>
                 <div className={`${gridStyle}`}>
                     <p>

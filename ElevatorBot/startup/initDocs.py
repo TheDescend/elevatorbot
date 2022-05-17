@@ -46,7 +46,7 @@ def create_command_docs(client):
             if data.default_member_permissions:
                 default_required_permissions = data.default_member_permissions.name.capitalize()
             else:
-                default_required_permissions = "Everyone"
+                default_required_permissions = None
             enabled_in_dm = copy(data.dm_permission)
             docstring, options = overwrite_options_text(options=options, docstring=docstring)
 
@@ -82,6 +82,8 @@ def create_command_docs(client):
                     doc = {
                         "name": resolved_name,
                         "description": convert_markdown(docstring or actual_description),
+                        "default_required_permissions": default_required_permissions,
+                        "enabled_in_dm": enabled_in_dm,
                     }
                     if options:
                         doc.update({"options": []})
@@ -123,19 +125,11 @@ def create_command_docs(client):
                                 {
                                     "base_name": convert_markdown(base_name),
                                     "base_description": convert_markdown(data.description),
-                                    "default_required_permissions": default_required_permissions,
-                                    "enabled_in_dm": enabled_in_dm,
                                     "sub_commands": [doc],
                                 }
                             )
 
                     else:
-                        doc.update(
-                            {
-                                "default_required_permissions": default_required_permissions,
-                                "enabled_in_dm": enabled_in_dm,
-                            }
-                        )
                         commands[topic][scope].append(doc)
 
     # sort the commands
