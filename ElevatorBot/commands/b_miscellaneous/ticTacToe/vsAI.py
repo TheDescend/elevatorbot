@@ -3,7 +3,7 @@ from naff import OptionTypes, slash_command, slash_option
 from ElevatorBot.commandHelpers.subCommandTemplates import tictactoe_sub_command
 from ElevatorBot.commands.base import BaseModule
 from ElevatorBot.core.misc.ticTacToe import TicTacToeGame
-from ElevatorBot.discordEvents.base import ElevatorInteractionContext
+from ElevatorBot.discordEvents.customInteractions import ElevatorInteractionContext
 
 
 class TicTacToeAI(BaseModule):

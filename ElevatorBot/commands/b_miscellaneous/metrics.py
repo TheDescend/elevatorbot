@@ -10,7 +10,7 @@ from psutil._common import bytes2human
 
 from ElevatorBot.commandHelpers.permissionTemplates import restrict_default_permission
 from ElevatorBot.commands.base import BaseModule
-from ElevatorBot.discordEvents.base import ElevatorInteractionContext
+from ElevatorBot.discordEvents.customInteractions import ElevatorInteractionContext
 from ElevatorBot.misc.formatting import embed_message
 from ElevatorBot.static.descendOnlyIds import descend_channels
 from Shared.functions.helperFunctions import get_now_with_tz

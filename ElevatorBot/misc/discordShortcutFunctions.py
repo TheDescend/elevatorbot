@@ -2,7 +2,7 @@ from typing import Optional
 
 from naff import Member, Permissions
 
-from ElevatorBot.discordEvents.base import ElevatorInteractionContext
+from ElevatorBot.discordEvents.customInteractions import ElevatorInteractionContext
 from ElevatorBot.misc.formatting import embed_message
 
 

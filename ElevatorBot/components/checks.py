@@ -1,5 +1,5 @@
 from ElevatorBot.commandHelpers.responseTemplates import respond_pending
-from ElevatorBot.discordEvents.base import ElevatorComponentContext
+from ElevatorBot.discordEvents.customInteractions import ElevatorComponentContext
 
 
 async def check_pending(ctx: ElevatorComponentContext) -> bool:

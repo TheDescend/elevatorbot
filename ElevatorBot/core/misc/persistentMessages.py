@@ -4,7 +4,7 @@ from typing import Optional
 from naff import ActionRow, Embed, GuildChannel, Message
 
 from ElevatorBot.commandHelpers.responseTemplates import respond_wrong_author
-from ElevatorBot.discordEvents.base import ElevatorInteractionContext
+from ElevatorBot.discordEvents.customInteractions import ElevatorInteractionContext
 from ElevatorBot.misc.formatting import embed_message
 from ElevatorBot.networking.errors import BackendException
 from ElevatorBot.networking.misc.backendPersistentMessages import BackendPersistentMessages

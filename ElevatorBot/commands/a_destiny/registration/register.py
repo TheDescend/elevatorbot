@@ -1,7 +1,7 @@
 from naff import ActionRow, Button, ButtonStyles, slash_command
 
 from ElevatorBot.commands.base import RegisteredModule
-from ElevatorBot.discordEvents.base import ElevatorComponentContext, ElevatorInteractionContext
+from ElevatorBot.discordEvents.customInteractions import ElevatorComponentContext, ElevatorInteractionContext
 from ElevatorBot.misc.formatting import embed_message
 from Shared.functions.readSettingsFile import get_setting
 

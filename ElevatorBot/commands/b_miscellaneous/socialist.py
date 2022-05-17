@@ -1,7 +1,7 @@
 from naff import slash_command
 
 from ElevatorBot.commands.base import BaseModule
-from ElevatorBot.discordEvents.base import ElevatorInteractionContext
+from ElevatorBot.discordEvents.customInteractions import ElevatorInteractionContext
 from Shared.functions.readSettingsFile import get_setting
 
 # =============

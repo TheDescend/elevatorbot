@@ -4,7 +4,7 @@ from ElevatorBot.commandHelpers.optionTemplates import default_class_option, def
 from ElevatorBot.commandHelpers.subCommandTemplates import stat_sub_command
 from ElevatorBot.commands.base import BaseModule
 from ElevatorBot.core.destiny.stat import get_stat_and_send, stat_translation
-from ElevatorBot.discordEvents.base import ElevatorInteractionContext
+from ElevatorBot.discordEvents.customInteractions import ElevatorInteractionContext
 from ElevatorBot.static.destinyEnums import StatScope
 
 

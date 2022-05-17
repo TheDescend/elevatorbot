@@ -5,7 +5,7 @@ from typing import Optional
 from naff import ActionRow, Button, ButtonStyles, Message
 from naff.api.events import Component
 
-from ElevatorBot.discordEvents.base import ElevatorComponentContext, ElevatorInteractionContext
+from ElevatorBot.discordEvents.customInteractions import ElevatorComponentContext, ElevatorInteractionContext
 from ElevatorBot.misc.formatting import embed_message
 
 

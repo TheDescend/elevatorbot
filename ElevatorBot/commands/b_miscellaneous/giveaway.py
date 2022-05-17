@@ -2,7 +2,7 @@ from naff import ActionRow, Button, ButtonStyles, Member, OptionTypes, slash_com
 
 from ElevatorBot.commandHelpers.permissionTemplates import restrict_default_permission
 from ElevatorBot.commands.base import BaseModule
-from ElevatorBot.discordEvents.base import ElevatorInteractionContext
+from ElevatorBot.discordEvents.customInteractions import ElevatorInteractionContext
 from ElevatorBot.misc.formatting import embed_message
 from ElevatorBot.networking.misc.giveaway import BackendGiveaway
 from Shared.functions.readSettingsFile import get_setting

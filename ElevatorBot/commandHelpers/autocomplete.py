@@ -1,6 +1,6 @@
 from rapidfuzz import fuzz, process
 
-from ElevatorBot.discordEvents.base import ElevatorAutocompleteContext
+from ElevatorBot.discordEvents.customInteractions import ElevatorAutocompleteContext
 from Shared.networkingSchemas.destiny import DestinyActivityModel, DestinyLoreModel, DestinyWeaponModel
 
 # all activities are in here at runtime

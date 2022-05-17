@@ -3,7 +3,7 @@ from typing import Optional
 
 from naff import Embed
 
-from ElevatorBot.discordEvents.base import ElevatorInteractionContext
+from ElevatorBot.discordEvents.customInteractions import ElevatorInteractionContext
 from ElevatorBot.misc.formatting import embed_message
 from ElevatorBot.networking.errorCodesAndResponses import error_codes_and_responses
 

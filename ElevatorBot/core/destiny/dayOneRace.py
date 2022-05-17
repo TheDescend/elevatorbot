@@ -11,7 +11,7 @@ from anyio import create_task_group
 from naff import File, GuildText, Member, Message, Timestamp, TimestampStyles
 
 from ElevatorBot.commandHelpers.responseTemplates import something_went_wrong
-from ElevatorBot.discordEvents.base import ElevatorInteractionContext
+from ElevatorBot.discordEvents.customInteractions import ElevatorInteractionContext
 from ElevatorBot.misc.formatting import embed_message, format_timedelta
 from ElevatorBot.networking.destiny.account import DestinyAccount
 from ElevatorBot.networking.destiny.activities import DestinyActivities

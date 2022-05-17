@@ -17,7 +17,7 @@ from naff import (
 
 from ElevatorBot.commandHelpers.responseTemplates import respond_timeout
 from ElevatorBot.commands.base import BaseModule
-from ElevatorBot.discordEvents.base import ElevatorInteractionContext, ElevatorModalContext
+from ElevatorBot.discordEvents.customInteractions import ElevatorInteractionContext, ElevatorModalContext
 from ElevatorBot.misc.formatting import embed_message
 from ElevatorBot.networking.github import get_github_labels, get_github_repo
 from ElevatorBot.static.descendOnlyIds import descend_channels

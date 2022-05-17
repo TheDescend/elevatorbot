@@ -31,8 +31,8 @@ from naff.client.errors import Forbidden, NotFound
 
 from ElevatorBot.commandHelpers import autocomplete
 from ElevatorBot.core.destiny.lfg.scheduledEvents import delete_lfg_scheduled_events
-from ElevatorBot.discordEvents.base import (
-    ElevatorClient,
+from ElevatorBot.discordEvents.base import ElevatorClient
+from ElevatorBot.discordEvents.customInteractions import (
     ElevatorComponentContext,
     ElevatorInteractionContext,
     ElevatorModalContext,

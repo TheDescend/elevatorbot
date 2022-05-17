@@ -3,7 +3,7 @@ from naff import OptionTypes, SlashCommandChoice, slash_command, slash_option
 
 from ElevatorBot.commandHelpers.subCommandTemplates import day1completions_sub_command
 from ElevatorBot.commands.base import BaseModule
-from ElevatorBot.discordEvents.base import ElevatorInteractionContext
+from ElevatorBot.discordEvents.customInteractions import ElevatorInteractionContext
 from ElevatorBot.misc.formatting import embed_message
 from ElevatorBot.networking.destiny.account import DestinyAccount
 from ElevatorBot.networking.errors import BackendException

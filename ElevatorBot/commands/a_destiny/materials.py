@@ -3,7 +3,7 @@ from naff import Member, slash_command
 from ElevatorBot.commandHelpers import autocomplete
 from ElevatorBot.commandHelpers.optionTemplates import autocomplete_lore_option, default_user_option
 from ElevatorBot.commands.base import BaseModule
-from ElevatorBot.discordEvents.base import ElevatorInteractionContext
+from ElevatorBot.discordEvents.customInteractions import ElevatorInteractionContext
 from ElevatorBot.misc.formatting import add_filler_field, embed_message
 from ElevatorBot.networking.destiny.account import DestinyAccount
 from ElevatorBot.static.emojis import custom_emojis

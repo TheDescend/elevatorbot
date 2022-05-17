@@ -3,7 +3,7 @@ import logging
 from naff import Client
 from naff.client.errors import CommandCheckFailure
 
-from ElevatorBot.discordEvents.base import ElevatorComponentContext, ElevatorInteractionContext
+from ElevatorBot.discordEvents.customInteractions import ElevatorComponentContext, ElevatorInteractionContext
 from ElevatorBot.misc.helperFunctions import log_error, parse_naff_errors
 from ElevatorBot.networking.errors import BackendException
 

@@ -9,9 +9,9 @@ from rich.panel import Panel
 from rich.progress import Progress
 from rich.text import Text
 
-from ElevatorBot.discordEvents.base import (
+from ElevatorBot.discordEvents.base import ElevatorClient
+from ElevatorBot.discordEvents.customInteractions import (
     ElevatorAutocompleteContext,
-    ElevatorClient,
     ElevatorComponentContext,
     ElevatorInteractionContext,
     ElevatorModalContext,

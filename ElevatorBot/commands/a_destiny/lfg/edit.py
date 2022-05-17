@@ -13,7 +13,7 @@ from ElevatorBot.commandHelpers.responseTemplates import respond_timeout
 from ElevatorBot.commandHelpers.subCommandTemplates import lfg_sub_command
 from ElevatorBot.commands.base import BaseModule
 from ElevatorBot.core.destiny.lfg.lfgSystem import LfgMessage
-from ElevatorBot.discordEvents.base import ElevatorInteractionContext, ElevatorModalContext
+from ElevatorBot.discordEvents.customInteractions import ElevatorInteractionContext, ElevatorModalContext
 from ElevatorBot.misc.discordShortcutFunctions import has_admin_permission
 from ElevatorBot.misc.formatting import embed_message
 from ElevatorBot.misc.helperFunctions import parse_string_datetime

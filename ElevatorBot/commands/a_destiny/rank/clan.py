@@ -8,7 +8,7 @@ from ElevatorBot.commandHelpers.optionTemplates import (
 )
 from ElevatorBot.commands.base import BaseModule
 from ElevatorBot.core.destiny.rank import RankCommandHandler
-from ElevatorBot.discordEvents.base import ElevatorInteractionContext
+from ElevatorBot.discordEvents.customInteractions import ElevatorInteractionContext
 
 
 class RankClan(BaseModule):

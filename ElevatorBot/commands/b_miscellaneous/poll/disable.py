@@ -3,7 +3,7 @@ from naff import OptionTypes, slash_command, slash_option
 from ElevatorBot.commandHelpers.subCommandTemplates import poll_sub_command
 from ElevatorBot.commands.base import BaseModule
 from ElevatorBot.core.misc.poll import Poll
-from ElevatorBot.discordEvents.base import ElevatorInteractionContext
+from ElevatorBot.discordEvents.customInteractions import ElevatorInteractionContext
 
 
 class PollDisable(BaseModule):

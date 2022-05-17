@@ -11,7 +11,7 @@ from ElevatorBot.commandHelpers.optionTemplates import (
 )
 from ElevatorBot.commands.base import BaseModule
 from ElevatorBot.core.destiny.activity import format_and_send_activity_data
-from ElevatorBot.discordEvents.base import ElevatorInteractionContext
+from ElevatorBot.discordEvents.customInteractions import ElevatorInteractionContext
 from ElevatorBot.misc.helperFunctions import parse_datetime_options
 from ElevatorBot.networking.destiny.activities import DestinyActivities
 from Shared.networkingSchemas.destiny import DestinyActivityInputModel

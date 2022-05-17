@@ -3,7 +3,7 @@ from naff import slash_command
 from ElevatorBot.commandHelpers.subCommandTemplates import roles_sub_command
 from ElevatorBot.commands.base import BaseModule
 from ElevatorBot.core.destiny.roles import Roles
-from ElevatorBot.discordEvents.base import ElevatorInteractionContext
+from ElevatorBot.discordEvents.customInteractions import ElevatorInteractionContext
 
 
 class RoleGet(BaseModule):

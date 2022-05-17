@@ -12,7 +12,7 @@ import orjson
 from aiohttp import ClientTimeout
 from naff import Member
 
-from ElevatorBot.discordEvents.base import ElevatorComponentContext, ElevatorInteractionContext
+from ElevatorBot.discordEvents.customInteractions import ElevatorComponentContext, ElevatorInteractionContext
 from ElevatorBot.networking.errors import BackendException
 from ElevatorBot.networking.results import BackendResult
 from Shared.functions.ratelimiter import RateLimiter

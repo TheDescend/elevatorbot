@@ -5,7 +5,7 @@ from urllib.parse import urljoin
 from naff import Button, ButtonStyles, Guild, Member, Role
 
 from ElevatorBot.commandHelpers import autocomplete
-from ElevatorBot.discordEvents.base import ElevatorInteractionContext
+from ElevatorBot.discordEvents.customInteractions import ElevatorInteractionContext
 from ElevatorBot.misc.cache import collectible_cache, triumph_cache
 from ElevatorBot.misc.discordShortcutFunctions import assign_roles_to_member, remove_roles_from_member
 from ElevatorBot.misc.formatting import embed_message

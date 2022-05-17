@@ -5,7 +5,7 @@ from anyio import create_task_group
 from naff import Member, TimestampStyles
 
 from ElevatorBot.commandHelpers import autocomplete
-from ElevatorBot.discordEvents.base import ElevatorInteractionContext
+from ElevatorBot.discordEvents.customInteractions import ElevatorInteractionContext
 from ElevatorBot.misc.formatting import embed_message, format_timedelta, get_emoji_from_rank
 from ElevatorBot.misc.helperFunctions import get_emoji_by_name
 from ElevatorBot.networking.destiny.account import DestinyAccount

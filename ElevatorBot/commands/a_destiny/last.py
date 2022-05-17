@@ -8,7 +8,7 @@ from ElevatorBot.commandHelpers.optionTemplates import (
     default_user_option,
 )
 from ElevatorBot.commands.base import BaseModule
-from ElevatorBot.discordEvents.base import ElevatorInteractionContext
+from ElevatorBot.discordEvents.customInteractions import ElevatorInteractionContext
 from ElevatorBot.misc.formatting import capitalize_string, embed_message, format_timedelta
 from ElevatorBot.networking.destiny.activities import DestinyActivities
 from ElevatorBot.static.emojis import custom_emojis

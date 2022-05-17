@@ -2,7 +2,11 @@ from typing import Optional
 
 from naff import Member, Message, NaffUser
 
-from ElevatorBot.discordEvents.base import ElevatorComponentContext, ElevatorInteractionContext, ElevatorModalContext
+from ElevatorBot.discordEvents.customInteractions import (
+    ElevatorComponentContext,
+    ElevatorInteractionContext,
+    ElevatorModalContext,
+)
 from ElevatorBot.misc.formatting import embed_message
 from ElevatorBot.networking.errorCodesAndResponses import error_codes_and_responses
 

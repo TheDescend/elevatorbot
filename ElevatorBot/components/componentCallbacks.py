@@ -6,7 +6,7 @@ from github.GithubObject import NotSet
 from ElevatorBot.commands.a_destiny.registration.register import send_registration
 from ElevatorBot.core.destiny.lfg.lfgSystem import LfgMessage
 from ElevatorBot.core.misc.poll import Poll
-from ElevatorBot.discordEvents.base import ElevatorComponentContext
+from ElevatorBot.discordEvents.customInteractions import ElevatorComponentContext
 from ElevatorBot.misc.discordShortcutFunctions import assign_roles_to_member, remove_roles_from_member
 from ElevatorBot.misc.formatting import embed_message
 from ElevatorBot.networking.destiny.clan import DestinyClan

@@ -7,7 +7,7 @@ from naff import File, slash_command
 from pandas import DataFrame
 
 from ElevatorBot.commands.base import BaseModule
-from ElevatorBot.discordEvents.base import ElevatorInteractionContext
+from ElevatorBot.discordEvents.customInteractions import ElevatorInteractionContext
 from ElevatorBot.misc.cache import pop_timeline_cache
 from ElevatorBot.misc.formatting import embed_message
 from ElevatorBot.networking.destiny.steamPlayers import SteamPlayers

@@ -2,7 +2,7 @@ from typing import Optional
 
 from naff import Member
 
-from ElevatorBot.discordEvents.base import ElevatorInteractionContext
+from ElevatorBot.discordEvents.customInteractions import ElevatorInteractionContext
 from ElevatorBot.misc.formatting import embed_message
 from ElevatorBot.misc.helperFunctions import get_character_ids_from_class
 from ElevatorBot.networking.destiny.account import DestinyAccount

@@ -3,7 +3,7 @@ from naff import slash_command
 from ElevatorBot.commandHelpers.permissionTemplates import restrict_default_permission
 from ElevatorBot.commands.base import BaseModule
 from ElevatorBot.core.destiny.dayOneRace import DayOneRace
-from ElevatorBot.discordEvents.base import ElevatorInteractionContext
+from ElevatorBot.discordEvents.customInteractions import ElevatorInteractionContext
 from Shared.functions.readSettingsFile import get_setting
 
 # =============

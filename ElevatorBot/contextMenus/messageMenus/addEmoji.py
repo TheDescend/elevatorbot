@@ -10,7 +10,7 @@ from PIL import Image
 from ElevatorBot.commandHelpers.permissionTemplates import restrict_default_permission
 from ElevatorBot.commandHelpers.responseTemplates import respond_timeout
 from ElevatorBot.commands.base import BaseModule
-from ElevatorBot.discordEvents.base import ElevatorInteractionContext, ElevatorModalContext
+from ElevatorBot.discordEvents.customInteractions import ElevatorInteractionContext, ElevatorModalContext
 from ElevatorBot.misc.formatting import embed_message
 from Shared.functions.readSettingsFile import get_setting
 

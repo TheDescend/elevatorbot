@@ -2,7 +2,7 @@ from naff import slash_command
 
 from ElevatorBot.commands.base import BaseModule
 from ElevatorBot.core.misc.calculator import Calculator
-from ElevatorBot.discordEvents.base import ElevatorInteractionContext
+from ElevatorBot.discordEvents.customInteractions import ElevatorInteractionContext
 
 
 class CalculatorCommand(BaseModule):

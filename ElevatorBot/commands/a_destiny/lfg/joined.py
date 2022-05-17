@@ -2,7 +2,7 @@ from naff import Timestamp, TimestampStyles, slash_command
 
 from ElevatorBot.commandHelpers.subCommandTemplates import lfg_sub_command
 from ElevatorBot.commands.base import BaseModule
-from ElevatorBot.discordEvents.base import ElevatorInteractionContext
+from ElevatorBot.discordEvents.customInteractions import ElevatorInteractionContext
 from ElevatorBot.misc.formatting import embed_message
 from ElevatorBot.networking.destiny.lfgSystem import DestinyLfgSystem
 from Shared.networkingSchemas import LfgOutputModel

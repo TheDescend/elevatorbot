@@ -9,7 +9,7 @@ from naff.client.errors import Forbidden
 
 from ElevatorBot.commandHelpers.optionTemplates import default_user_option
 from ElevatorBot.commands.base import BaseModule
-from ElevatorBot.discordEvents.base import ElevatorInteractionContext
+from ElevatorBot.discordEvents.customInteractions import ElevatorInteractionContext
 from Shared.functions.helperFunctions import get_now_with_tz
 from Shared.functions.readSettingsFile import get_setting
 

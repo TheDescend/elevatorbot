@@ -5,7 +5,7 @@ from typing import Any, Callable, Coroutine, Optional
 from naff import ActionRow, Button, ButtonStyles, Embed, Member, Message
 from naff.api.events import Component
 
-from ElevatorBot.discordEvents.base import ElevatorComponentContext, ElevatorInteractionContext
+from ElevatorBot.discordEvents.customInteractions import ElevatorComponentContext, ElevatorInteractionContext
 
 
 async def paginate(

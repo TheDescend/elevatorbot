@@ -2,7 +2,7 @@ from naff import CommandTypes, context_menu
 
 from ElevatorBot.commands.base import BaseModule
 from ElevatorBot.core.misc.timestamps import get_timestamp_embed
-from ElevatorBot.discordEvents.base import ElevatorInteractionContext
+from ElevatorBot.discordEvents.customInteractions import ElevatorInteractionContext
 from ElevatorBot.misc.formatting import embed_message
 
 

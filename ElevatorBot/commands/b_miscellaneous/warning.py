@@ -3,7 +3,7 @@ from naff import Member, OptionTypes, Timestamp, TimestampStyles, slash_command,
 from ElevatorBot.commandHelpers.optionTemplates import default_user_option
 from ElevatorBot.commandHelpers.permissionTemplates import restrict_default_permission
 from ElevatorBot.commands.base import BaseModule
-from ElevatorBot.discordEvents.base import ElevatorInteractionContext
+from ElevatorBot.discordEvents.customInteractions import ElevatorInteractionContext
 from ElevatorBot.misc.formatting import embed_message
 from ElevatorBot.networking.misc.moderation import Moderation
 from Shared.functions.readSettingsFile import get_setting

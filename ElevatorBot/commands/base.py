@@ -1,7 +1,8 @@
 from naff import Cog
 
 from ElevatorBot.commandHelpers.responseTemplates import respond_pending
-from ElevatorBot.discordEvents.base import ElevatorClient, ElevatorInteractionContext
+from ElevatorBot.discordEvents.base import ElevatorClient
+from ElevatorBot.discordEvents.customInteractions import ElevatorInteractionContext
 from ElevatorBot.misc.cache import registered_role_cache
 from ElevatorBot.misc.formatting import embed_message
 from ElevatorBot.networking.destiny.profile import DestinyProfile

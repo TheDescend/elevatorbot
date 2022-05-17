@@ -1,7 +1,10 @@
+from typing import TYPE_CHECKING
+
 from naff import CustomEmoji
 from naff.client.errors import Forbidden
 
-from ElevatorBot.discordEvents.base import ElevatorClient
+if TYPE_CHECKING:
+    from ElevatorBot.discordEvents.base import ElevatorClient
 
 
 class __ElevatorEmojis:
@@ -114,7 +117,7 @@ class __ElevatorEmojis:
         self.enhancement_prism: CustomEmoji | int = 967765139937972254
         self.ascendant_shard: CustomEmoji | int = 967765168228540446
 
-    async def init_emojis(self, client: ElevatorClient):
+    async def init_emojis(self, client: "ElevatorClient"):
         """Runs on startup to get the emojis we use"""
 
         emojis = []
