@@ -1818,6 +1818,12 @@
                 "description": "Get a fun fact, which most of the time is even pretty interesting",
                 "default_required_permissions": null,
                 "enabled_in_dm": false
+            },
+            {
+                "name": "simon_says",
+                "description": "The all time classic",
+                "default_required_permissions": null,
+                "enabled_in_dm": false
             }
         ]
     },
