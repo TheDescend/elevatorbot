@@ -152,7 +152,7 @@ async def on_message_create(event: MessageCreate, edit_mode: bool = False):
 
                         else:
                             # create a thread
-                            thread = await descend_channels.admin_channel.create_thread_without_message(
+                            thread = await descend_channels.admin_channel.create_thread(
                                 name=thread_name,
                                 thread_type=ChannelTypes.GUILD_PUBLIC_THREAD,
                                 auto_archive_duration=AutoArchiveDuration.ONE_HOUR,
