@@ -1,5 +1,6 @@
 from naff import ChannelTypes, GuildChannel, OptionTypes, slash_command, slash_option
 
+from ElevatorBot.commandHelpers.permissionTemplates import restrict_default_permission
 from ElevatorBot.commandHelpers.subCommandTemplates import setup_sub_command
 from ElevatorBot.commands.base import BaseModule
 from ElevatorBot.core.misc.persistentMessages import handle_setup_command
@@ -7,7 +8,6 @@ from ElevatorBot.discordEvents.base import ElevatorInteractionContext
 
 
 class BungieRssFeed(BaseModule):
-    # todo perms
     @slash_command(
         **setup_sub_command,
         sub_cmd_name="bungie_feed",
@@ -26,13 +26,8 @@ class BungieRssFeed(BaseModule):
         required=False,
         opt_type=OptionTypes.STRING,
     )
+    @restrict_default_permission()
     async def bungie_feed(self, ctx: ElevatorInteractionContext, channel: GuildChannel, message_id: str = None):
-        if ctx.author.id != 238388130581839872:
-            await ctx.send(
-                "This is blocked for now, since it it waiting for a vital unreleased discord feature", ephemeral=True
-            )
-            return
-
         success_message = f"Future Bungie Updates will be posted in {channel.mention}"
         await handle_setup_command(
             ctx=ctx,

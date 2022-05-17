@@ -1,5 +1,6 @@
 from naff import ChannelTypes, GuildChannel, OptionTypes, slash_command, slash_option
 
+from ElevatorBot.commandHelpers.permissionTemplates import restrict_default_permission
 from ElevatorBot.commandHelpers.subCommandTemplates import setup_sub_command, setup_sub_command_lfg_group
 from ElevatorBot.commands.base import BaseModule
 from ElevatorBot.core.misc.persistentMessages import handle_setup_command
@@ -11,7 +12,6 @@ class LfgVoiceCategory(BaseModule):
     Designate a category channel under which my LFG voice channels get created. If you want me to automatically create voice channels for each LFG event, use this to set it up
     """
 
-    # todo perms
     @slash_command(
         **setup_sub_command,
         **setup_sub_command_lfg_group,
@@ -25,13 +25,8 @@ class LfgVoiceCategory(BaseModule):
         opt_type=OptionTypes.CHANNEL,
         channel_types=[ChannelTypes.GUILD_CATEGORY],
     )
+    @restrict_default_permission()
     async def voice_category(self, ctx: ElevatorInteractionContext, channel: GuildChannel):
-        if ctx.author.id != 238388130581839872:
-            await ctx.send(
-                "This is blocked for now, since it it waiting for a vital unreleased discord feature", ephemeral=True
-            )
-            return
-
         success_message = f"Future LFG events will have a voice channel created in {channel.mention}"
         await handle_setup_command(
             ctx=ctx,

@@ -1,5 +1,6 @@
 from naff import ActionRow, Button, ButtonStyles, ChannelTypes, GuildChannel, OptionTypes, slash_command, slash_option
 
+from ElevatorBot.commandHelpers.permissionTemplates import restrict_default_permission
 from ElevatorBot.commandHelpers.subCommandTemplates import setup_sub_command
 from ElevatorBot.commands.base import BaseModule
 from ElevatorBot.core.misc.persistentMessages import handle_setup_command
@@ -8,8 +9,6 @@ from ElevatorBot.misc.formatting import embed_message
 
 
 class IncrementButton(BaseModule):
-
-    # todo perms
     @slash_command(
         **setup_sub_command,
         sub_cmd_name="increment_button",
@@ -28,13 +27,8 @@ class IncrementButton(BaseModule):
         required=False,
         opt_type=OptionTypes.STRING,
     )
+    @restrict_default_permission()
     async def increment_button(self, ctx: ElevatorInteractionContext, channel: GuildChannel, message_id: str = None):
-        if ctx.author.id != 238388130581839872:
-            await ctx.send(
-                "This is blocked for now, since it it waiting for a vital unreleased discord feature", ephemeral=True
-            )
-            return
-
         message_name = "increment_button"
         components = [
             ActionRow(

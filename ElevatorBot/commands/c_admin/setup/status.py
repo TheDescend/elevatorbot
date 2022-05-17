@@ -1,5 +1,6 @@
 from naff import ChannelTypes, GuildChannel, OptionTypes, slash_command, slash_option
 
+from ElevatorBot.commandHelpers.permissionTemplates import restrict_default_permission
 from ElevatorBot.commandHelpers.subCommandTemplates import descend_setup_sub_command
 from ElevatorBot.commands.base import BaseModule
 from ElevatorBot.core.misc.persistentMessages import handle_setup_command
@@ -14,7 +15,6 @@ from Shared.functions.readSettingsFile import get_setting
 
 
 class Status(BaseModule):
-    # todo perms
     @slash_command(
         **descend_setup_sub_command,
         sub_cmd_name="status",
@@ -34,13 +34,8 @@ class Status(BaseModule):
         required=False,
         opt_type=OptionTypes.STRING,
     )
+    @restrict_default_permission()
     async def status(self, ctx: ElevatorInteractionContext, channel: GuildChannel, message_id: str = None):
-        if ctx.author.id != 238388130581839872:
-            await ctx.send(
-                "This is blocked for now, since it it waiting for a vital unreleased discord feature", ephemeral=True
-            )
-            return
-
         message_name = "status"
         embed = embed_message("Status: Last valid...")
         embed.set_footer("Updated")

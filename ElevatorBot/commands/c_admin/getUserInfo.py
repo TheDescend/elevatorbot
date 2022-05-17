@@ -1,5 +1,6 @@
 from naff import Member, OptionTypes, slash_command, slash_option
 
+from ElevatorBot.commandHelpers.permissionTemplates import restrict_default_permission
 from ElevatorBot.commands.base import BaseModule
 from ElevatorBot.discordEvents.base import ElevatorInteractionContext
 from ElevatorBot.misc.formatting import embed_message
@@ -13,13 +14,13 @@ class UserInfo(BaseModule):
     Gets collected info for the specified user. Exactly one option needs to be filled out
     """
 
-    # todo perms
     @slash_command(name="user_info", description="Gets collected info for the specified user")
     @slash_option(name="discord_user", description="Look up a discord user", required=False, opt_type=OptionTypes.USER)
     @slash_option(name="destiny_id", description="Look up a destinyID", required=False, opt_type=OptionTypes.STRING)
     @slash_option(
         name="fuzzy_name", description="If you know how the user is called", required=False, opt_type=OptionTypes.STRING
     )
+    @restrict_default_permission()
     async def user_info(
         self,
         ctx: ElevatorInteractionContext,
@@ -27,13 +28,7 @@ class UserInfo(BaseModule):
         destiny_id: str = None,
         fuzzy_name: str = None,
     ):
-        if ctx.author.id != 238388130581839872:
-            await ctx.send(
-                "This is blocked for now, since it it waiting for a vital unreleased discord feature", ephemeral=True
-            )
-            return
-
-            # make sure exactly one arg was chosen
+        # make sure exactly one arg was chosen
         if (
             (not (discord_user or destiny_id or fuzzy_name))
             or (discord_user and destiny_id)

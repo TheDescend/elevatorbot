@@ -1,5 +1,6 @@
 from naff import slash_command
 
+from ElevatorBot.commandHelpers.permissionTemplates import restrict_default_permission
 from ElevatorBot.commandHelpers.subCommandTemplates import setup_sub_command, setup_sub_command_clan_group
 from ElevatorBot.commands.base import BaseModule
 from ElevatorBot.discordEvents.base import ElevatorInteractionContext
@@ -12,20 +13,14 @@ class ClanLink(BaseModule):
     Links your own Destiny 2 clan with the discord server this was executed in
     """
 
-    # todo perms
     @slash_command(
         **setup_sub_command,
         **setup_sub_command_clan_group,
         sub_cmd_name="link",
         sub_cmd_description="Links your own Destiny 2 clan with this discord",
     )
+    @restrict_default_permission()
     async def link(self, ctx: ElevatorInteractionContext):
-        if ctx.author.id != 238388130581839872:
-            await ctx.send(
-                "This is blocked for now, since it it waiting for a vital unreleased discord feature", ephemeral=True
-            )
-            return
-
         clan = DestinyClan(ctx=ctx, discord_guild=ctx.guild)
         result = await clan.link(linked_by=ctx.author)
 

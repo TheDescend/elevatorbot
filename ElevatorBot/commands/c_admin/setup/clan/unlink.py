@@ -1,5 +1,6 @@
 from naff import slash_command
 
+from ElevatorBot.commandHelpers.permissionTemplates import restrict_default_permission
 from ElevatorBot.commandHelpers.subCommandTemplates import setup_sub_command, setup_sub_command_clan_group
 from ElevatorBot.commands.base import BaseModule
 from ElevatorBot.discordEvents.base import ElevatorInteractionContext
@@ -12,20 +13,14 @@ class ClanUnlink(BaseModule):
     Unlinks the current Destiny 2 clan and the discord server this was executed in
     """
 
-    # todo perms
     @slash_command(
         **setup_sub_command,
         **setup_sub_command_clan_group,
         sub_cmd_name="unlink",
         sub_cmd_description="Unlink the current Destiny 2 clan with this server",
     )
+    @restrict_default_permission()
     async def unlink(self, ctx: ElevatorInteractionContext):
-        if ctx.author.id != 238388130581839872:
-            await ctx.send(
-                "This is blocked for now, since it it waiting for a vital unreleased discord feature", ephemeral=True
-            )
-            return
-
         clan = DestinyClan(ctx=ctx, discord_guild=ctx.guild)
         result = await clan.unlink(unlinked_by=ctx.author)
 

@@ -2,6 +2,7 @@ import random
 
 from naff import CommandTypes, Message, context_menu
 
+from ElevatorBot.commandHelpers.permissionTemplates import restrict_default_permission
 from ElevatorBot.commands.base import BaseModule
 from ElevatorBot.discordEvents.base import ElevatorInteractionContext
 from ElevatorBot.misc.formatting import embed_message
@@ -18,17 +19,11 @@ class GiveawayWinners(BaseModule):
     Close the giveaway and draw a winner from the giveaway. Use multiple times if you want multiple winners
     """
 
-    # todo perms
     @context_menu(
         name="Draw Giveaway Winner", context_type=CommandTypes.MESSAGE, scopes=get_setting("COMMAND_GUILD_SCOPE")
     )
+    @restrict_default_permission()
     async def draw_winner(self, ctx: ElevatorInteractionContext):
-        if ctx.author.id != 238388130581839872:
-            await ctx.send(
-                "This is blocked for now, since it it waiting for a vital unreleased discord feature", ephemeral=True
-            )
-            return
-
         message: Message = ctx.target
 
         # get the giveaway data from the db

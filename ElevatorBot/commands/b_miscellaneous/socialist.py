@@ -10,8 +10,6 @@ from Shared.functions.readSettingsFile import get_setting
 
 
 class Socialist(BaseModule):
-
-    # todo perms
     @slash_command(name="socialist", description="Spams `#socialist` 🙃", scopes=get_setting("COMMAND_GUILD_SCOPE"))
     async def socialist(self, ctx: ElevatorInteractionContext):
         """Spams #socialist"""

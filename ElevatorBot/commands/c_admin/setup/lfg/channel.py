@@ -1,5 +1,6 @@
 from naff import ChannelTypes, GuildChannel, OptionTypes, slash_command, slash_option
 
+from ElevatorBot.commandHelpers.permissionTemplates import restrict_default_permission
 from ElevatorBot.commandHelpers.subCommandTemplates import setup_sub_command, setup_sub_command_lfg_group
 from ElevatorBot.commands.base import BaseModule
 from ElevatorBot.core.misc.persistentMessages import handle_setup_command
@@ -9,8 +10,6 @@ from ElevatorBot.static.emojis import custom_emojis
 
 
 class LfgChannel(BaseModule):
-
-    # todo perms
     @slash_command(
         **setup_sub_command,
         **setup_sub_command_lfg_group,
@@ -24,13 +23,8 @@ class LfgChannel(BaseModule):
         opt_type=OptionTypes.CHANNEL,
         channel_types=[ChannelTypes.GUILD_TEXT],
     )
+    @restrict_default_permission()
     async def channel(self, ctx: ElevatorInteractionContext, channel: GuildChannel):
-        if ctx.author.id != 238388130581839872:
-            await ctx.send(
-                "This is blocked for now, since it it waiting for a vital unreleased discord feature", ephemeral=True
-            )
-            return
-
         embed = embed_message(
             "How to make an LFG event",
             f"""

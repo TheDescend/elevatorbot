@@ -8,6 +8,7 @@ from naff import Timestamp, TimestampStyles, slash_command
 # noinspection PyProtectedMember
 from psutil._common import bytes2human
 
+from ElevatorBot.commandHelpers.permissionTemplates import restrict_default_permission
 from ElevatorBot.commands.base import BaseModule
 from ElevatorBot.discordEvents.base import ElevatorInteractionContext
 from ElevatorBot.misc.formatting import embed_message
@@ -22,17 +23,11 @@ from version import __version__
 
 
 class Metrics(BaseModule):
-    # todo perms
     @slash_command(
         name="metrics", description="Shows interesting ElevatorBot metrics", scopes=get_setting("COMMAND_GUILD_SCOPE")
     )
+    @restrict_default_permission()
     async def metrics(self, ctx: ElevatorInteractionContext):
-        if ctx.author.id != 238388130581839872:
-            await ctx.send(
-                "This is blocked for now, since it it waiting for a vital unreleased discord feature", ephemeral=True
-            )
-            return
-
         embed = embed_message("Metrics", member=ctx.guild.me)
 
         # version

@@ -7,6 +7,7 @@ from naff import CommandTypes, Message, Modal, ShortText, context_menu
 from naff.client.errors import HTTPException
 from PIL import Image
 
+from ElevatorBot.commandHelpers.permissionTemplates import restrict_default_permission
 from ElevatorBot.commandHelpers.responseTemplates import respond_timeout
 from ElevatorBot.commands.base import BaseModule
 from ElevatorBot.discordEvents.base import ElevatorInteractionContext, ElevatorModalContext
@@ -23,15 +24,9 @@ class EmojiCommands(BaseModule):
     Add the selected image to the guild as an emoji
     """
 
-    # todo perms
     @context_menu(name="Add Emoji", context_type=CommandTypes.MESSAGE, scopes=get_setting("COMMAND_GUILD_SCOPE"))
+    @restrict_default_permission()
     async def add_emoji(self, ctx: ElevatorInteractionContext):
-        if ctx.author.id not in [238388130581839872, 206878830017773568]:
-            await ctx.send(
-                "This is blocked for now, since it it waiting for a vital unreleased discord feature", ephemeral=True
-            )
-            return
-
         message: Message = ctx.target
 
         # attachments

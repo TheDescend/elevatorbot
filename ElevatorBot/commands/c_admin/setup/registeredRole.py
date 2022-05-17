@@ -1,5 +1,6 @@
 from naff import OptionTypes, Role, slash_command, slash_option
 
+from ElevatorBot.commandHelpers.permissionTemplates import restrict_default_permission
 from ElevatorBot.commandHelpers.subCommandTemplates import setup_sub_command
 from ElevatorBot.commands.base import BaseModule
 from ElevatorBot.core.misc.persistentMessages import PersistentMessages
@@ -10,8 +11,6 @@ from ElevatorBot.networking.destiny.profile import DestinyProfile
 
 
 class RegisteredRole(BaseModule):
-
-    # todo perms
     @slash_command(
         **setup_sub_command,
         sub_cmd_name="registered_role",
@@ -23,14 +22,9 @@ class RegisteredRole(BaseModule):
         required=True,
         opt_type=OptionTypes.ROLE,
     )
+    @restrict_default_permission()
     async def registered_role(self, ctx: ElevatorInteractionContext, role: Role):
-        if ctx.author.id != 238388130581839872:
-            await ctx.send(
-                "This is blocked for now, since it it waiting for a vital unreleased discord feature", ephemeral=True
-            )
-            return
-
-            # cheat a bit and register the role as a persistent message
+        # cheat a bit and register the role as a persistent message
         persistent_messages = PersistentMessages(ctx=ctx, guild=ctx.guild, message_name="registered_role")
         persistent_messages.hidden = True
 

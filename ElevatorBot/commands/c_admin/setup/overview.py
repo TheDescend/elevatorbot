@@ -1,5 +1,6 @@
 from naff import slash_command
 
+from ElevatorBot.commandHelpers.permissionTemplates import restrict_default_permission
 from ElevatorBot.commandHelpers.subCommandTemplates import setup_sub_command
 from ElevatorBot.commands.base import BaseModule
 from ElevatorBot.core.misc.persistentMessages import PersistentMessages
@@ -11,20 +12,13 @@ from Shared.networkingSchemas.misc.persistentMessages import PersistentMessage
 
 
 class Overview(BaseModule):
-
-    # todo perms
     @slash_command(
         **setup_sub_command,
         sub_cmd_name="overview",
         sub_cmd_description="Gives you an overview over my setting for this server",
     )
+    @restrict_default_permission()
     async def overview(self, ctx: ElevatorInteractionContext):
-        if ctx.author.id != 238388130581839872:
-            await ctx.send(
-                "This is blocked for now, since it it waiting for a vital unreleased discord feature", ephemeral=True
-            )
-            return
-
         backend = PersistentMessages(ctx=ctx, guild=ctx.guild, message_name=None)
         result = await backend.get_all()
 

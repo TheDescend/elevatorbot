@@ -4,6 +4,7 @@ import datetime
 from naff import Member, OptionTypes, SlashCommandChoice, Timestamp, TimestampStyles, slash_command, slash_option
 
 from ElevatorBot.commandHelpers.optionTemplates import default_user_option
+from ElevatorBot.commandHelpers.permissionTemplates import restrict_default_permission
 from ElevatorBot.commands.base import BaseModule
 from ElevatorBot.discordEvents.base import ElevatorInteractionContext
 from ElevatorBot.misc.discordShortcutFunctions import assign_roles_to_member, remove_roles_from_member
@@ -21,8 +22,6 @@ muted_ids = {0: "Muted", get_setting("DESCEND_ROLE_NO_NICKNAME_ID"): "Muted - No
 
 
 class Mute(BaseModule):
-
-    # todo perm
     @slash_command(name="mute", description="Mutes the specified user", scopes=get_setting("COMMAND_GUILD_SCOPE"))
     @default_user_option(description="Which user to mute", required=True)
     @slash_option(
@@ -45,13 +44,8 @@ class Mute(BaseModule):
         required=True,
         opt_type=OptionTypes.STRING,
     )
+    @restrict_default_permission()
     async def mute(self, ctx: ElevatorInteractionContext, user: Member, muted_type: str, hours: int, reason: str):
-        if ctx.author.id != 238388130581839872:
-            await ctx.send(
-                "This is blocked for now, since it it waiting for a vital unreleased discord feature", ephemeral=True
-            )
-            return
-
         muted_type = int(muted_type)
         unmute_date = get_now_with_tz() + datetime.timedelta(hours=hours)
 

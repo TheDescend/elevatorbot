@@ -1,5 +1,6 @@
 from naff import ChannelTypes, GuildCategory, OptionTypes, slash_command, slash_option
 
+from ElevatorBot.commandHelpers.permissionTemplates import restrict_default_permission
 from ElevatorBot.commandHelpers.subCommandTemplates import descend_setup_sub_command
 from ElevatorBot.commands.base import BaseModule
 from ElevatorBot.core.misc.persistentMessages import handle_setup_command
@@ -13,8 +14,6 @@ from Shared.functions.readSettingsFile import get_setting
 
 
 class MemberCount(BaseModule):
-
-    # todo perms
     @slash_command(
         **descend_setup_sub_command,
         sub_cmd_name="member_count",
@@ -28,14 +27,8 @@ class MemberCount(BaseModule):
         opt_type=OptionTypes.CHANNEL,
         channel_types=[ChannelTypes.GUILD_CATEGORY],
     )
+    @restrict_default_permission()
     async def member_count(self, ctx: ElevatorInteractionContext, category: GuildCategory):
-        if ctx.author.id != 238388130581839872:
-            await ctx.send(
-                "This is blocked for now, since it it waiting for a vital unreleased discord feature", ephemeral=True
-            )
-            return
-
-            # create the channel
         channel = await ctx.guild.create_voice_channel(
             name=f"Members｜{ctx.guild.member_count}",
             category=category,

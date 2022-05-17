@@ -1,5 +1,6 @@
 from naff import ActionRow, Button, ButtonStyles, Member, OptionTypes, slash_command, slash_option
 
+from ElevatorBot.commandHelpers.permissionTemplates import restrict_default_permission
 from ElevatorBot.commands.base import BaseModule
 from ElevatorBot.discordEvents.base import ElevatorInteractionContext
 from ElevatorBot.misc.formatting import embed_message
@@ -12,7 +13,6 @@ from Shared.functions.readSettingsFile import get_setting
 
 
 class Giveaway(BaseModule):
-    # todo perm
     @slash_command(name="giveaway", description="Creates a giveaway", scopes=get_setting("COMMAND_GUILD_SCOPE"))
     @slash_option(
         name="description", description="Input details about the giveaway", opt_type=OptionTypes.STRING, required=True
@@ -23,13 +23,8 @@ class Giveaway(BaseModule):
         opt_type=OptionTypes.USER,
         required=False,
     )
+    @restrict_default_permission()
     async def giveaway(self, ctx: ElevatorInteractionContext, description: str, host: Member = None):
-        if ctx.author.id != 238388130581839872:
-            await ctx.send(
-                "This is blocked for now, since it it waiting for a vital unreleased discord feature", ephemeral=True
-            )
-            return
-
         member = host or ctx.author
 
         # firstly create the giveaway in the db
