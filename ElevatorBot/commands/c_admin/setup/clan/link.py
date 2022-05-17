@@ -18,6 +18,7 @@ class ClanLink(BaseModule):
         **setup_sub_command_clan_group,
         sub_cmd_name="link",
         sub_cmd_description="Links your own Destiny 2 clan with this discord",
+        dm_permission=False,
     )
     @restrict_default_permission()
     async def link(self, ctx: ElevatorInteractionContext):

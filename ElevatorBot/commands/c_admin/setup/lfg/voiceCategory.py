@@ -17,6 +17,7 @@ class LfgVoiceCategory(BaseModule):
         **setup_sub_command_lfg_group,
         sub_cmd_name="voice_category",
         sub_cmd_description="Designate a category channel under which my LFG voice channels get created",
+        dm_permission=False,
     )
     @slash_option(
         name="channel",

@@ -20,23 +20,6 @@ class RegisteredModule(Cog):
         self.add_cog_check(self.no_pending_check)  # noqa
 
     @staticmethod
-    async def no_dm_check(ctx: ElevatorInteractionContext) -> bool:
-        """
-        Default command that is run before the command is handled
-        Checks that the command is not invoked in dms
-        """
-
-        if not ctx.guild:
-            await ctx.send(
-                embeds=embed_message(
-                    "Error",
-                    "My commands can only be used in a guild and not in DMs",
-                ),
-            )
-            return False
-        return True
-
-    @staticmethod
     async def no_pending_check(ctx: ElevatorInteractionContext) -> bool:
         """
         Default command that is run before the command is handled

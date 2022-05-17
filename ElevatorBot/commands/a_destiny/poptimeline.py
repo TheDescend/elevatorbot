@@ -22,7 +22,11 @@ pop_timeline_lock = asyncio.Lock()
 
 
 class PopTimeline(BaseModule):
-    @slash_command(name="pop_timeline", description="Shows you the Destiny 2 steam maximum population timeline")
+    @slash_command(
+        name="pop_timeline",
+        description="Shows you the Destiny 2 steam maximum population timeline",
+        dm_permission=False,
+    )
     async def pop_timeline(self, ctx: ElevatorInteractionContext):
         async with pop_timeline_lock:
             embed = embed_message("Maximum Destiny 2 Steam Player Count")

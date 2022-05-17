@@ -13,6 +13,7 @@ class StatPvE(BaseModule):
         **stat_sub_command,
         sub_cmd_name="pve",
         sub_cmd_description="Displays the specified stat for all PvE activities",
+        dm_permission=False,
     )
     @default_stat_option()
     @default_class_option()

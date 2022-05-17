@@ -11,7 +11,11 @@ class Website(BaseModule):
 
     system_to_name = {1: "xb", 2: "ps", 3: "pc"}
 
-    @slash_command(name="website", description="Gets your personalised link to curated Destiny 2 stat websites")
+    @slash_command(
+        name="website",
+        description="Gets your personalised link to curated Destiny 2 stat websites",
+        dm_permission=False,
+    )
     @slash_option(
         name="website",
         description="The website you want a personalised link for",

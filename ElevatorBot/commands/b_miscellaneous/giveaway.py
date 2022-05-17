@@ -13,7 +13,12 @@ from Shared.functions.readSettingsFile import get_setting
 
 
 class Giveaway(BaseModule):
-    @slash_command(name="giveaway", description="Creates a giveaway", scopes=get_setting("COMMAND_GUILD_SCOPE"))
+    @slash_command(
+        name="giveaway",
+        description="Creates a giveaway",
+        dm_permission=False,
+        scopes=get_setting("COMMAND_GUILD_SCOPE"),
+    )
     @slash_option(
         name="description", description="Input details about the giveaway", opt_type=OptionTypes.STRING, required=True
     )

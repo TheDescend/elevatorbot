@@ -14,6 +14,7 @@ class LfgKick(BaseModule):
         **lfg_sub_command,
         sub_cmd_name="kick",
         sub_cmd_description="Kick a user from an lfg event",
+        dm_permission=False,
     )
     @lfg_event_id()
     @default_user_option(description="The user you want to kick", required=True)

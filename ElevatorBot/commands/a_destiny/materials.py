@@ -11,7 +11,7 @@ from Shared.networkingSchemas import DestinyNamedValueItemModel
 
 
 class DestinyMaterials(BaseModule):
-    @slash_command(name="materials", description="Shows your number of Destiny 2 materials")
+    @slash_command(name="materials", description="Shows your number of Destiny 2 materials", dm_permission=False)
     @default_user_option()
     async def materials(self, ctx: ElevatorInteractionContext, user: Member = None):
         member = user or ctx.author

@@ -13,6 +13,7 @@ class LfgJoined(BaseModule):
         **lfg_sub_command,
         sub_cmd_name="joined",
         sub_cmd_description="Shows you an overview of all LFG events you have joined",
+        dm_permission=False,
     )
     async def joined(self, ctx: ElevatorInteractionContext):
         # get all the lfg events the user joined

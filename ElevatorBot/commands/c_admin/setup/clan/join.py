@@ -17,6 +17,7 @@ class ClanJoin(BaseModule):
         **setup_sub_command_clan_group,
         sub_cmd_name="join",
         sub_cmd_description="Designate a channel where players can join your clan by pressing a button",
+        dm_permission=False,
     )
     @slash_option(
         name="channel",

@@ -15,6 +15,7 @@ class DayOneRaid(BaseModule):
         **day1completions_sub_command,
         sub_cmd_name="raid",
         sub_cmd_description="Get the users with a Day One raid completion of the specified raid",
+        dm_permission=False,
     )
     @slash_option(
         name="raid",

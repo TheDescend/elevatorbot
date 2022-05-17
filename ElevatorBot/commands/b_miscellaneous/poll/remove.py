@@ -11,6 +11,7 @@ class PollRemove(BaseModule):
         **poll_sub_command,
         sub_cmd_name="remove",
         sub_cmd_description="Remove an existing option from an existing poll",
+        dm_permission=False,
     )
     @slash_option(
         name="poll_id", description="The ID of the poll", opt_type=OptionTypes.INTEGER, required=True, min_value=0

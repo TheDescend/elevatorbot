@@ -11,6 +11,7 @@ class TicTacToeHuman(BaseModule):
         **tictactoe_sub_command,
         sub_cmd_name="versus",
         sub_cmd_description="Play against other humans",
+        dm_permission=False,
     )
     async def versus(self, ctx: ElevatorInteractionContext):
         game = TicTacToeGame(ctx=ctx, versus=True)

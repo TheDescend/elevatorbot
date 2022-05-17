@@ -17,7 +17,7 @@ from Shared.functions.helperFunctions import get_now_with_tz
 
 
 class Time(BaseModule):
-    @slash_command(name="time", description="Shows you your Destiny 2 playtime split up by season")
+    @slash_command(name="time", description="Shows you your Destiny 2 playtime split up by season", dm_permission=False)
     @default_mode_option()
     @autocomplete_activity_option()
     @default_class_option()

@@ -18,7 +18,7 @@ from Shared.networkingSchemas.destiny import DestinyActivityInputModel
 
 
 class DestinyMode(BaseModule):
-    @slash_command(name="mode", description="Display stats for Destiny 2 activity modes")
+    @slash_command(name="mode", description="Display stats for Destiny 2 activity modes", dm_permission=False)
     @default_mode_option(description="Chose the mode you want to see the stats for", required=True)
     @default_class_option()
     @default_expansion_option()

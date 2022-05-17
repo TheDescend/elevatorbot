@@ -13,7 +13,9 @@ from Shared.networkingSchemas.destiny import DestinyCatalystsModel
 
 class Catalysts(BaseModule):
     @slash_command(
-        name="catalysts", description="Shows you Destiny 2 exotic weapon catalysts and their completion status"
+        name="catalysts",
+        description="Shows you Destiny 2 exotic weapon catalysts and their completion status",
+        dm_permission=False,
     )
     @default_user_option()
     async def catalysts(self, ctx: ElevatorInteractionContext, user: Member = None):

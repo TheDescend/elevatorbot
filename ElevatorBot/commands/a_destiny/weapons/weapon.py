@@ -30,6 +30,7 @@ class WeaponsWeapon(BaseModule):
     @slash_command(
         name="weapons_weapon",
         description="Shows Destiny 2 weapon stats for the specified weapon",
+        dm_permission=False,
     )
     @autocomplete_weapon_option(description="The weapon you want to look up", required=True)
     @default_mode_option()

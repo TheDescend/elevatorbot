@@ -22,7 +22,12 @@ muted_ids = {0: "Muted", get_setting("DESCEND_ROLE_NO_NICKNAME_ID"): "Muted - No
 
 
 class Mute(BaseModule):
-    @slash_command(name="mute", description="Mutes the specified user", scopes=get_setting("COMMAND_GUILD_SCOPE"))
+    @slash_command(
+        name="mute",
+        description="Mutes the specified user",
+        dm_permission=False,
+        scopes=get_setting("COMMAND_GUILD_SCOPE"),
+    )
     @default_user_option(description="Which user to mute", required=True)
     @slash_option(
         name="muted_type",

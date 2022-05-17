@@ -6,7 +6,7 @@ from ElevatorBot.discordEvents.customInteractions import ElevatorInteractionCont
 
 
 class CalculatorCommand(BaseModule):
-    @slash_command(name="calculator", description="Summons a handy calculator")
+    @slash_command(name="calculator", description="Summons a handy calculator", dm_permission=False)
     async def calculator(self, ctx: ElevatorInteractionContext):
 
         calc = Calculator(ctx)

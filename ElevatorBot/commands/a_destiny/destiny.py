@@ -9,7 +9,7 @@ from ElevatorBot.networking.destiny.profile import DestinyProfile
 
 
 class Destiny(BaseModule):
-    @slash_command(name="destiny", description="Gives you an overview of your Destiny 2 stats")
+    @slash_command(name="destiny", description="Gives you an overview of your Destiny 2 stats", dm_permission=False)
     @default_user_option()
     async def destiny(self, ctx: ElevatorInteractionContext, user: Member = None):
         member = user or ctx.author

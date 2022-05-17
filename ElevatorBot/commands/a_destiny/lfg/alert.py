@@ -16,6 +16,7 @@ class LfgAlert(BaseModule):
         **lfg_sub_command,
         sub_cmd_name="alert",
         sub_cmd_description="Message all users in the event",
+        dm_permission=False,
     )
     @lfg_event_id()
     async def alert(self, ctx: ElevatorInteractionContext, lfg_id: int):

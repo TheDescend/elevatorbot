@@ -16,7 +16,7 @@ from Shared.enums.destiny import UsableDestinyActivityModeTypeEnum
 
 
 class Last(BaseModule):
-    @slash_command(name="last", description="Stats for the last Destiny 2 activity you played")
+    @slash_command(name="last", description="Stats for the last Destiny 2 activity you played", dm_permission=False)
     @default_mode_option()
     @autocomplete_activity_option()
     @default_class_option()

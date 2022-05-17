@@ -24,7 +24,10 @@ from version import __version__
 
 class Metrics(BaseModule):
     @slash_command(
-        name="metrics", description="Shows interesting ElevatorBot metrics", scopes=get_setting("COMMAND_GUILD_SCOPE")
+        name="metrics",
+        description="Shows interesting ElevatorBot metrics",
+        dm_permission=False,
+        scopes=get_setting("COMMAND_GUILD_SCOPE"),
     )
     @restrict_default_permission()
     async def metrics(self, ctx: ElevatorInteractionContext):

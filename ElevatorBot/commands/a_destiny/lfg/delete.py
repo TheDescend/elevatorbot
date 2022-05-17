@@ -14,6 +14,7 @@ class LfgDelete(BaseModule):
         **lfg_sub_command,
         sub_cmd_name="delete",
         sub_cmd_description="When you fucked up and need to delete an event",
+        dm_permission=False,
     )
     @lfg_event_id()
     async def delete(self, ctx: ElevatorInteractionContext, lfg_id: int):

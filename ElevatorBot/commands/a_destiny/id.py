@@ -15,6 +15,7 @@ class IdGet(BaseModule):
     @slash_command(
         name="id",
         description="Get a users Bungie Name. It can be used to join people in Destiny 2",
+        dm_permission=False,
     )
     @default_user_option()
     async def id(self, ctx: ElevatorInteractionContext, user: Member = None):

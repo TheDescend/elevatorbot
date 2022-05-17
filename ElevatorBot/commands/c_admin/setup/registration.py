@@ -14,6 +14,7 @@ class Registration(BaseModule):
         **setup_sub_command,
         sub_cmd_name="registration",
         sub_cmd_description="Designate a channel in which user can register with me by pressing a button",
+        dm_permission=False,
     )
     @slash_option(
         name="channel",

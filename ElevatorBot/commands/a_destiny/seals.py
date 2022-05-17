@@ -15,6 +15,7 @@ class Seals(BaseModule):
     @slash_command(
         name="seals",
         description="View all Destiny 2 seals and your completion status",
+        dm_permission=False,
     )
     @default_user_option()
     async def seals(self, ctx: ElevatorInteractionContext, user: Member = None):

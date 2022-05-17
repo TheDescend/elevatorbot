@@ -13,6 +13,7 @@ class StatEverything(BaseModule):
         **stat_sub_command,
         sub_cmd_name="everything",
         sub_cmd_description="Displays the specified stat for all activities",
+        dm_permission=False,
     )
     @default_stat_option()
     @default_class_option()

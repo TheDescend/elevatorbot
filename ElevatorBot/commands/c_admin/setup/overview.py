@@ -16,6 +16,7 @@ class Overview(BaseModule):
         **setup_sub_command,
         sub_cmd_name="overview",
         sub_cmd_description="Gives you an overview over my setting for this server",
+        dm_permission=False,
     )
     @restrict_default_permission()
     async def overview(self, ctx: ElevatorInteractionContext):

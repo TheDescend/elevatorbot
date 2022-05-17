@@ -41,7 +41,7 @@ class WeaponsTop(BaseModule):
     :option:weapon: If you want a specific weapon to be included in the ranking. Otherwise the command will only show your top eight weapons per slot
     """
 
-    @slash_command(name="weapons_top", description="Shows your top Destiny 2 weapon ranking")
+    @slash_command(name="weapons_top", description="Shows your top Destiny 2 weapon ranking", dm_permission=False)
     @slash_option(
         name="stat",
         description="Which stat you want the leaderboard to consider. Default: Kills",

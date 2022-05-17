@@ -6,7 +6,11 @@ from ElevatorBot.misc.formatting import embed_message
 
 
 class Boosters(BaseModule):
-    @slash_command(name="boosters", description="Prints all premium subscribers (boosters) of this discord server")
+    @slash_command(
+        name="boosters",
+        description="Prints all premium subscribers (boosters) of this discord server",
+        dm_permission=False,
+    )
     async def boosters(self, ctx: ElevatorInteractionContext):
 
         sorted_premium_subscribers: list[Member] = sorted(

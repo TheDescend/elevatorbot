@@ -21,6 +21,7 @@ class LfgCreate(BaseModule):
         **lfg_sub_command,
         sub_cmd_name="create",
         sub_cmd_description="Creates an LFG event",
+        dm_permission=False,
     )
     @autocomplete_activity_option(description="The name of the activity", required=True)
     @default_time_option(

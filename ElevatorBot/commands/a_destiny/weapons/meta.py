@@ -37,6 +37,7 @@ class WeaponsMeta(BaseModule):
     @slash_command(
         name="weapons_meta",
         description="Displays the most used Destiny 2 weapons by clan members from the linked clan",
+        dm_permission=False,
     )
     @default_mode_option()
     @autocomplete_activity_option()

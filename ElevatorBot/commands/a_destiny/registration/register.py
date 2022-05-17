@@ -7,7 +7,7 @@ from Shared.functions.readSettingsFile import get_setting
 
 
 class Register(RegisteredModule):
-    @slash_command(name="register", description="Link your Destiny 2 account with ElevatorBot")
+    @slash_command(name="register", description="Link your Destiny 2 account with ElevatorBot", dm_permission=False)
     async def register(self, ctx: ElevatorInteractionContext):
         await send_registration(ctx)
 

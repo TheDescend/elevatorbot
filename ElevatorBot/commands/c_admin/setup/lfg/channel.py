@@ -15,6 +15,7 @@ class LfgChannel(BaseModule):
         **setup_sub_command_lfg_group,
         sub_cmd_name="channel",
         sub_cmd_description="Designate a channel where my LFG events get posted",
+        dm_permission=False,
     )
     @slash_option(
         name="channel",

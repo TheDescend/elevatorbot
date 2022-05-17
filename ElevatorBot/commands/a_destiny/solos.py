@@ -13,7 +13,9 @@ from Shared.networkingSchemas import DestinyUpdatedLowManModel
 
 class Solos(BaseModule):
     @slash_command(
-        name="solos", description="Shows you an overview of your notable Destiny 2 solo activity completions"
+        name="solos",
+        description="Shows you an overview of your notable Destiny 2 solo activity completions",
+        dm_permission=False,
     )
     @default_user_option()
     async def solos(self, ctx: ElevatorInteractionContext, user: Member = None):

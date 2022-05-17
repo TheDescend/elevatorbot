@@ -14,7 +14,12 @@ from Shared.functions.readSettingsFile import get_setting
 
 
 class ModWarning(BaseModule):
-    @slash_command(name="warning", description="Warns the specified user", scopes=get_setting("COMMAND_GUILD_SCOPE"))
+    @slash_command(
+        name="warning",
+        description="Warns the specified user",
+        dm_permission=False,
+        scopes=get_setting("COMMAND_GUILD_SCOPE"),
+    )
     @default_user_option(description="Which user to warn", required=True)
     @slash_option(
         name="reason",

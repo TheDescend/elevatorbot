@@ -13,6 +13,7 @@ class IncrementButton(BaseModule):
         **setup_sub_command,
         sub_cmd_name="increment_button",
         sub_cmd_description="Creates a button that users can click and increment. Whoever gets the 69420 click wins",
+        dm_permission=False,
     )
     @slash_option(
         name="channel",

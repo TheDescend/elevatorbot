@@ -72,6 +72,7 @@ class RankClan(BaseModule):
     @slash_command(
         name="rank_clan",
         description="Display Destiny 2 clan leaderboards. Pick **only** one leaderboard from all options",
+        dm_permission=False,
     )
     @slash_option(
         name="discord_leaderboards",

@@ -15,6 +15,7 @@ class RegisteredRole(BaseModule):
         **setup_sub_command,
         sub_cmd_name="registered_role",
         sub_cmd_description="Designate the role that is given to people that `/register` with me",
+        dm_permission=False,
     )
     @slash_option(
         name="role",

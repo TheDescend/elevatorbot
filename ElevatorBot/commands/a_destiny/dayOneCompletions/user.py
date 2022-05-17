@@ -14,6 +14,7 @@ class DayOneUser(BaseModule):
         **day1completions_sub_command,
         sub_cmd_name="user",
         sub_cmd_description="Look up the Day One raid completions",
+        dm_permission=False,
     )
     @default_user_option()
     async def user(self, ctx: ElevatorInteractionContext, user: Member = None):

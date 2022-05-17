@@ -18,6 +18,7 @@ class ClanUnlink(BaseModule):
         **setup_sub_command_clan_group,
         sub_cmd_name="unlink",
         sub_cmd_description="Unlink the current Destiny 2 clan with this server",
+        dm_permission=False,
     )
     @restrict_default_permission()
     async def unlink(self, ctx: ElevatorInteractionContext):

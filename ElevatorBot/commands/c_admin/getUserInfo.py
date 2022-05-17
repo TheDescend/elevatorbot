@@ -14,7 +14,7 @@ class UserInfo(BaseModule):
     Gets collected info for the specified user. Exactly one option needs to be filled out
     """
 
-    @slash_command(name="user_info", description="Gets collected info for the specified user")
+    @slash_command(name="user_info", description="Gets collected info for the specified user", dm_permission=False)
     @slash_option(name="discord_user", description="Look up a discord user", required=False, opt_type=OptionTypes.USER)
     @slash_option(name="destiny_id", description="Look up a destinyID", required=False, opt_type=OptionTypes.STRING)
     @slash_option(

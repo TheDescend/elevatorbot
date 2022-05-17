@@ -11,6 +11,7 @@ class RoleGet(BaseModule):
         **roles_sub_command,
         sub_cmd_name="get",
         sub_cmd_description="Assigns you all the Destiny 2 achievement roles you have earned",
+        dm_permission=False,
     )
     async def get(self, ctx: ElevatorInteractionContext):
         # get new roles and update the member

@@ -32,6 +32,7 @@ class Bug(BaseModule):
     @slash_command(
         name="bug",
         description="Use this if you want to report any bugs to the developer",
+        dm_permission=False,
         scopes=get_setting("COMMAND_GUILD_SCOPE"),
     )
     @slash_option(

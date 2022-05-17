@@ -11,6 +11,7 @@ class TicTacToeAI(BaseModule):
         **tictactoe_sub_command,
         sub_cmd_name="computer",
         sub_cmd_description="Try to beat me in a tic tac toe game",
+        dm_permission=False,
     )
     @slash_option(
         name="easy_mode",

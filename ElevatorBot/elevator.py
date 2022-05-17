@@ -2,7 +2,7 @@ import asyncio
 import inspect
 import logging
 
-from naff import AutoDefer, Intents, InteractionCommand, Listener, Task, listen, logger_name, slash_command
+from naff import AutoDefer, Intents, InteractionCommand, Listener, Permissions, Task, listen, logger_name, slash_command
 from naff.ext.debug_cog import DebugCog
 from rich.console import Console
 from rich.panel import Panel
@@ -184,6 +184,8 @@ if __name__ == "__main__":
             for name, val in inspect.getmembers(cls):
                 if isinstance(val, InteractionCommand):
                     val.scopes = get_setting("COMMAND_GUILD_SCOPE")
+                    val.default_member_permissions = Permissions.ADMINISTRATOR
+                    val.dm_permission = False
                 elif isinstance(val, Listener | Task):
                     setattr(cls, name, None)
             return super().__new__(cls=cls, bot=bot, *args, **kwargs)

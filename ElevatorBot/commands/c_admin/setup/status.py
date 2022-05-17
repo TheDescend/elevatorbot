@@ -19,6 +19,7 @@ class Status(BaseModule):
         **descend_setup_sub_command,
         sub_cmd_name="status",
         sub_cmd_description="Designate a channel in which status messages get posted and updated",
+        dm_permission=False,
         scopes=get_setting("COMMAND_GUILD_SCOPE"),
     )
     @slash_option(

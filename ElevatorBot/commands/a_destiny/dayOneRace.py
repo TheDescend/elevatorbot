@@ -15,6 +15,7 @@ class DayOneRaceCommand(BaseModule):
     @slash_command(
         name="day_one_raid_race",
         description="Starts the Day One raid completion announcer",
+        dm_permission=False,
         scopes=get_setting("COMMAND_GUILD_SCOPE"),
     )
     @restrict_default_permission()

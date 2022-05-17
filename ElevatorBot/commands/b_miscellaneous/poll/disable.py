@@ -11,6 +11,7 @@ class PollDisable(BaseModule):
         **poll_sub_command,
         sub_cmd_name="disable",
         sub_cmd_description="Disable an existing poll",
+        dm_permission=False,
     )
     @slash_option(
         name="poll_id", description="The ID of the poll", opt_type=OptionTypes.INTEGER, required=True, min_value=0

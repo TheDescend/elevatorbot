@@ -18,7 +18,7 @@ from Shared.networkingSchemas.destiny import DestinyActivityInputModel
 
 
 class DestinyActivity(BaseModule):
-    @slash_command(name="activity", description="Display stats for Destiny 2 activities")
+    @slash_command(name="activity", description="Display stats for Destiny 2 activities", dm_permission=False)
     @autocomplete_activity_option(description="Chose the activity you want to see the stats for", required=True)
     @default_class_option()
     @default_expansion_option()

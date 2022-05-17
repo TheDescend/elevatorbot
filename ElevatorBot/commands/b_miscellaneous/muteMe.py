@@ -19,7 +19,12 @@ from Shared.functions.readSettingsFile import get_setting
 
 
 class MuteMe(BaseModule):
-    @slash_command(name="mute_me", description="I wonder what this does...", scopes=get_setting("COMMAND_GUILD_SCOPE"))
+    @slash_command(
+        name="mute_me",
+        description="I wonder what this does...",
+        dm_permission=False,
+        scopes=get_setting("COMMAND_GUILD_SCOPE"),
+    )
     @default_user_option()
     async def mute_me(self, ctx: ElevatorInteractionContext, user: Member = None):
 

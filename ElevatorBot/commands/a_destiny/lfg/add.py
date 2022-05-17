@@ -19,6 +19,7 @@ class LfgAdd(BaseModule):
         **lfg_sub_command,
         sub_cmd_name="add",
         sub_cmd_description="Add a user to an lfg event",
+        dm_permission=False,
     )
     @lfg_event_id()
     @default_user_option(description="The user you want to add", required=True)

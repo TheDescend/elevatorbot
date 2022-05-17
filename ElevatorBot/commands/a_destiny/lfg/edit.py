@@ -24,6 +24,7 @@ class LfgEdit(BaseModule):
         **lfg_sub_command,
         sub_cmd_name="edit",
         sub_cmd_description="When you fucked up and need to edit an event",
+        dm_permission=False,
     )
     @lfg_event_id()
     @autocomplete_activity_option(

@@ -12,6 +12,7 @@ class RoleMissing(BaseModule):
         **roles_sub_command,
         sub_cmd_name="missing",
         sub_cmd_description="Shows you what Destiny 2 achievement roles you can still achieve",
+        dm_permission=False,
     )
     @default_user_option()
     async def missing(self, ctx: ElevatorInteractionContext, user: Member = None):

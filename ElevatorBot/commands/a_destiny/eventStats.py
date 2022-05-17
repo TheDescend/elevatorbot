@@ -15,7 +15,7 @@ from Shared.networkingSchemas import DestinyClanMemberModel
 
 
 class EventStats(BaseModule):
-    @slash_command(name="gg_rank", description="Gives you your current gg_rank")
+    @slash_command(name="gg_rank", description="Gives you your current gg_rank", dm_permission=False)
     @default_user_option()
     async def destiny(self, ctx: ElevatorInteractionContext, user: Member = None):
         member = user or ctx.author

@@ -9,7 +9,11 @@ from ElevatorBot.misc.formatting import embed_message
 
 
 class BubbleWrap(BaseModule):
-    @slash_command(name="bubble_wrap", description="This 100% recreates the happy feeling of popping bubble wrap")
+    @slash_command(
+        name="bubble_wrap",
+        description="This 100% recreates the happy feeling of popping bubble wrap",
+        dm_permission=False,
+    )
     async def bubble_wrap(self, ctx: ElevatorInteractionContext):
         components = [
             ActionRow(

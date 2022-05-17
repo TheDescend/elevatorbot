@@ -18,6 +18,7 @@ class MemberCount(BaseModule):
         **descend_setup_sub_command,
         sub_cmd_name="member_count",
         sub_cmd_description="Designate a voice channel that will always show the current member count",
+        dm_permission=False,
         scopes=get_setting("COMMAND_GUILD_SCOPE"),
     )
     @slash_option(

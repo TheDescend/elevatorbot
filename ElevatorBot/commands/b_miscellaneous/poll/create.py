@@ -12,6 +12,7 @@ class PollCreate(BaseModule):
         **poll_sub_command,
         sub_cmd_name="create",
         sub_cmd_description="Create a new poll",
+        dm_permission=False,
     )
     @slash_option(
         name="name",

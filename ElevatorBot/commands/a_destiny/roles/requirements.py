@@ -12,6 +12,7 @@ class RoleRequirements(BaseModule):
         **roles_sub_command,
         sub_cmd_name="requirements",
         sub_cmd_description="Shows you what you still need to do to get the specified Destiny 2 achievement role",
+        dm_permission=False,
     )
     @slash_option(name="role", description="The role you want to look up", opt_type=OptionTypes.ROLE, required=True)
     @default_user_option()

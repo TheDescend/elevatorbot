@@ -13,6 +13,7 @@ class StatPvP(BaseModule):
         **stat_sub_command,
         sub_cmd_name="pvp",
         sub_cmd_description="Displays the specified stat for all PvP activities",
+        dm_permission=False,
     )
     @default_stat_option()
     @default_class_option()

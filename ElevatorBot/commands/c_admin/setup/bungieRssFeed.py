@@ -12,6 +12,7 @@ class BungieRssFeed(BaseModule):
         **setup_sub_command,
         sub_cmd_name="bungie_feed",
         sub_cmd_description="Designate a channel where bungie articles get posted",
+        dm_permission=False,
     )
     @slash_option(
         name="channel",
