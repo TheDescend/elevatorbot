@@ -3,6 +3,7 @@ from naff import ActionRow, Button, ButtonStyles, Member, OptionTypes, SlashComm
 from ElevatorBot.commandHelpers.optionTemplates import default_user_option
 from ElevatorBot.commands.base import BaseModule
 from ElevatorBot.discordEvents.base import ElevatorInteractionContext
+from ElevatorBot.networking.destiny.account import DestinyAccount
 from ElevatorBot.networking.destiny.profile import DestinyProfile
 
 
@@ -35,11 +36,10 @@ class Website(BaseModule):
     )
     @default_user_option()
     async def website(self, ctx: ElevatorInteractionContext, website: str, user: Member = None):
-        if not user:
-            user = ctx.author
+        member = user or ctx.author
 
         # get destiny info
-        destiny_profile = DestinyProfile(ctx=ctx, discord_member=user, discord_guild=ctx.guild)
+        destiny_profile = DestinyProfile(ctx=ctx, discord_member=member, discord_guild=ctx.guild)
         destiny_player = await destiny_profile.from_discord_member()
 
         # get the text
@@ -76,6 +76,12 @@ class Website(BaseModule):
             case "Braytech":
                 text = f"https://bray.tech/{destiny_player.system}/{destiny_player.destiny_id}"
 
+                destiny_account = DestinyAccount(ctx=ctx, discord_member=member, discord_guild=ctx.guild)
+                characters = await destiny_account.get_character_info()
+
+                if characters.characters:
+                    text += f"/{characters.characters[0].character_id}/weeklies"
+
             case "D2 Checklist":
                 text = f"https://www.d2checklist.com/{destiny_player.system}/{destiny_player.destiny_id}"
 
@@ -95,7 +101,7 @@ class Website(BaseModule):
             ActionRow(
                 Button(
                     style=ButtonStyles.URL,
-                    label=f"{user.display_name} - {website}",
+                    label=f"{member.display_name} - {website}",
                     url=text,
                 ),
             ),
