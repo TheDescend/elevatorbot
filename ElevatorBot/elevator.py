@@ -71,13 +71,16 @@ class Elevator(ElevatorClient):
         startup_progress.stop()
 
 
-def load_commands(client: ElevatorClient) -> int:
+def load_commands(client: ElevatorClient, reload: bool = True) -> int:
     """Load all command modules. Returns number of local commands"""
 
     # load commands
     client.logger_exceptions.debug("Loading Commands...")
     for path in yield_files_in_folder("ElevatorBot/commands", "py"):
-        client.reload_extension(path)
+        if reload:
+            client.reload_extension(path)
+        else:
+            client.load_extension(path)
 
     global_commands = len(client.interactions[0])
     client.logger_exceptions.debug(f"< {global_commands} > Global Commands Loaded")
@@ -204,7 +207,7 @@ if __name__ == "__main__":
     asyncio.run(load_autocomplete_options())
     startup_progress.update(startup_task, advance=1)
 
-    local_commands = load_commands(client=client)
+    local_commands = load_commands(client=client, reload=False)
 
     local_context_menus = 0
     for key, value in client.interactions.items():
