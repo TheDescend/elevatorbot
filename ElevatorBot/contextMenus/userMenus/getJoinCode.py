@@ -11,7 +11,7 @@ class UserMenuCommands(BaseModule):
     Gets the selected users Destiny 2 join code, like `/join Name#1234`
     """
 
-    @context_menu(name="Get Join Code", context_type=CommandTypes.USER)
+    @context_menu(name="Get Join Code", context_type=CommandTypes.USER, dm_permission=False)
     async def command(self, ctx: ElevatorInteractionContext):
         member: Member = ctx.target
 

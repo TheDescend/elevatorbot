@@ -24,7 +24,12 @@ class EmojiCommands(BaseModule):
     Add the selected image to the guild as an emoji
     """
 
-    @context_menu(name="Add Emoji", context_type=CommandTypes.MESSAGE, scopes=get_setting("COMMAND_GUILD_SCOPE"))
+    @context_menu(
+        name="Add Emoji",
+        context_type=CommandTypes.MESSAGE,
+        dm_permission=False,
+        scopes=get_setting("COMMAND_GUILD_SCOPE"),
+    )
     @restrict_default_permission()
     async def add_emoji(self, ctx: ElevatorInteractionContext):
         message: Message = ctx.target

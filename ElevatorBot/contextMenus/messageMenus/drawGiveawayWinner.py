@@ -20,7 +20,10 @@ class GiveawayWinners(BaseModule):
     """
 
     @context_menu(
-        name="Draw Giveaway Winner", context_type=CommandTypes.MESSAGE, scopes=get_setting("COMMAND_GUILD_SCOPE")
+        name="Draw Giveaway Winner",
+        context_type=CommandTypes.MESSAGE,
+        dm_permission=False,
+        scopes=get_setting("COMMAND_GUILD_SCOPE"),
     )
     @restrict_default_permission()
     async def draw_winner(self, ctx: ElevatorInteractionContext):
