@@ -1,4 +1,5 @@
 import asyncio
+import copy
 import dataclasses
 import datetime
 import logging
@@ -37,10 +38,6 @@ input_data_lock = asyncio.Lock()
 
 pgcr_getter_semaphore = asyncio.Semaphore(100)
 
-_instance_ids = []
-_activity_times = []
-_running_updates = set()
-
 
 @dataclasses.dataclass
 class DestinyActivities:
@@ -48,9 +45,6 @@ class DestinyActivities:
 
     db: AsyncSession
     user: DiscordUsers
-
-    instance_ids: list = dataclasses.field(init=False)
-    activity_times: list = dataclasses.field(init=False)
 
     _full_character_list: list[dict] = dataclasses.field(init=False, default_factory=list)
 
@@ -62,11 +56,6 @@ class DestinyActivities:
 
         # the network class
         self.api = BungieApi(user=self.user)
-
-        self.instance_ids = _instance_ids
-        self.activity_times = _activity_times
-
-        self._running_updates = _running_updates
 
     async def get_lowman_count(
         self,
@@ -311,13 +300,13 @@ class DestinyActivities:
                 async with acquire_db_session() as db:
                     await crud_activities_fail_to_get.insert(db=db, instance_id=i, period=t)
 
-        async def input_data(gather_instance_ids: list[int], gather_activity_times: list[datetime.datetime]):
+        async def input_data(gather_instances: dict[int, datetime.datetime]):
             """Gather all pgcr and insert them"""
 
             # get the data with anyio tasks
             results: list[tuple] = []
             async with create_task_group() as tg:
-                for i, t in zip(gather_instance_ids, gather_activity_times):
+                for i, t in gather_instances.items():
                     tg.start_soon(lambda: handle(results=results, i=i, t=t))
 
             # insert information to DB
@@ -330,11 +319,11 @@ class DestinyActivities:
         try:
             async with input_data_lock:
                 # ignore this if the same user is currently running
-                if self.destiny_id in self._running_updates:
+                if self.destiny_id in cache.updater_running_updates:
                     logger.info(f"Skipping duplicate activity DB update for destinyID `{self.destiny_id}`")
                     return
                 else:
-                    self._running_updates.add(self.destiny_id)
+                    cache.updater_running_updates.add(self.destiny_id)
 
             # save the start time, so we can update the user afterwards
             start_time = None
@@ -370,20 +359,18 @@ class DestinyActivities:
                             continue
 
                         # add to task list
-                        self.instance_ids.append(instance_id)
-                        self.activity_times.append(activity_time)
+                        cache.updater_instances.update({instance_id: activity_time})
 
                 # insert the missing activities
                 async with input_data_lock:
-                    if self.instance_ids:
-                        to_get_instance_ids = self.instance_ids
-                        to_get_activity_times = self.activity_times
-                        self.instance_ids, self.activity_times = [], []
+                    if cache.updater_instances:
+                        to_get_instances = cache.updater_instances
+                        cache.updater_instances = {}
                     else:
-                        to_get_instance_ids, to_get_activity_times = [], []
+                        to_get_instances = {}
 
                 # get and input the data
-                await input_data(to_get_instance_ids, to_get_activity_times)
+                await input_data(to_get_instances)
 
             except CustomException as e:
                 # catch when bungie is down and ignore it
@@ -401,7 +388,7 @@ class DestinyActivities:
             # log that
             logger_exceptions.exception(f"Activity DB update for destinyID `{self.destiny_id}`", exc_info=error)
 
-        self._running_updates.remove(self.destiny_id)
+        cache.updater_running_updates.remove(self.destiny_id)
 
     async def __get_full_character_list(self) -> list[dict]:
         """Get all character ids (including deleted characters)"""

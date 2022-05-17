@@ -1,4 +1,5 @@
 import dataclasses
+import datetime
 from typing import Optional
 
 from Backend.database.models import (
@@ -17,6 +18,8 @@ from Shared.networkingSchemas.destiny import DestinyActivityModel, SeasonalChall
 class Cache:
     # Saved PGCR IDs - Key: instance_id
     saved_pgcrs: set[int] = dataclasses.field(init=False, default_factory=set)
+    updater_instances: dict[int, datetime.datetime] = dataclasses.field(init=False, default_factory=dict)
+    updater_running_updates: set[int] = dataclasses.field(init=False, default_factory=set)
 
     # User Objects - Key: discord_id
     discord_users: dict[int, DiscordUsers] = dataclasses.field(init=False, default_factory=dict)

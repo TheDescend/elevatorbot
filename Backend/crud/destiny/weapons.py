@@ -28,6 +28,8 @@ class CRUDWeapons(CRUDBase):
         """Return where the specified weapon was used"""
 
         query = select(ActivitiesUsersWeapons)
+        query = query.join(ActivitiesUsers)
+        query = query.join(Activities)
 
         # filter by weapon ids
         query = query.filter(ActivitiesUsersWeapons.weapon_id.in_(weapon_ids))
@@ -76,7 +78,8 @@ class CRUDWeapons(CRUDBase):
         )
 
         # join the tables together
-        query = query.filter(ActivitiesUsersWeapons.weapon_id == DestinyInventoryItemDefinition.reference_id)
+        query = query.join(ActivitiesUsers)
+        query = query.join(Activities)
 
         # group them
         query = query.group_by(ActivitiesUsersWeapons.weapon_id)
@@ -85,6 +88,9 @@ class CRUDWeapons(CRUDBase):
         query = query.group_by(DestinyInventoryItemDefinition.tier_type_name)
         query = query.group_by(DestinyInventoryItemDefinition.default_damage_type)
         query = query.group_by(DestinyInventoryItemDefinition.ammo_type)
+
+        # filter by weapon
+        query = query.filter(ActivitiesUsersWeapons.weapon_id == DestinyInventoryItemDefinition.reference_id)
 
         # make sure the slot is correct
         query = query.filter(DestinyInventoryItemDefinition.bucket_type_hash == slot.value)
