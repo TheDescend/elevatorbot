@@ -129,11 +129,11 @@ if __name__ == "__main__":
     init_logging()
     logger = logging.getLogger("generalExceptions")
 
+    naff_log = logging.getLogger(logger_name)
     if get_setting("ENABLE_DEBUG_MODE"):
         logger.debug("Setting Up NAFF Logging...")
-        naff_log = logging.getLogger(logger_name)
         naff_log.setLevel(logging.DEBUG)
-        ElevatorLogger.make_console_logger(naff_log, ColourHighlighter(colour="red", name="NAFF"))
+    ElevatorLogger.make_console_logger(naff_log, ColourHighlighter(colour="red", name="NAFF"))
     startup_progress.update(startup_task, advance=1)
 
     # enable intents to allow certain events--
