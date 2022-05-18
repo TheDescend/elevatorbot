@@ -10,7 +10,8 @@ dateparser==1.1.1
 gtts==2.2.4
 ics==0.7
 matplotlib==3.5.1
-naff[voice]==1.0.0
+git+https://github.com/Discord-Snake-Pit/NAFF@9172c8913e099f8a673a2914fa5a4bc6afbbc3d9##egg=naff^A[voice]
+# naff[voice]==1.0.0
 orjson==3.6.8
 pandas==1.4.1
 pillow==9.1.0
