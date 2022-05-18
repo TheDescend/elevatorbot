@@ -1,4 +1,4 @@
-from naff import Cog
+from naff import Extension
 
 from ElevatorBot.commandHelpers.responseTemplates import respond_pending
 from ElevatorBot.discordEvents.base import ElevatorClient
@@ -9,14 +9,14 @@ from ElevatorBot.networking.destiny.profile import DestinyProfile
 from ElevatorBot.networking.errors import BackendException
 
 
-class RegisteredModule(Cog):
+class RegisteredModule(Extension):
     """Add checks to every module"""
 
     bot: ElevatorClient
 
     def __init__(self, client: ElevatorClient):
         self.client = client
-        self.add_cog_check(self.no_pending_check)  # noqa
+        self.add_ext_check(self.no_pending_check)  # noqa
 
     @staticmethod
     async def no_pending_check(ctx: ElevatorInteractionContext) -> bool:
@@ -35,7 +35,7 @@ class BaseModule(RegisteredModule):
     """Add a registered check to every module"""
 
     def __init__(self, client: ElevatorClient):
-        self.add_cog_check(self.registered_check)  # noqa
+        self.add_ext_check(self.registered_check)  # noqa
         super().__init__(client)
 
     @staticmethod

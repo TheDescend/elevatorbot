@@ -41,7 +41,7 @@ def create_command_docs(client):
                 continue
 
             # get the docstring
-            docstring = data.cog.__doc__
+            docstring = data.extension.__doc__
             options = copy(data.options) if hasattr(data, "options") and data.options else []
             if data.default_member_permissions:
                 default_required_permissions = data.default_member_permissions.name.capitalize()
@@ -74,7 +74,7 @@ def create_command_docs(client):
 
                 case SlashCommand():
                     # get the topic. The folder names are starting with numbers to define the order for this
-                    topic = f"""{capitalize_string(data.cog.extension_name.split(".")[2][2:])} Commands"""
+                    topic = f"""{capitalize_string(data.extension.extension_name.split(".")[2][2:])} Commands"""
 
                     # get the actual description
                     actual_description = data.sub_cmd_description if data.sub_cmd_name else data.description

@@ -3,7 +3,7 @@ import inspect
 import logging
 
 from naff import AutoDefer, Intents, InteractionCommand, Listener, Permissions, Task, listen, logger_name, slash_command
-from naff.ext.debug_cog import DebugCog
+from naff.ext.debug_extension import DebugExtension
 from rich.console import Console
 from rich.panel import Panel
 from rich.progress import Progress
@@ -174,10 +174,10 @@ if __name__ == "__main__":
     startup_progress.update(startup_task, advance=1)
 
     # load the debug module for the debug guilds only
-    class CustomDebugModule(DebugCog):
+    class CustomDebugModule(DebugExtension):
         def __init__(self, bot: ElevatorClient):
             super().__init__(bot)
-            self.add_cog_check(check_is_guild())
+            self.add_ext_check(check_is_guild())
 
         def __new__(cls, bot: ElevatorClient, *args, **kwargs):
             for name, val in inspect.getmembers(cls):

@@ -1,11 +1,11 @@
-from naff import Cog, slash_command
+from naff import Extension, slash_command
 
 from ElevatorBot.discordEvents.customInteractions import ElevatorInteractionContext
 from ElevatorBot.misc.formatting import embed_message
 from ElevatorBot.networking.destiny.profile import DestinyProfile
 
 
-class UnRegister(Cog):
+class UnRegister(Extension):
     def __init__(self, client):
         self.client = client
 
