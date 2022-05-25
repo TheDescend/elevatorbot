@@ -1,9 +1,11 @@
 import asyncio
 import dataclasses
 import datetime
+import inspect
 import logging
 import os
 import time
+import traceback
 from base64 import b64encode
 from typing import Optional
 
@@ -244,6 +246,9 @@ class BungieApi(NetworkBase):
             if exc.error == "NoToken":
                 async with acquire_db_session() as db:
                     # catch the NoToken error to invalidate the db
+                    self.logger_exceptions.warning(
+                        f"Invalidated token for destiny_id {self.user.destiny_id}", stack_info=True
+                    )
                     await crud.discord_users.invalidate_token(db=db, user=self.user)
 
             raise exc
