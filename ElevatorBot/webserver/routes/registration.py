@@ -32,10 +32,6 @@ async def registration(request: web.Request):
         )
     )
 
-    # update the cache
-    if user.id in registered_role_cache.not_registered_users:
-        registered_role_cache.not_registered_users.pop(user.id)
-
     # reply with the guilds the user is in
     # that's needed for the role assignment
     return web.json_response({"success": True, "guild_ids": [guild.id for guild in user.mutual_guilds]})

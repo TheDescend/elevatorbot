@@ -27,7 +27,6 @@ class RegisteredRoleCache:
     """This saves registered data (for each guild) in the cache"""
 
     guild_to_role: dict[int, Role] = dataclasses.field(init=False, default_factory=dict)
-    not_registered_users: list[int] = dataclasses.field(init=False, default_factory=list)
     registered_users: TTLCache = TTLCache(ttl=3600, maxsize=10000)
 
     async def get(self, guild: Guild) -> Optional[Role]:
@@ -47,11 +46,6 @@ class RegisteredRoleCache:
             self.guild_to_role.update({guild.id: role})
 
         return self.guild_to_role[guild.id]
-
-    def is_not_registered(self, user_id: int) -> bool:
-        """Returns True if the user is not registered and that is cached. False if we dont know"""
-
-        return user_id in self.not_registered_users
 
     def is_registered(self, user_id: int) -> bool:
         """Returns True if the user has been registered within the last hour"""
