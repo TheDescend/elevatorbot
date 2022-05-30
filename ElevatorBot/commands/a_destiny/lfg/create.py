@@ -76,7 +76,7 @@ class LfgCreate(BaseModule):
                     label="Updated Description for the LFG Event",
                     custom_id="description",
                     placeholder="Required",
-                    min_length=5,
+                    min_length=1,
                     max_length=500,
                     required=True,
                 ),

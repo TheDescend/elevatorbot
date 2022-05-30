@@ -103,7 +103,7 @@ class LfgEdit(BaseModule):
                     label="Description for the LFG Event",
                     custom_id="description",
                     value=lfg_message.description,
-                    min_length=5,
+                    min_length=1,
                     max_length=500,
                     required=True,
                 ),
