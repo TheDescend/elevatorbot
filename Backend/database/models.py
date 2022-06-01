@@ -217,26 +217,34 @@ class RolesActivity(Base):
 
     maximum_allowed_players = Column(Integer, nullable=False)
 
-    allow_time_periods: list[RolesActivityTimePeriod] = relationship(
+    allow_time_periods: list[RolesActivityAllowTimePeriod] = relationship(
         "RolesActivityTimePeriod",
         cascade="all, delete-orphan",
         passive_deletes=True,
         lazy="selectin",
-        overlaps="disallow_time_periods",
     )
-    disallow_time_periods: list[RolesActivityTimePeriod] = relationship(
+    disallow_time_periods: list[RolesActivityDisallowTimePeriod] = relationship(
         "RolesActivityTimePeriod",
         cascade="all, delete-orphan",
         passive_deletes=True,
         lazy="selectin",
-        overlaps="allow_time_periods",
     )
 
     inverse = Column(Boolean, nullable=False)
 
 
-class RolesActivityTimePeriod(Base):
-    __tablename__ = "rolesActivityTimePeriod"
+class RolesActivityAllowTimePeriod(Base):
+    __tablename__ = "rolesActivityAllowTimePeriod"
+
+    _id = Column(Integer, autoincrement=True, primary_key=True)
+    role_activity_id = Column(Integer, ForeignKey("rolesActivity._id", ondelete="CASCADE", onupdate="CASCADE"))
+
+    start_time = Column(DateTime(timezone=True), nullable=False)
+    end_time = Column(DateTime(timezone=True), nullable=False)
+
+
+class RolesActivityDisallowTimePeriod(Base):
+    __tablename__ = "rolesActivityDisallowTimePeriod"
 
     _id = Column(Integer, autoincrement=True, primary_key=True)
     role_activity_id = Column(Integer, ForeignKey("rolesActivity._id", ondelete="CASCADE", onupdate="CASCADE"))
@@ -260,7 +268,7 @@ class RolesCollectibles(Base):
 
 # for records
 class RolesRecords(Base):
-    __tablename__ = "rolesTriumphs"
+    __tablename__ = "rolesRecords"
 
     _id = Column(Integer, primary_key=True, autoincrement=True)
     role_id = Column(BigInteger, ForeignKey("roles.role_id", ondelete="CASCADE", onupdate="CASCADE"))

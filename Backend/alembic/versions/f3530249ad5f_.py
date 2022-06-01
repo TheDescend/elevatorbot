@@ -12,7 +12,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 from sqlalchemy.orm.attributes import flag_modified
 
-from Backend.database import Roles, RolesActivity, RolesActivityTimePeriod, RolesCollectibles
+from Backend.database import Roles, RolesActivity, RolesActivityAllowTimePeriod, RolesActivityDisallowTimePeriod, RolesCollectibles
 
 # revision identifiers, used by Alembic.
 revision = "f3530249ad5f"
@@ -53,14 +53,14 @@ def add_role(session: Session, entry: dict, old_entries: dict):
                 require_kd=data["require_kd"],
                 maximum_allowed_players=data["maximum_allowed_players"],
                 allow_time_periods=[
-                    RolesActivityTimePeriod(
+                    RolesActivityAllowTimePeriod(
                         start_time=time_period["start_time"],
                         end_time=time_period["end_time"],
                     )
                     for time_period in data["allow_time_periods"]
                 ],
                 disallow_time_periods=[
-                    RolesActivityTimePeriod(
+                    RolesActivityDisallowTimePeriod(
                         start_time=time_period["start_time"],
                         end_time=time_period["end_time"],
                     )
