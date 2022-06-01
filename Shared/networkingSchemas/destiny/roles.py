@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING, Optional
 from Shared.networkingSchemas.base import CustomBaseModel
 
 if TYPE_CHECKING:
-    from Backend.database import Roles
+    from Backend.database import Roles, RolesActivity
 
 
 class RolesCategoryModel(CustomBaseModel):
@@ -29,6 +29,9 @@ class MissingRolesModel(CustomBaseModel):
 class TimePeriodModel(CustomBaseModel):
     start_time: datetime.datetime
     end_time: datetime.datetime
+
+    class Config:
+        orm_mode = True
 
 
 class RequirementActivityModel(CustomBaseModel):
@@ -62,8 +65,32 @@ class RequirementActivityModel(CustomBaseModel):
     # reverse this requirement - only people WITHOUT it get it
     inverse: bool = False
 
-    class Config:
-        orm_mode = True
+    @classmethod
+    def from_sql_model(cls, db_model: RolesActivity):
+        """Convert SqlAlchemy's `RolesActivity` to this model"""
+
+        return cls(
+            allowed_activity_hashes=db_model.allowed_activity_hashes,
+            count=db_model.count,
+            allow_checkpoints=db_model.allow_checkpoints,
+            require_team_flawless=db_model.require_team_flawless,
+            require_individual_flawless=db_model.require_individual_flawless,
+            require_score=db_model.require_score,
+            require_kills=db_model.require_kills,
+            require_kills_per_minute=db_model.require_kills_per_minute,
+            require_kda=db_model.require_kda,
+            require_kd=db_model.require_kd,
+            maximum_allowed_players=db_model.maximum_allowed_players,
+            allow_time_periods=[
+                TimePeriodModel.from_orm(allow_time_periods)
+                for allow_time_periods in db_model.allow_time_periods
+            ],
+            disallow_time_periods=[
+                TimePeriodModel.from_orm(disallow_time_periods)
+                for disallow_time_periods in db_model.disallow_time_periods
+            ],
+            inverse=db_model.inverse,
+        )
 
 
 class RequirementIntegerModel(CustomBaseModel):
@@ -120,7 +147,7 @@ class RoleModel(CustomBaseModel):
             deprecated=db_model.deprecated,
             acquirable=db_model.acquirable,
             require_activity_completions=[
-                RequirementActivityModel.from_orm(activity)
+                RequirementActivityModel.from_sql_model(activity)
                 for activity in db_model.requirement_require_activity_completions
             ],
             require_collectibles=[

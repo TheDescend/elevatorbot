@@ -218,13 +218,13 @@ class RolesActivity(Base):
     maximum_allowed_players = Column(Integer, nullable=False)
 
     allow_time_periods: list[RolesActivityAllowTimePeriod] = relationship(
-        "RolesActivityTimePeriod",
+        "RolesActivityAllowTimePeriod",
         cascade="all, delete-orphan",
         passive_deletes=True,
         lazy="selectin",
     )
     disallow_time_periods: list[RolesActivityDisallowTimePeriod] = relationship(
-        "RolesActivityTimePeriod",
+        "RolesActivityDisallowTimePeriod",
         cascade="all, delete-orphan",
         passive_deletes=True,
         lazy="selectin",

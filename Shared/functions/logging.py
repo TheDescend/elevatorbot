@@ -14,16 +14,16 @@ DESCEND_COLOUR = "#71b093"
 
 def try_import(name: str):
     try:
-        import_module(name)
+        module = import_module(name)
     except ModuleNotFoundError:
         pass
     else:
-        to_suppress.append(name)
+        to_suppress.append(module)
 
 
 # try to import the libs to suppress here
-to_suppress = ["naff", "sqlalchemy", "pydantic", "fastapi", "asyncpg", "aiohttp"]
-for lib in []:
+to_suppress = []
+for lib in ["naff", "sqlalchemy", "pydantic", "fastapi", "asyncpg", "aiohttp", "starlette", "anyio", "uvicorn"]:
     try_import(lib)
 
 RICH_LOGGING_PARAMS = {
