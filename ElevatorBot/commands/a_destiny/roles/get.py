@@ -1,9 +1,13 @@
+import asyncio
+
 from naff import slash_command
 
 from ElevatorBot.commandHelpers.subCommandTemplates import roles_sub_command
 from ElevatorBot.commands.base import BaseModule
 from ElevatorBot.core.destiny.roles import Roles
 from ElevatorBot.discordEvents.customInteractions import ElevatorInteractionContext
+
+user_lock: dict[int, asyncio.Lock] = {}
 
 
 class RoleGet(BaseModule):
@@ -14,9 +18,13 @@ class RoleGet(BaseModule):
         dm_permission=False,
     )
     async def get(self, ctx: ElevatorInteractionContext):
-        # get new roles and update the member
-        roles = Roles(ctx=ctx, guild=ctx.guild, member=ctx.author)
-        await roles.update()
+        if ctx.author.id not in user_lock:
+            user_lock[ctx.author.id] = asyncio.Lock()
+
+        async with user_lock[ctx.author.id]:
+            # get new roles and update the member
+            roles = Roles(ctx=ctx, guild=ctx.guild, member=ctx.author)
+            await roles.update()
 
 
 def setup(client):
