@@ -222,7 +222,13 @@ class CRUDActivities(CRUDBase):
 
         # team flawless required?
         if require_team_flawless:
-            query = query.having(func.count(distinct(ActivitiesUsers.deaths)) == 0)
+            subquery = select(Activities.instance_id)
+            subquery = subquery.join(ActivitiesUsers)
+            subquery = subquery.group_by(Activities.instance_id)
+
+            subquery = subquery.having(func.sum(distinct(ActivitiesUsers.deaths)) == 0)
+
+            query = query.filter(Activities.instance_id.in_(subquery))
 
         # check completion status
         if only_completed:
@@ -284,7 +290,8 @@ class CRUDActivities(CRUDBase):
             query = query.filter(Activities.instance_id.in_(subquery))
 
         result = await self._execute_query(db=db, query=query)
-        return result.scalars().fetchall()
+        scalars = result.scalars().fetchall()
+        return scalars
 
     async def get_last_activity(
         self,

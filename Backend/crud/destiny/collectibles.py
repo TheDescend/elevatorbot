@@ -17,6 +17,12 @@ class CRUDCollectibles(CRUDBase):
         # check if exists in db
         return bool(result)
 
+    async def gotten_collectibles(self, db: AsyncSession, destiny_id: int) -> list[Collectibles]:
+        """Return all gotten collectibles (in the db)"""
+
+        results: list[Collectibles] = await self._get_multi(db=db, destiny_id=destiny_id)
+        return results
+
     async def get_collectible(self, db: AsyncSession, destiny_id: int, collectible_hash: int) -> Optional[Collectibles]:
         """Return the db entry if exists"""
 

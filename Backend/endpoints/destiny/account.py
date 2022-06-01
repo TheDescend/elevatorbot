@@ -62,7 +62,7 @@ async def has_triumph(guild_id: int, discord_id: int, triumph_id: int, db: Async
     user = await discord_users.get_profile_from_discord_id(discord_id)
     profile = DestinyProfile(db=db, user=user)
 
-    return await profile.has_triumph(triumph_hash=triumph_id)
+    return await profile.has_triumph(triumph_hash=triumph_id, send_details=True)
 
 
 @router.get("/metric/{metric_id}", response_model=ValueModel)  # has test

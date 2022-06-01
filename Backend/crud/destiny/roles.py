@@ -4,7 +4,14 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from Backend.core.errors import CustomException
 from Backend.crud.base import CRUDBase
-from Backend.database.models import Roles, RolesActivity, RolesActivityTimePeriod, RolesCollectibles, RolesRecords
+from Backend.database.models import (
+    Roles,
+    RolesActivity,
+    RolesActivityAllowTimePeriod,
+    RolesActivityDisallowTimePeriod,
+    RolesCollectibles,
+    RolesRecords,
+)
 from Backend.misc.cache import cache
 from Shared.networkingSchemas.destiny.roles import RoleModel
 
@@ -43,7 +50,7 @@ class CRUDRoles(CRUDBase):
                 raise CustomException("RoleNotExist")
 
             # copy it once to prevent it from expiring
-            role_obj = copy.copy(result)
+            role_obj = copy.deepcopy(result)
 
             self.cache.roles.update({role_id: role_obj})
 
@@ -133,14 +140,14 @@ class CRUDRoles(CRUDBase):
                     require_kd=activity.require_kd,
                     maximum_allowed_players=activity.maximum_allowed_players,
                     allow_time_periods=[
-                        RolesActivityTimePeriod(
+                        RolesActivityAllowTimePeriod(
                             start_time=time_period.start_time,
                             end_time=time_period.end_time,
                         )
                         for time_period in activity.allow_time_periods
                     ],
                     disallow_time_periods=[
-                        RolesActivityTimePeriod(
+                        RolesActivityDisallowTimePeriod(
                             start_time=time_period.start_time,
                             end_time=time_period.end_time,
                         )

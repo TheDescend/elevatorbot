@@ -15,6 +15,12 @@ class CRUDRecords(CRUDBase):
         # check if exists in db
         return bool(result)
 
+    async def gotten_records(self, db: AsyncSession, destiny_id: int) -> list[Records]:
+        """Return all gotten records (in the db)"""
+
+        results: list[Records] = await self._get_multi(db=db, destiny_id=destiny_id)
+        return results
+
     async def get_record(self, db: AsyncSession, destiny_id: int, triumph_hash: int) -> Optional[Records]:
         """Return the db entry if exists"""
 
