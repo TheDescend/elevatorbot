@@ -118,14 +118,6 @@ class NetworkBase:
                 await asyncio.sleep(random.randrange(2, 6))
                 continue
 
-            except Exception as error:
-                if not supress_custom_errors:
-                    self.logger_exceptions.exception(
-                        f"Unknown error `{type(error)}` for `{route}?{urlencode({} if params is None else params)}`",
-                        exc_info=error,
-                    )
-                raise error
-
         # return that it failed
         self.logger_exceptions.exception(f"Request failed `{self.request_retries}` times, aborting for `{route}`")
         raise CustomException("UnknownError")

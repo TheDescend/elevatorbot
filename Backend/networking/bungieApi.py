@@ -249,7 +249,7 @@ class BungieApi(NetworkBase):
                     self.logger_exceptions.warning(
                         f"Invalidated token for destiny_id {self.user.destiny_id}", stack_info=True
                     )
-                    await crud.discord_users.invalidate_token(db=db, user=self.user)
+                    # await crud.discord_users.invalidate_token(db=db, user=self.user)
 
             raise exc
 
@@ -359,6 +359,11 @@ class BungieApi(NetworkBase):
                 raise CustomException("BungieClanTargetDisallowsInvites")
 
             case (_, "AuthorizationRecordRevoked" | "AuthorizationRecordExpired"):
+                self.logger.warning(
+                    f"Want to invalidate token for {self.user=}, {request=}, {request.headers=}, {content=}",
+                    stack_info=True,
+                )
+
                 # users tokens are no longer valid
                 raise CustomException("NoToken")
 
