@@ -202,6 +202,7 @@ class CRUDActivities(CRUDBase):
 
         query = select(ActivitiesUsers)
         query = query.join(Activities)
+        query = query.group_by(ActivitiesUsers.id)
 
         query = query.filter(ActivitiesUsers.destiny_id == destiny_id)
 
@@ -277,7 +278,6 @@ class CRUDActivities(CRUDBase):
             subquery = select(Activities.instance_id)
             subquery = subquery.join(ActivitiesUsers)
             subquery = subquery.group_by(Activities.instance_id)
-            subquery = subquery.group_by(ActivitiesUsers.id)
 
             subquery = subquery.having(func.count(distinct(ActivitiesUsers.destiny_id)) <= maximum_allowed_players)
 

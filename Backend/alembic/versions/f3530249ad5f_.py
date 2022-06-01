@@ -12,7 +12,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 from sqlalchemy.orm.attributes import flag_modified
 
-from Backend.database import Roles, RolesActivity, RolesActivityTimePeriod, RolesInteger
+from Backend.database import Roles, RolesActivity, RolesActivityTimePeriod, RolesCollectibles
 
 # revision identifiers, used by Alembic.
 revision = "f3530249ad5f"
@@ -71,14 +71,14 @@ def add_role(session: Session, entry: dict, old_entries: dict):
             for data in role_data["require_activity_completions"]
         ],
         requirement_require_collectibles=[
-            RolesInteger(
+            RolesCollectibles(
                 bungie_id=data["id"],
                 inverse=data["inverse"],
             )
             for data in role_data["require_collectibles"]
         ],
         requirement_require_records=[
-            RolesInteger(
+            RolesCollectibles(
                 bungie_id=data["id"],
                 inverse=data["inverse"],
             )

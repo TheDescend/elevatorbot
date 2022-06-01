@@ -4,7 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from Backend.core.errors import CustomException
 from Backend.crud.base import CRUDBase
-from Backend.database.models import Roles, RolesActivity, RolesActivityTimePeriod, RolesInteger
+from Backend.database.models import Roles, RolesActivity, RolesActivityTimePeriod, RolesCollectibles, RolesRecords
 from Backend.misc.cache import cache
 from Shared.networkingSchemas.destiny.roles import RoleModel
 
@@ -23,7 +23,7 @@ class CRUDRoles(CRUDBase):
             results: list[Roles] = []
             for result in db_results:
                 # copy it once to prevent it from expiring
-                role_obj = copy.copy(result)
+                role_obj = copy.deepcopy(result)
                 results.append(role_obj)
 
                 # also cache it
@@ -152,7 +152,7 @@ class CRUDRoles(CRUDBase):
 
         for collectible in role.require_collectibles:
             to_update["requirement_require_collectibles"].append(
-                RolesInteger(
+                RolesCollectibles(
                     bungie_id=collectible.bungie_id,
                     inverse=collectible.inverse,
                 )
@@ -160,7 +160,7 @@ class CRUDRoles(CRUDBase):
 
         for record in role.require_records:
             to_update["requirement_require_records"].append(
-                RolesInteger(
+                RolesRecords(
                     bungie_id=record.bungie_id,
                     inverse=record.inverse,
                 )

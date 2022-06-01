@@ -2,6 +2,7 @@ import asyncio
 import copy
 import dataclasses
 import datetime
+import logging
 from typing import Optional
 
 from anyio import to_thread
@@ -64,9 +65,9 @@ class DestinyProfile:
     }
     class_map = {671679327: "Hunter", 2271682572: "Warlock", 3655393761: "Titan"}
 
-    _triumphs: dict = dataclasses.field(init=False, default_factory=dict)
-    _profile: dict = dataclasses.field(init=False, default_factory=dict)
-    _inventory_bucket: dict = dataclasses.field(init=False, default_factory=dict)
+    _triumphs: dict = dataclasses.field(init=False, default_factory=dict, repr=False)
+    _profile: dict = dataclasses.field(init=False, default_factory=dict, repr=False)
+    _inventory_bucket: dict = dataclasses.field(init=False, default_factory=dict, repr=False)
 
     def __post_init__(self):
         # some shortcuts
@@ -297,7 +298,11 @@ class DestinyProfile:
                 if self._triumphs and (
                     self.user.triumphs_last_updated + datetime.timedelta(minutes=10) > get_now_with_tz()
                 ):
-                    sought_triumph = self._triumphs[str(triumph_hash)]
+                    sought_triumph = self._triumphs.get(str(triumph_hash), None)
+                    if sought_triumph is None:
+                        logger = logging.getLogger("roles")
+                        logger.exception(f"Triumph hash is not valid: {triumph_hash=}")
+                        return BoolModelRecord(bool=False)
 
                 else:
                     # get from db and return that if it says user got the triumph
@@ -380,9 +385,10 @@ class DestinyProfile:
                 cache.collectibles.update({self.destiny_id: set()})
 
             if collectible_hash not in cache.collectibles[self.destiny_id]:
-                # check if the last update is older than 10 minutes
-                if self.user.collectibles_last_updated + datetime.timedelta(minutes=10) > get_now_with_tz():
-                    return False
+                # # check if the last update is older than 10 minutes
+                # if self.user.collectibles_last_updated + datetime.timedelta(minutes=10) > get_now_with_tz():
+                #     return False
+                # todo enable again
 
                 # get from db and return that if it says user got the collectible
                 result = await collectibles.has_collectible(

@@ -245,14 +245,27 @@ class RolesActivityTimePeriod(Base):
     end_time = Column(DateTime(timezone=True), nullable=False)
 
 
-# for collectibles, triumphs, etc.
-class RolesInteger(Base):
-    __tablename__ = "rolesInteger"
+# for collectibles
+class RolesCollectibles(Base):
+    __tablename__ = "rolesCollectibles"
 
     _id = Column(Integer, primary_key=True, autoincrement=True)
     role_id = Column(BigInteger, ForeignKey("roles.role_id", ondelete="CASCADE", onupdate="CASCADE"))
 
-    # the id of the collectible / record
+    # the id of the collectible
+    bungie_id = Column(BigInteger, nullable=False)
+
+    inverse = Column(Boolean, nullable=False)
+
+
+# for records
+class RolesRecords(Base):
+    __tablename__ = "rolesTriumphs"
+
+    _id = Column(Integer, primary_key=True, autoincrement=True)
+    role_id = Column(BigInteger, ForeignKey("roles.role_id", ondelete="CASCADE", onupdate="CASCADE"))
+
+    # the id of the record
     bungie_id = Column(BigInteger, nullable=False)
 
     inverse = Column(Boolean, nullable=False)
@@ -283,19 +296,17 @@ class Roles(Base):
     requirement_require_activity_completions: list[RolesActivity] = relationship(
         "RolesActivity", cascade="all, delete-orphan", passive_deletes=True, lazy="selectin"
     )
-    requirement_require_collectibles: list[RolesInteger] = relationship(
-        "RolesInteger",
+    requirement_require_collectibles: list[RolesCollectibles] = relationship(
+        "RolesCollectibles",
         cascade="all, delete-orphan",
         passive_deletes=True,
         lazy="selectin",
-        overlaps="requirement_require_records",
     )
-    requirement_require_records: list[RolesInteger] = relationship(
-        "RolesInteger",
+    requirement_require_records: list[RolesRecords] = relationship(
+        "RolesRecords",
         cascade="all, delete-orphan",
         passive_deletes=True,
         lazy="selectin",
-        overlaps="requirement_require_collectibles",
     )
     requirement_require_roles: list[Roles] = relationship(
         "Roles",

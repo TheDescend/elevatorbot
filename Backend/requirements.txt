@@ -1,6 +1,6 @@
 aiohttp[speedups]==3.8.1
 aiohttp_client_cache==0.5.2
-aioredis==1.3.1     # aiohttp_client_cache currently requires this version
+aioredis==1.3.1     # aiohttp_client_cache currently requires this version -> https://github.com/aio-libs/aioredis-py/issues/1273
 # aiohttp_client_cache[redis]==0.7.0
 alembic==1.7.7
 anyio==3.5.0
