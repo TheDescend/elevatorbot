@@ -42,7 +42,7 @@ services:
       - POSTGRES_HOST
       - POSTGRES_PORT
       - SCHEDULE=@daily
-      - BACKUP_KEEP_DAYS=2
+      - BACKUP_KEEP_DAYS=7
       - BACKUP_KEEP_WEEKS=4
       - BACKUP_KEEP_MONTHS=6
     networks:
