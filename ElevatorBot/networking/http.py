@@ -34,7 +34,8 @@ backend_cache = aiohttp_client_cache.RedisBackend(
         "**/destiny/activities/**/get/grandmaster": 0,  # never grandmaster ids
         "**/destiny/activities": timedelta(minutes=30),
         "**/destiny/items/lore/get/all": 0,  # never save lore ids
-        "**/destiny/roles/*/*/get": timedelta(minutes=30),  # user roles
+        "**/destiny/roles/*/*/get/all": timedelta(minutes=30),  # user roles
+        "**/destiny/roles/*/*/get/missing": timedelta(minutes=30),  # user roles
         "**/destiny/weapons/**/top": timedelta(minutes=60),  # user top weapons
         "**/destiny/weapons/**/weapon": timedelta(minutes=60),  # user weapon
     }
