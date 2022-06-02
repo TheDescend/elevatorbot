@@ -82,8 +82,7 @@ class RequirementActivityModel(CustomBaseModel):
             require_kd=db_model.require_kd,
             maximum_allowed_players=db_model.maximum_allowed_players,
             allow_time_periods=[
-                TimePeriodModel.from_orm(allow_time_periods)
-                for allow_time_periods in db_model.allow_time_periods
+                TimePeriodModel.from_orm(allow_time_periods) for allow_time_periods in db_model.allow_time_periods
             ],
             disallow_time_periods=[
                 TimePeriodModel.from_orm(disallow_time_periods)
