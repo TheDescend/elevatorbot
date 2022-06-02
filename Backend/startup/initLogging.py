@@ -29,6 +29,9 @@ def init_logging() -> None:
     # Initialize formatter
     logger = ElevatorLogger("Backend")
 
+    # Initialize logging for database stuff
+    logger.make_logger("db")
+
     # Initialize logging for roles
     logger.make_logger("roles")
 

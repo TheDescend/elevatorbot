@@ -1,4 +1,5 @@
 import asyncio
+import logging
 import os
 from contextlib import asynccontextmanager, suppress
 from typing import AsyncContextManager, Optional
@@ -77,5 +78,15 @@ def is_test_mode(set_test_mode: Optional[bool] = None) -> bool:
 async def acquire_db_session() -> AsyncContextManager[AsyncSession]:
     """Get a database session"""
 
-    async with get_async_sessionmaker().begin() as session:
-        yield session
+    db = get_async_sessionmaker()()
+    logger = logging.getLogger("db")
+
+    if not db.in_transaction():
+        async with db.begin():
+            yield db
+    else:
+        logger.debug("Already in transaction")
+        yield db
+        if db.in_transaction():
+            await db.commit()
+            logger.debug("Implicit transaction commit")
