@@ -12,6 +12,7 @@ import GlowingContainer from "../../../components/styling/glowingContainer";
 import ContentContainer from "../../../components/styling/container";
 import React, {useState} from "react";
 import RoleForm from "../../../components/roleForm";
+import {labelFormatting, checkboxInputDivFormatting, checkboxInputFormatting} from "../../../components/roleForm";
 import GlowingButton from "../../../components/styling/glowingButton";
 import {HiPlus} from "react-icons/hi";
 import {toast} from "react-toastify";
@@ -39,6 +40,16 @@ export default function ServerRolePage({
     _guildRoles = _guildRoles.content.roles
     if (!_guildRoles) return <LoadingFailed/>
 
+    function getAllCategories() {
+        let _categoryNames = ["No Category"]
+        guildRoles.forEach(function (item) {
+            if (!_categoryNames.includes(item["category"])) {
+                _categoryNames.push(item["category"])
+            }
+        })
+        return _categoryNames
+    }
+
     let _rolesIds = []
     _guildRoles.forEach(function (item) {
         _rolesIds.push(String(item["role_id"]))
@@ -46,6 +57,9 @@ export default function ServerRolePage({
 
     const [guildRoles, updateGuildRoles] = useState(_guildRoles)
     const [rolesIds, updateRolesIds] = useState(_rolesIds)
+    const [categoryNames, updateCategoryNames] = useState(getAllCategories())
+    const [enabledCategories, updateEnabledCategories] = useState([])
+    const [allCategories, updateAllCategories] = useState(true)
 
     // get guilds
     const {data, error, mutate} = useSWR(["/users/@me/guilds", token], discord_fetcher)
@@ -78,7 +92,7 @@ export default function ServerRolePage({
         const newRole = {
             "role_id": null,
             "guild_id": guild_id,
-            "category": "Destiny Role",
+            "category": "No Category",
             "deprecated": false,
             "acquirable": true,
             "require_activity_completions": [],
@@ -110,6 +124,11 @@ export default function ServerRolePage({
                 },
             }
         )
+
+        const category = guildRoles[roleIndex]["category"]
+        if (category !== "No Category" && categoryNames.includes(category)) {
+            updateCategoryNames(categoryNames.filter(item => item !== category))
+        }
     }
 
     async function _deleteRole(roleIndex, discordRole) {
@@ -139,67 +158,127 @@ export default function ServerRolePage({
         return resultText
     }
 
+    const myLabelFormatting = `${labelFormatting} text-xs px-2 text-descend`
+    // todo write new category on role create / delete
     return (
         <Layout server={guild}>
-            <Title>
-                <div className="flex flex-col">
-                    <div className="flex flex-row justify-between">
-                        {guild.name}'s Roles
-                        {adminPerms &&
-                            <GlowingButton glow={"opacity-20"}>
-                                <button
-                                    className=""
-                                    type="button "
-                                    onClick={() => {
-                                        createNew()
-                                    }}
-                                >
-                                    <div
-                                        className="flex flex-row text-white items-center gap-x-1 font-bold text-sm hover:text-descend py-1">
-                                        <HiPlus className="object-contain h-4 w-4 "/>
-                                        New Role
-                                    </div>
-                                </button>
-                            </GlowingButton>
-                        }
+            <div className="relative">
+                <div className="absolute top-12 right-0">
+                    <div className={`${checkboxInputDivFormatting} !justify-end`}>
+                        <input
+                            className={checkboxInputFormatting}
+                            id="category_picker_all"
+                            name="category_picker_all"
+                            type="checkbox"
+                            defaultChecked={allCategories}
+                            disabled={false}
+                            onChange={() => {
+                                updateAllCategories(!allCategories)
+                            }}
+                        />
+                        <label className={myLabelFormatting} htmlFor="category_picker_all">
+                            Show all Categories
+                        </label>
                     </div>
-                    {adminPerms &&
-                        <span className="italic text-xs text-descend pt-2">
+                    {!allCategories &&
+                        <div className="max-h-16 flex flex-grow">
+                            <div className={`border rounded p-1 border-descend dark:bg-gray-900 flex flex-col gap-y-2 overflow-y-auto overflow-x-hidden w-full`}>
+                                {categoryNames &&
+                                    categoryNames.map((name) => {
+                                        return (
+                                            <div className="flex">
+                                                <input
+                                                    className="dark:bg-slate-700 rounded-lg border-none text-descend placeholder:italic checked:ring-2 ring-descend"
+                                                    id={`category_picker-${name}`}
+                                                    name={`category_picker-${name}`}
+                                                    type="checkbox"
+                                                    disabled={allCategories}
+                                                    defaultChecked={enabledCategories.includes(name)}
+                                                    onChange={(event) => {
+                                                        if (event.target.checked) {
+                                                            updateEnabledCategories([name, ...enabledCategories])
+                                                        } else {
+                                                            updateEnabledCategories(enabledCategories.filter(item => item !== name))
+                                                        }
+                                                    }}
+                                                />
+                                                <label className={myLabelFormatting} htmlFor="category_picker_all">
+                                                    {name}
+                                                </label>
+                                            </div>
+                                        )
+                                    })
+                                }
+                            </div>
+                        </div>
+                    }
+                </div>
+                <Title>
+                    <div className="flex flex-col">
+                        <div className="flex flex-row justify-between">
+                            {guild.name}'s Roles
+                            {adminPerms &&
+                                <GlowingButton glow={"opacity-20"}>
+                                    <button
+                                        className=""
+                                        type="button "
+                                        onClick={() => {
+                                            createNew()
+                                        }}
+                                    >
+                                        <div
+                                            className="flex flex-row text-white items-center gap-x-1 font-bold text-sm hover:text-descend py-1">
+                                            <HiPlus className="object-contain h-4 w-4 "/>
+                                            New Role
+                                        </div>
+                                    </button>
+                                </GlowingButton>
+                            }
+                        </div>
+                        {adminPerms &&
+                            <span className="italic text-xs text-descend pt-2">
                             Admin
                         </span>
-                    }
-                    <span className="text-xs text-descend mt-8 border-t w-fit border-descend">
-                            Changes done on discord can take up to 30 mins to synchronise
-                        </span>
-                </div>
-            </Title>
-            <Description>
-                <div className="grid grid-flow-row gap-6 pl-2 pt-2">
-                    {guildRoles &&
-                        guildRoles.map((role, roleIndex) => {
-                            return (
-                                <GlowingContainer>
-                                    <ContentContainer>
-                                        <RoleForm
-                                            role={role}
-                                            rolesIds={rolesIds}
-                                            updateRolesIds={updateRolesIds}
-                                            guild_id={guild_id}
-                                            discordRoles={formattedDiscordRoles}
-                                            adminPerms={adminPerms}
-                                            destinyActivities={destinyActivities}
-                                            destinyCollectibles={destinyCollectibles}
-                                            destinyTriumphs={destinyTriumphs}
-                                            deleteRole={deleteRole}
-                                            roleIndex={roleIndex}
-                                        />
-                                    </ContentContainer>
-                                </GlowingContainer>
-                            )
-                        })
-                    }
-                </div>
-            </Description>
+                        }
+                        <span className="text-xs text-descend mt-8 border-t w-fit border-descend">
+                        Changes done on discord can take up to 30 mins to synchronise
+                    </span>
+                    </div>
+                </Title>
+                <Description>
+                    <div className="grid grid-flow-row gap-6 pl-2 pt-2">
+                        {guildRoles &&
+                            guildRoles.map((role, roleIndex) => {
+                                if (allCategories || enabledCategories.includes(role["category"])) {
+                                    return (
+                                        <GlowingContainer>
+                                            <ContentContainer>
+                                                <RoleForm
+                                                    role={role}
+                                                    rolesIds={rolesIds}
+                                                    updateRolesIds={updateRolesIds}
+                                                    guild_id={guild_id}
+                                                    discordRoles={formattedDiscordRoles}
+                                                    adminPerms={adminPerms}
+                                                    destinyActivities={destinyActivities}
+                                                    destinyCollectibles={destinyCollectibles}
+                                                    destinyTriumphs={destinyTriumphs}
+                                                    deleteRole={deleteRole}
+                                                    roleIndex={roleIndex}
+                                                    updateCategoryNames={updateCategoryNames}
+                                                    getAllCategories={getAllCategories}
+                                                />
+                                            </ContentContainer>
+                                        </GlowingContainer>
+                                    )
+                                } else {
+                                    return ""
+                                }
+                            })
+                        }
+                    </div>
+                </Description>
+            </div>
         </Layout>
     )
 }

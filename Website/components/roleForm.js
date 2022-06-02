@@ -7,16 +7,16 @@ import {toast} from "react-toastify";
 
 const divFormatting = "marker:text-descend"
 const summaryFormatting = ""
-const labelFormatting = "px-1"
+export const labelFormatting = "px-1"
 
 const _InputFormatting = "dark:bg-gray-900 rounded-lg border-none text-descend placeholder:italic"
 const selectInputFormatting = `${_InputFormatting} focus:ring-2 focus:ring-descend required:ring-2 required:ring-red-700 valid:ring-0 mt-1`
 const textInputFormatting = `${selectInputFormatting} invalid:text-red-700 `
-const checkboxInputFormatting = `${_InputFormatting} checked:ring-2 ring-descend`
+export const checkboxInputFormatting = `${_InputFormatting} checked:ring-2 ring-descend`
 
 const _InputDivFormatting = "dark:bg-slate-700 flex border-1 p-1 rounded-lg border-white"
 const textInputDivFormatting = `${_InputDivFormatting} flex-col justify-between`
-const checkboxInputDivFormatting = `${_InputDivFormatting} flex-row justify-between items-center`
+export const checkboxInputDivFormatting = `${_InputDivFormatting} flex-row justify-between items-center`
 
 
 // todo deleting required parts (like a collectible) results in wonky interactions. Fe. if collectible #1 is removed, collectible #2 gets the inputs of #1 since they do not get saved after typing. this might only happen with unsafed form data
@@ -32,6 +32,8 @@ export default function RoleForm({
                                      destinyTriumphs,
                                      deleteRole,
                                      roleIndex,
+                                     updateCategoryNames,
+                                     getAllCategories,
                                  }) {
     const handleForm = async event => {
         await toast.promise(
@@ -224,7 +226,7 @@ export default function RoleForm({
             updateReqRoles(data["require_role_ids"])
 
             if (!rolesIds.includes(data["role_id"])) {
-                updateRolesIds([...rolesIds, data["role_id"]])
+                updateRolesIds([data["role_id"]], ...rolesIds)
             }
             if (data["role_id"] !== ogRoleId && rolesIds.includes(ogRoleId)) {
                 updateRolesIds(rolesIds.filter(item => item !== ogRoleId))
