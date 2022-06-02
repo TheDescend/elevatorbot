@@ -41,7 +41,8 @@ services:
       - POSTGRES_PASSWORD
       - POSTGRES_HOST
       - POSTGRES_PORT
-      - SCHEDULE=@weekly
+      - SCHEDULE=@daily
+      - BACKUP_KEEP_DAYS=2
       - BACKUP_KEEP_WEEKS=4
       - BACKUP_KEEP_MONTHS=6
     networks:
