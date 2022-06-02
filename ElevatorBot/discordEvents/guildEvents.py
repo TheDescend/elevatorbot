@@ -112,7 +112,7 @@ async def on_role_delete(event: RoleDelete):
     # remove the role
     roles = DestinyRoles(ctx=None, discord_member=None, discord_guild=None)
     try:
-        await roles.delete(guild_id=event.guild_id, role_id=event.role_id)
+        await roles.delete(guild_id=event.guild_id, role_id=event.role.id)
     except BackendException:
         pass
 
