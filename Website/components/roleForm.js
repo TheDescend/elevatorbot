@@ -117,7 +117,7 @@ export default function RoleForm({
                                 "require_kills_per_minute": null,
                                 "require_kda": null,
                                 "require_kd": null,
-                                "maximum_allowed_players": 6,
+                                "maximum_allowed_players": 99,
                                 "allow_time_periods": [],
                                 "disallow_time_periods": [],
                                 "inverse": false,
