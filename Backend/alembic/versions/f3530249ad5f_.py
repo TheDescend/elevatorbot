@@ -12,7 +12,13 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 from sqlalchemy.orm.attributes import flag_modified
 
-from Backend.database import Roles, RolesActivity, RolesActivityAllowTimePeriod, RolesActivityDisallowTimePeriod, RolesCollectibles
+from Backend.database import (
+    Roles,
+    RolesActivity,
+    RolesActivityAllowTimePeriod,
+    RolesActivityDisallowTimePeriod,
+    RolesCollectibles,
+)
 
 # revision identifiers, used by Alembic.
 revision = "f3530249ad5f"
