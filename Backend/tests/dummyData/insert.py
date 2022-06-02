@@ -191,8 +191,6 @@ async def insert_dummy_data(db: AsyncSession, client: AsyncClient):
 
     data = await profile.has_triumph(dummy_not_gotten_record_id)
     assert data.bool is False
-    assert data.objectives[0].bool is True
-    assert data.objectives[1].bool is False
 
     # test DB call
     data = await profile.has_triumph(dummy_gotten_record_id)

@@ -1,7 +1,7 @@
 import asyncio
 import dataclasses
 
-from anyio import create_task_group
+from anyio import ExceptionGroup, create_task_group
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from Backend.core.destiny.profile import DestinyProfile
@@ -150,7 +150,12 @@ class UserRoles:
                             )
                         )
 
-        except RoleNotEarnedException:
+        except (ExceptionGroup, RoleNotEarnedException) as e:
+            if isinstance(e, ExceptionGroup):
+                for error in e.exceptions:
+                    if not isinstance(error, RoleNotEarnedException):
+                        raise e
+
             self._cache_worthy[role.role_id] = RoleEnum.NOT_EARNED
             return self._cache_worthy[role.role_id]
 

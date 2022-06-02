@@ -34,7 +34,7 @@ async def test_ratelimiter():
         for _ in range(10000):
             tg.start_soon(lambda: limiter.wait_for_token())
     end = time.perf_counter()
-    assert (end - start) < 1
+    assert (end - start) < 10
 
     # test the default config
     limiter = RateLimiter()
