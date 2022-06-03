@@ -66,25 +66,34 @@ async def left_channel(event: VoiceStateUpdate):
             if len(event.before.channel.voice_members) == 1:
                 split_name = event.before.channel.name.split("|")
                 if len(split_name) > 1:
-                    base_name = split_name[0]
+                    base_name = split_name[0].strip()
                     greek_name = split_name[1].strip()
                     if greek_name in greek_names:
                         async with auto_channel_deletion_lock:
-                            # get all channels from the category and change them
-                            i = 0
-                            for voice_channel in event.before.channel.category.voice_channels:
-                                if base_name in voice_channel.name:
-                                    vc_greek_name = voice_channel.name.split("|")[1].strip()
+                            # make sure that at least two channels with the current name exist
+                            vs_with_base_name = [
+                                voice_channel
+                                for voice_channel in event.before.channel.category.voice_channels
+                                if voice_channel.name.split("|")[0].strip() == base_name
+                            ]
+                            if len(vs_with_base_name) >= 2:
+                                # get all channels from the category and change them
+                                i = 0
+                                for voice_channel in sorted(
+                                    event.before.channel.category.voice_channels, key=lambda c: c.position
+                                ):
+                                    if base_name in voice_channel.name:
+                                        vc_greek_name = voice_channel.name.split("|")[1].strip()
 
-                                    if voice_channel == event.before.channel:
-                                        await event.before.channel.delete()
-                                        continue
+                                        if voice_channel == event.before.channel:
+                                            await event.before.channel.delete()
+                                            continue
 
-                                    new_name = voice_channel.name.replace(vc_greek_name, greek_names[i])
-                                    if voice_channel.name != new_name:
-                                        await voice_channel.edit(name=new_name)
+                                        new_name = voice_channel.name.replace(vc_greek_name, greek_names[i])
+                                        if voice_channel.name != new_name:
+                                            await voice_channel.edit(name=new_name)
 
-                                    i += 1
+                                        i += 1
 
 
 async def joined_channel(event: VoiceStateUpdate):
