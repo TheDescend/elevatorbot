@@ -1,4 +1,5 @@
 import asyncio
+import copy
 import datetime
 import time
 import urllib.parse
@@ -43,6 +44,8 @@ class CRUDDiscordUser(CRUDBase):
             # make sure the user exists
             if not profile:
                 raise CustomException(error="DiscordIdNotFound")
+
+            profile = copy.deepcopy(profile)
 
             # populate cache
             self.cache.discord_users.update({discord_id: profile})

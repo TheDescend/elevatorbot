@@ -8,14 +8,8 @@ from Backend.database.base import acquire_db_session
 from Backend.database.models import BackendUser
 
 
-# get the database session
-async def get_db_session() -> AsyncSession:
-    async with acquire_db_session() as session:
-        yield session
-
-
 # call this to have a function which requires an authenticated user
-async def auth_get_user(token: str = Depends(oauth2_scheme), db: AsyncSession = Depends(get_db_session)) -> BackendUser:
+async def auth_get_user(token: str = Depends(oauth2_scheme)) -> BackendUser:
     # verify the token
     try:
         payload = jwt.decode(token, await get_secret_key(), algorithms=[ALGORITHM])
@@ -26,8 +20,9 @@ async def auth_get_user(token: str = Depends(oauth2_scheme), db: AsyncSession = 
         raise CREDENTIALS_EXCEPTION
 
     # get the user
-    # noinspection PyProtectedMember
-    user = await backend_user._get_with_key(db, user_name)
+    async with acquire_db_session() as db:
+        # noinspection PyProtectedMember
+        user = await backend_user._get_with_key(db, user_name)
 
     # verify that the user is OK
     if user is None:

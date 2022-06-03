@@ -1,9 +1,8 @@
-from fastapi import APIRouter, Depends
-from sqlalchemy.ext.asyncio import AsyncSession
+from fastapi import APIRouter
 
 from Backend.core.errors import CustomException
 from Backend.crud import discord_users
-from Backend.dependencies import get_db_session
+from Backend.database import acquire_db_session
 from Backend.networking.bungieApi import BungieApi
 from Shared.networkingSchemas import EmptyResponseModel
 from Shared.networkingSchemas.destiny.profile import DestinyHasTokenModel, DestinyProfileModel
@@ -18,19 +17,21 @@ router = APIRouter(
 async def discord_get(discord_id: int):
     """Return a users profile"""
 
-    profile = await discord_users.get_profile_from_discord_id(discord_id)
-    return DestinyProfileModel.from_orm(profile)
+    async with acquire_db_session() as db:
+        profile = await discord_users.get_profile_from_discord_id(discord_id, db=db)
+        return DestinyProfileModel.from_orm(profile)
 
 
 @router.get("/{discord_id}/has_token", response_model=DestinyHasTokenModel)  # has test
-async def discord_has_token(discord_id: int, db: AsyncSession = Depends(get_db_session)):
+async def discord_has_token(discord_id: int):
     """Return if a user has a valid token"""
 
-    no_token = DestinyHasTokenModel(token=False, value=None)
+    async with acquire_db_session() as db:
+        no_token = DestinyHasTokenModel(token=False, value=None)
 
-    profile = await discord_users.get_profile_from_discord_id(discord_id)
-    if not profile:
-        return no_token
+        profile = await discord_users.get_profile_from_discord_id(discord_id, db=db)
+        if not profile:
+            return no_token
 
     # get a working token
     auth = BungieApi(user=profile)
@@ -46,25 +47,28 @@ async def discord_has_token(discord_id: int, db: AsyncSession = Depends(get_db_s
 
 
 @router.get("/{guild_id}/{discord_id}/registration_role/", response_model=EmptyResponseModel)  # has test
-async def discord_registration_role(guild_id: int, discord_id: int, db: AsyncSession = Depends(get_db_session)):
+async def discord_registration_role(guild_id: int, discord_id: int):
     """Assign the registration role if applicable"""
 
-    await discord_users.add_registration_roles(db=db, discord_id=discord_id, guild_ids=[guild_id])
+    async with acquire_db_session() as db:
+        await discord_users.add_registration_roles(db=db, discord_id=discord_id, guild_ids=[guild_id])
 
-    return EmptyResponseModel()
+        return EmptyResponseModel()
 
 
 @router.get("/destiny/{destiny_id}", response_model=DestinyProfileModel)  # has test
-async def destiny_get(destiny_id: int, db: AsyncSession = Depends(get_db_session)):
+async def destiny_get(destiny_id: int):
     """Return a users profile"""
 
-    profile = await discord_users.get_profile_from_destiny_id(db, destiny_id)
-    return DestinyProfileModel.from_orm(profile)
+    async with acquire_db_session() as db:
+        profile = await discord_users.get_profile_from_destiny_id(db, destiny_id)
+        return DestinyProfileModel.from_orm(profile)
 
 
 @router.delete("/{discord_id}/delete", response_model=EmptyResponseModel)  # has test
-async def discord_delete(discord_id: int, db: AsyncSession = Depends(get_db_session)):
+async def discord_delete(discord_id: int):
     """Delete a users profile"""
 
-    await discord_users.delete_profile(db, discord_id)
-    return EmptyResponseModel()
+    async with acquire_db_session() as db:
+        await discord_users.delete_profile(db, discord_id)
+        return EmptyResponseModel()

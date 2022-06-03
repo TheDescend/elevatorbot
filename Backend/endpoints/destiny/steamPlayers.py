@@ -1,8 +1,7 @@
-from fastapi import APIRouter, Depends
-from sqlalchemy.ext.asyncio import AsyncSession
+from fastapi import APIRouter
 
 from Backend.crud import d2_steam_players
-from Backend.dependencies import get_db_session
+from Backend.database import acquire_db_session
 from Shared.networkingSchemas.destiny import DestinySteamPlayerCountModel, DestinySteamPlayersCountModel
 
 router = APIRouter(
@@ -12,14 +11,15 @@ router = APIRouter(
 
 
 @router.get("/get/all", response_model=DestinySteamPlayersCountModel)
-async def get(db: AsyncSession = Depends(get_db_session)):
+async def get():
     """Return the steam players and times"""
 
-    data = DestinySteamPlayersCountModel()
+    async with acquire_db_session() as db:
+        data = DestinySteamPlayersCountModel()
 
-    # get and prepare data
-    result = await d2_steam_players.get_all(db=db)
-    for entry in result:
-        data.entries.append(DestinySteamPlayerCountModel.from_orm(entry))
+        # get and prepare data
+        result = await d2_steam_players.get_all(db=db)
+        for entry in result:
+            data.entries.append(DestinySteamPlayerCountModel.from_orm(entry))
 
-    return data
+        return data
