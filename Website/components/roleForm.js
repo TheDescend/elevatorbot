@@ -459,6 +459,12 @@ export default function RoleForm({
                                 {
                                     rolesIds.map((id) => {
                                         if (id !== roleId) {
+                                            if (!(id in discordRoles)) {
+                                                console.log(`Unknown id: ${id} in:`)
+                                                console.log(discordRoles)
+                                                return ""
+                                            }
+
                                             if (id === String(replacedBy)) {
                                                 return (
                                                     <option value={id} selected>
@@ -1239,6 +1245,12 @@ function HandleRoles({data, adminPerms, discordRoles, rolesIds, currentRole, han
                                         {
                                             rolesIds.map((id) => {
                                                 if (id !== currentRoleId) {
+                                                    if (!(id in discordRoles)) {
+                                                        console.log(`Unknown id: ${id} in:`)
+                                                        console.log(discordRoles)
+                                                        return ""
+                                                    }
+
                                                     if (id === role) {
                                                         return (
                                                             <option value={id} selected>
