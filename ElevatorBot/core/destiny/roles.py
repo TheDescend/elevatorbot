@@ -176,7 +176,7 @@ class Roles:
                 )
                 return
 
-            all_earned_roles = result.earned + result.earned_but_replaced_by_higher_role
+            all_earned_roles = result.earned
 
             # now separate into newly earned roles and the old ones
             old_roles = {}
