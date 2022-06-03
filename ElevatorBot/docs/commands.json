@@ -227,7 +227,15 @@
                         "name": "roles get",
                         "description": "Assigns you all the Destiny 2 achievement roles you have earned",
                         "default_required_permissions": null,
-                        "enabled_in_dm": false
+                        "enabled_in_dm": false,
+                        "options": [
+                            {
+                                "name": "user",
+                                "description": "**Admin only** | The user you want to look up",
+                                "required": false,
+                                "autocomplete": false
+                            }
+                        ]
                     },
                     {
                         "name": "roles missing",
