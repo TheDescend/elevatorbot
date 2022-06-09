@@ -1580,6 +1580,12 @@
                 ]
             },
             {
+                "name": "joke",
+                "description": "Tells you a very funny joke",
+                "default_required_permissions": null,
+                "enabled_in_dm": false
+            },
+            {
                 "name": "metrics",
                 "description": "Shows interesting ElevatorBot metrics",
                 "default_required_permissions": "Administrator",

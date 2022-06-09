@@ -1,4 +1,3 @@
-from ElevatorBot.backgroundEvents.apriFoolsJokes import AprilFoolsJokes
 from ElevatorBot.backgroundEvents.automaticRoleAssigment import AutomaticRoleAssignment
 from ElevatorBot.backgroundEvents.base import BaseEvent
 from ElevatorBot.backgroundEvents.boosterCountUpdater import BoosterCountUpdater

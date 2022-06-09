@@ -5,7 +5,6 @@ import github
 from naff import AutoArchiveDuration, ChannelTypes, ThreadChannel, ThreadList
 from naff.api.events import MessageCreate, MessageDelete, MessageUpdate
 
-from ElevatorBot.core.misc.aprilFools import play_joke
 from ElevatorBot.core.misc.github import github_manager
 from ElevatorBot.core.misc.timestamps import get_timestamp_embed
 from ElevatorBot.misc.cache import reply_cache
@@ -299,32 +298,6 @@ async def on_message_create(event: MessageCreate, edit_mode: bool = False):
                 # parse datetimes
                 if embed := await get_timestamp_embed(search_string=message.content.upper(), parse_relative=False):
                     await message.reply(embeds=embed)
-
-                # =========================================================================
-                # april fools
-
-                if event.bot.user.id in message._mention_ids and "joke" in in_data:
-                    voice_state = event.message.author.voice
-                    run = True
-
-                    # user not in voice
-                    if not voice_state:
-                        await message.reply("You are not in a voice channel, how am I supposed to tell you a joke???")
-
-                    else:
-                        bot_voice_state = event.bot.get_bot_voice_state(guild_id=voice_state.guild.id)
-
-                        # bot not in voice
-                        if bot_voice_state and bot_voice_state.connected:
-                            await message.reply("I'm busy telling a joke, try again in a bit")
-                            run = False
-
-                        else:
-                            # connect to the authors voice channel
-                            bot_voice_state = await voice_state.channel.connect()
-
-                        if run:
-                            await play_joke(bot_voice_state=bot_voice_state, message=message)
 
             # =========================================================================
             # valid for all guilds
