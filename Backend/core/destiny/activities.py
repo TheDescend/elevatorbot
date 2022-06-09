@@ -197,7 +197,7 @@ class DestinyActivities:
                     continue
 
                 # add info to DB
-                await crud_activities.insert(data=[activity.instance_id, activity.period, pgcr.content])
+                await crud_activities.insert(data=[(activity.instance_id, activity.period, pgcr.content)])
 
                 # delete from to-do DB
                 await crud_activities_fail_to_get.delete(db=self.db, obj=activity)
