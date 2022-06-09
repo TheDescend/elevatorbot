@@ -4,6 +4,7 @@ from anyio import create_task_group
 
 from Backend.backgroundEvents.base import BaseEvent
 from Backend.core.destiny.activities import DestinyActivities
+from Backend.core.errors import CustomException
 from Backend.crud import discord_users
 from Backend.database.base import acquire_db_session, is_test_mode
 from Backend.database.models import DiscordUsers
@@ -50,4 +51,7 @@ class ActivitiesUpdater(BaseEvent):
 
                 # update the activities
                 activities = DestinyActivities(db=db, user=user)
-                await activities.update_activity_db()
+                try:
+                    await activities.update_activity_db()
+                except CustomException:
+                    pass
