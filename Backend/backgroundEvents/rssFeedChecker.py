@@ -52,7 +52,7 @@ class RssFeedChecker(BaseEvent):
                     elevator_api = ElevatorApi()
                     for item in to_publish:
                         data = {
-                            "message": item["link"],
+                            "message": bungie_url(item["link"]),
                             "embed_title": None,
                             "embed_description": None,
                             "guilds": subscribed_data,
@@ -76,3 +76,9 @@ class RssFeedChecker(BaseEvent):
                         await rss_feed.insert(db=db, item_id=item["id"])
                 except CustomException:
                     pass
+
+
+def bungie_url(url: str) -> str:
+    if "bungie.net" not in url:
+        url = f"https://www.bungie.net{url}"
+    return url
