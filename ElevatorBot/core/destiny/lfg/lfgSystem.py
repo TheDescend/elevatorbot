@@ -189,6 +189,7 @@ class LfgMessage:
                 ),
                 ephemeral=True,
             )
+            raise BackendException
 
         return lfg_message
 
