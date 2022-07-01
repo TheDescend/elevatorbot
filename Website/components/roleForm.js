@@ -173,7 +173,11 @@ export default function RoleForm({
                         if (b === "") {
                             b = null
                         }
-                        data[parts[0]][parts[1]][parts[2]] = b
+                        if (parts.lenght === 3) {
+                            data[parts[0]][parts[1]][parts[2]] = b
+                        } else {
+                            data[parts[0]][parts[1]] = b
+                        }
                         break
                 }
             }
@@ -459,9 +463,8 @@ export default function RoleForm({
                                 {
                                     rolesIds.map((id) => {
                                         if (id !== roleId) {
+                                            // Roles that no longer exist
                                             if (!(id in discordRoles)) {
-                                                console.log(`Unknown id: ${id} in:`)
-                                                console.log(discordRoles)
                                                 return ""
                                             }
 
@@ -1090,7 +1093,8 @@ function HandleCollectibles({data, adminPerms, destinyCollectibles, handleDelete
                         >
                             <div className="grid grid-cols-1 gap-4">
                                 <div className={`${textInputDivFormatting} `}>
-                                    <label className={labelFormatting} htmlFor={`require_collectibles-${index}-bungie_id`}>
+                                    <label className={labelFormatting}
+                                           htmlFor={`require_collectibles-${index}-bungie_id`}>
                                         Require Collectible
                                     </label>
                                     <select
@@ -1245,12 +1249,10 @@ function HandleRoles({data, adminPerms, discordRoles, rolesIds, currentRole, han
                                         {
                                             rolesIds.map((id) => {
                                                 if (id !== currentRoleId) {
+                                                    // Roles that no longer exist
                                                     if (!(id in discordRoles)) {
-                                                        console.log(`Unknown id: ${id} in:`)
-                                                        console.log(discordRoles)
                                                         return ""
                                                     }
-
                                                     if (id === role) {
                                                         return (
                                                             <option value={id} selected>
