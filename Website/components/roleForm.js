@@ -173,7 +173,7 @@ export default function RoleForm({
                         if (b === "") {
                             b = null
                         }
-                        if (parts.lenght === 3) {
+                        if (parts.length === 3) {
                             data[parts[0]][parts[1]][parts[2]] = b
                         } else {
                             data[parts[0]][parts[1]] = b
