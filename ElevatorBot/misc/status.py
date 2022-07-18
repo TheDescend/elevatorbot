@@ -2,6 +2,7 @@ import asyncio
 import itertools
 import re
 from copy import copy
+from typing import TYPE_CHECKING
 
 from naff import Activity, Embed, Timestamp, TimestampStyles
 
@@ -9,15 +10,18 @@ from ElevatorBot.misc.cache import descend_cache
 from Shared.functions.helperFunctions import get_now_with_tz
 from version import __version__
 
+if TYPE_CHECKING:
+    from ElevatorBot.elevator import Elevator
 
-async def update_discord_bot_status(client):
+
+async def update_discord_bot_status(client: "Elevator"):
     """Update the Bots status in an endless loop"""
 
     status_messages = [
         f"Version: ElevatorBot@{__version__}",
         "Type `/` to see available commands",
-        "Type `/register` to register your Destiny 2 account",
-        "If you encounter a bug, please use `/bug`",
+        f"""Click on {client.get_command_by_name("register").mention()} to register your Destiny 2 account""",
+        f"""If you encounter a bug, please use {client.get_command_by_name("bug").mention()}""",
         "Also visit my website: `elevatorbot.ch`",
         "↓ Psst! Did you know this person stinks",
         "To invite me to your own server, click on my profile",

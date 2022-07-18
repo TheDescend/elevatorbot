@@ -9,6 +9,7 @@ from rich.panel import Panel
 from rich.progress import Progress
 from rich.text import Text
 
+import ElevatorBot.networking.errorCodesAndResponses as error_codes
 from ElevatorBot.discordEvents.base import ElevatorClient
 from ElevatorBot.discordEvents.customInteractions import (
     ElevatorAutocompleteContext,
@@ -69,6 +70,12 @@ class Elevator(ElevatorClient):
         startup_progress.update(startup_task, advance=1)
 
         startup_progress.stop()
+
+    def get_command_by_name(self, name: str) -> InteractionCommand:
+        for scope, commands in self.interactions.items():
+            for resolved_name, command in commands.items():
+                if resolved_name == name:
+                    return command
 
 
 def load_commands(client: ElevatorClient, reload: bool = True) -> int:
@@ -162,6 +169,7 @@ if __name__ == "__main__":
         autocomplete_context=ElevatorAutocompleteContext,
         modal_context=ElevatorModalContext,
     )
+    error_codes._client = client
 
     # install uvloop for faster asyncio (docker only)
     try:

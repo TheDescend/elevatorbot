@@ -169,7 +169,7 @@ class Roles:
                 await self.ctx.send(
                     embeds=embed_message(
                         "Roles",
-                        "You don't have any roles. \nUse `/roles missing` to see available roles and then `/roles requirements <role>` to view its requirements",
+                        f"""You don't have any roles. \nUse {self.ctx.client.get_command_by_name("roles missing").mention()} to see available roles and then {self.ctx.client.get_command_by_name("roles requirements").mention()} to view its requirements""",
                         member=self.member,
                     ),
                     components=self.view_on_web,

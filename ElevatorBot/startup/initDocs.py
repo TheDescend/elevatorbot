@@ -1,12 +1,15 @@
 import json
 from copy import copy
-from typing import Optional
+from typing import TYPE_CHECKING, Optional
 
 from naff import CommandTypes, ContextMenu, SlashCommand, SlashCommandOption
 from naff.models.naff.localisation import LocalisedField
 
 from ElevatorBot.misc.formatting import capitalize_string
 from Shared.functions.readSettingsFile import get_setting
+
+if TYPE_CHECKING:
+    from ElevatorBot.elevator import Elevator
 
 
 class NoValidatorOption:
@@ -18,7 +21,7 @@ class NoValidatorOption:
         self.choices = obj.choices
 
 
-def create_command_docs(client):
+def create_command_docs(client: "Elevator"):
     """Create user documentation for commands and context menus in ./ElevatorBot/docs"""
 
     commands = {}

@@ -35,7 +35,7 @@ Hello fellow humans, and welcome to this easy, 465 steps, guide:
 First, head to your local bot spam channel, or really any other channel (although you ~~might~~ will get yelled at for that).
 ⁣
 {custom_emojis.circle} **Step 2:**
-Then, use `/lfg create` and follow the instructions to make an event.
+Then, use {ctx.client.get_command_by_name("lfg create").mention()} and follow the instructions to make an event.
 Due to timezones sucking and there being at least 16789 of them, you might not find your own timezone in the list. In that case please use UTC and an online converter.
 ⁣
 {custom_emojis.circle} **Step 3-464:**
@@ -46,13 +46,13 @@ After you made the LFG event, or if you just want to join an existing post, use 
 ⁣
 ⁣
 If you want to feel like an [expert](https://www.youtube.com/watch?v=BKorP55Aqvg), there are a bunch of additional commands you can use to interact with LFG events:
-{custom_emojis.enter} `/lfg create` - Create a new LFG event
-{custom_emojis.enter} `/lfg edit` - Edit parts of an LFG event
-{custom_emojis.enter} `/lfg delete` - Remove the LFG event
-{custom_emojis.enter} `/lfg add` - Add a user to your own LFG event
-{custom_emojis.enter} `/lfg kick` - Kick a user from your own LFG event
-{custom_emojis.enter} `/lfg alert` - Message all members in an event
-{custom_emojis.enter} `/lfg joined` - Shows you an overview which LFG events you have joined
+{custom_emojis.enter} {ctx.client.get_command_by_name("lfg create").mention()} - Create a new LFG event
+{custom_emojis.enter} {ctx.client.get_command_by_name("lfg edit").mention()} - Edit parts of an LFG event
+{custom_emojis.enter} {ctx.client.get_command_by_name("lfg delete").mention()} - Remove the LFG event
+{custom_emojis.enter} {ctx.client.get_command_by_name("lfg add").mention()} - Add a user to your own LFG event
+{custom_emojis.enter} {ctx.client.get_command_by_name("lfg kick").mention()} - Kick a user from your own LFG event
+{custom_emojis.enter} {ctx.client.get_command_by_name("lfg alert").mention()} - Message all members in an event
+{custom_emojis.enter} {ctx.client.get_command_by_name("lfg joined").mention()} - Shows you an overview which LFG events you have joined
 ⁣
 ⁣
 Basically just type `/lfg` and look around. There are many other cool commands too, so maybe just type `/`.""",
