@@ -3,7 +3,6 @@ from fastapi import APIRouter
 from Backend.core.errors import CustomException
 from Backend.crud import discord_users
 from Backend.database import acquire_db_session
-from Backend.networking.bungieApi import BungieApi
 from Shared.networkingSchemas import EmptyResponseModel
 from Shared.networkingSchemas.destiny.profile import DestinyHasTokenModel, DestinyProfileModel
 

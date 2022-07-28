@@ -14,4 +14,3 @@ from Backend.crud.misc.moderation import moderation
 from Backend.crud.misc.persistentMessages import persistent_messages
 from Backend.crud.misc.polls import polls
 from Backend.crud.misc.steamPlayers import d2_steam_players
-from Backend.crud.misc.versions import versions

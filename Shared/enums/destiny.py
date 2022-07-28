@@ -2,6 +2,9 @@ from __future__ import annotations
 
 from enum import Enum
 
+# todo delete
+from bungio.models.base import BaseEnum, EnumMixin
+
 
 class DestinyItemTypeEnum(Enum):
     NONE = 0
@@ -129,18 +132,21 @@ class DestinyItemTierTypeEnum(Enum):
     EXOTIC = 6
 
 
-class DestinyWeaponSlotEnum(Enum):
+# keep
+class DestinyWeaponSlotEnum(BaseEnum):
     KINETIC = 1498876634
     ENERGY = 2465295065
     POWER = 953998645
 
 
-class DestinyPresentationNodeWeaponSlotEnum(Enum):
+# keep
+class DestinyPresentationNodeWeaponSlotEnum(BaseEnum):
     KINETIC = 2538646043
     ENERGY = 185103480
     POWER = 3788273704
 
 
+# keep
 class DestinyPresentationNodesEnum(Enum):
     SEALS = 616318467
 

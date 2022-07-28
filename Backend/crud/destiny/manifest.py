@@ -1,200 +1,367 @@
 import asyncio
-import dataclasses
-from typing import Any, Optional, TypeVar
+from typing import Optional
 
-from sqlalchemy import not_, or_, select
-from sqlalchemy.ext.asyncio import AsyncSession
-
-from Backend.crud.base import CRUDBase
-from Backend.crud.misc.versions import versions
-from Backend.database.base import Base, is_test_mode
-from Backend.database.models import (
+from bungio.models import (
     DestinyActivityDefinition,
+    DestinyActivityModeType,
     DestinyCollectibleDefinition,
+    DestinyInventoryItemDefinition,
     DestinyLoreDefinition,
+    DestinyPresentationNodeDefinition,
     DestinyRecordDefinition,
     DestinySeasonPassDefinition,
-    Versions,
 )
-from Backend.misc.cache import cache
-from Shared.enums.destiny import UsableDestinyActivityModeTypeEnum
-from Shared.networkingSchemas import DestinyNamedItemModel
+
+from Backend.core.errors import CustomException
+from Backend.database.base import is_test_mode
+from Backend.networking.bungieApi import bungie_client
+from Shared.enums.destiny import DestinyPresentationNodesEnum
+from Shared.networkingSchemas import (
+    SeasonalChallengesModel,
+    SeasonalChallengesRecordModel,
+    SeasonalChallengesTopicsModel,
+)
 from Shared.networkingSchemas.destiny import DestinyActivityModel, DestinyLoreModel
 
 get_challenging_solo_activities_lock = asyncio.Lock()
+get_gm_lock = asyncio.Lock()
+get_activities_lock = asyncio.Lock()
+get_collectible_lock = asyncio.Lock()
+get_triumph_lock = asyncio.Lock()
+get_lore_lock = asyncio.Lock()
+get_season_pass_lock = asyncio.Lock()
+get_seasonal_challenges_definition_lock = asyncio.Lock()
+get_catalyst_lock = asyncio.Lock()
+get_item_lock = asyncio.Lock()
+get_all_weapons_lock = asyncio.Lock()
+get_seals_lock = asyncio.Lock()
 
-ModelType = TypeVar("ModelType", bound=Base)
 
+class CRUDManifest:
+    # Manifest Definitions. Saving DB calls since 1982. Make sure to `asyncio.Lock():` them
+    _manifest_season_pass_definition: DestinySeasonPassDefinition = None
+    _manifest_seasonal_challenges_definition: SeasonalChallengesModel = None
 
-@dataclasses.dataclass
-class Seal:
-    reference_id: int
-    title_name: str
+    # DestinyInventoryItemDefinition
+    _manifest_items: dict[int, Optional[DestinyInventoryItemDefinition]] = {}
+    _manifest_weapons: dict[int, DestinyInventoryItemDefinition] = {}
 
+    # DestinyCollectibleDefinition
+    _manifest_collectibles: dict[int, DestinyCollectibleDefinition] = {}
 
-class CRUDManifest(CRUDBase):
-    @staticmethod
-    async def get_version(db: AsyncSession) -> Optional[Versions]:
-        """Get the current version"""
+    # DestinyLoreModel
+    _manifest_lore: dict[int, DestinyLoreModel] = {}
 
-        return await versions.get(db=db, name="Manifest")
+    # DestinyRecordDefinition
+    _manifest_triumphs: dict[int, DestinyRecordDefinition] = {}
+    _manifest_seals: dict[DestinyPresentationNodeDefinition, list[DestinyRecordDefinition]] = {}
+    _manifest_catalysts: list[DestinyRecordDefinition] = []
 
-    @staticmethod
-    async def upsert_version(db: AsyncSession, version: str) -> Versions:
-        """Upsert the current version"""
+    # DestinyActivityModel
+    _manifest_activities: list[DestinyActivityModel] = []
+    _manifest_grandmasters: list[DestinyActivityModel] = []
+    _manifest_interesting_solos: dict[str, list[DestinyActivityModel]] = {}  # Key: activity_category
 
-        return await versions.upsert(db=db, name="Manifest", version=version)
+    async def reset(self):
+        """Reset the selfs after a manifest update"""
 
-    @staticmethod
-    async def get(db: AsyncSession, table: ModelType, primary_key: Any) -> Optional[ModelType]:
-        """Get data from specified table"""
+        self._manifest_season_pass_definition = None  # noqa
+        await destiny_manifest.get_current_season_pass()
 
-        return await db.get(table, primary_key)
+        self._manifest_seasonal_challenges_definition = None  # noqa
+        await self.get_seasonal_challenges_definition()
 
-    async def delete_definition(self, db: AsyncSession, db_model: ModelType):
-        """Delete all entries from the specified table"""
+        self._manifest_items = {}
+        # per item, so not populated here
 
-        # set table to the correct one
-        self.model = db_model
+        self._manifest_collectibles = {}
+        await destiny_manifest.get_all_collectibles()
 
-        # delete table
-        await self._delete_all(db=db)
+        self._manifest_triumphs = {}
+        await destiny_manifest.get_all_triumphs()
 
-    async def insert_definition(self, db: AsyncSession, db_model: ModelType, to_insert: list[ModelType]):
-        """Insert the data into the table"""
+        self._manifest_seals = {}
+        await destiny_manifest.get_seals()
 
-        # set table to the correct one
-        self.model = db_model
+        self._manifest_lore = {}
+        await destiny_manifest.get_all_lore()
 
-        # bulk insert
-        await self._insert_multi(db=db, to_create=to_insert)
+        self._manifest_weapons = {}
+        await destiny_manifest.get_all_weapons()
 
-    async def get_all_activities(self, db: AsyncSession) -> list[DestinyActivityModel]:
+        self._manifest_catalysts = []
+        await destiny_manifest.get_catalysts()
+
+        self._manifest_activities = []
+        await destiny_manifest.get_all_activities()
+
+        self._manifest_grandmasters = []
+        await destiny_manifest.get_grandmaster_nfs()
+
+        self._manifest_interesting_solos = {}
+        await destiny_manifest.get_challenging_solo_activities()
+
+    async def get_all_weapons(self) -> dict[int, DestinyInventoryItemDefinition]:
+        """Return all weapons"""
+
+        async with get_all_weapons_lock:
+            if not self._manifest_weapons:
+                results: list[DestinyInventoryItemDefinition] = await bungie_client.manifest.fetch_all(
+                    manifest_class=DestinyInventoryItemDefinition
+                )
+                for result in results:
+                    self._manifest_weapons[result.hash] = result
+        return self._manifest_weapons
+
+    async def get_seasonal_challenges_definition(self) -> SeasonalChallengesModel:
+        """Gets all seasonal challenges"""
+
+        async with get_seasonal_challenges_definition_lock:
+            if not self._manifest_seasonal_challenges_definition:
+                definition = SeasonalChallengesModel()
+
+                # get the info from the db
+                sc_presentation_node: DestinyPresentationNodeDefinition = await bungie_client.manifest.fetch(
+                    manifest_class=DestinyPresentationNodeDefinition, value="3443694067"
+                )
+                await sc_presentation_node.fetch_manifest_information()
+
+                #  sc_presentation_node.children_presentation_node_hash
+
+                # loop through those categories and get the "Weekly" one
+                for category in sc_presentation_node.children.presentation_nodes:
+                    category = category.manifest_presentation_node_hash
+                    if category.display_properties.name == "Weekly":
+                        # loop through the seasonal challenges topics (Week1, Week2, etc...)
+                        for sc_topic in category.children.presentation_nodes:
+                            await sc_topic.fetch_manifest_information()
+                            sc_topic = sc_topic.manifest_presentation_node_hash
+
+                            # loop through the actual seasonal challenges
+                            topic = SeasonalChallengesTopicsModel(name=sc_topic.display_properties.name)
+                            for sc_record in sc_topic.children.records:
+                                await sc_record.fetch_manifest_information()
+                                sc = sc_record.manifest_record_hash
+
+                                topic.seasonal_challenges.append(
+                                    SeasonalChallengesRecordModel(
+                                        record_id=sc.hash,
+                                        name=sc.display_properties.name,
+                                        description=sc.display_properties.description,
+                                    )
+                                )
+
+                            definition.topics.append(topic)
+                        break
+
+                self._manifest_seasonal_challenges_definition = definition
+
+        return self._manifest_seasonal_challenges_definition
+
+    async def get_item(self, item_id: int) -> Optional[DestinyInventoryItemDefinition]:
+        """Return the item"""
+
+        async with get_item_lock:
+            if item_id not in self._manifest_items:
+                item: DestinyInventoryItemDefinition = await bungie_client.manifest.fetch(
+                    manifest_class=DestinyInventoryItemDefinition, value=str(item_id)
+                )
+                self._manifest_items.update({item_id: item})
+
+        return self._manifest_items[item_id]
+
+    async def get_all_activities(self) -> list[DestinyActivityModel]:
         """Gets all activities"""
 
-        # get them all from the db
-        query = select(DestinyActivityDefinition)
-
-        db_activities: list[DestinyActivityDefinition] = (
-            (await self._execute_query(db=db, query=query)).scalars().fetchall()
-        )
-
-        # loop through all activities and save them by name
-        data = {}
-        for activity in db_activities:
-            if activity.name not in data:
-                data.update({activity.name: []})
-            data[activity.name].append(activity)
-
-        # format them correctly
-        result = []
-        for activities in data.values():
-            result.append(
-                DestinyActivityModel(
-                    name=activities[0].name or "Unknown",
-                    description=activities[0].description,
-                    matchmade=activities[0].matchmade,
-                    max_players=activities[0].max_players,
-                    activity_ids=[activity.reference_id for activity in activities],
-                    mode=activities[0].direct_activity_mode_type,
-                    image_url=activities[0].pgcr_image_url,
+        async with get_activities_lock:
+            if not self._manifest_activities:
+                results: list[DestinyActivityDefinition] = await bungie_client.manifest.fetch_all(
+                    manifest_class=DestinyActivityDefinition
                 )
-            )
 
-        sorted_result = sorted(result, key=lambda entry: entry.name)
+                # loop through all activities and save them by name
+                data: dict[str, list[DestinyActivityDefinition]] = {}
+                for activity in results:
+                    if activity.display_properties.name not in data:
+                        data.update({activity.name: []})
+                    data[activity.name].append(activity)
 
-        return sorted_result
+                # format them correctly
+                result = []
+                for activities in data.values():
+                    result.append(
+                        DestinyActivityModel(
+                            name=activities[0].display_properties.name or "Unknown",
+                            description=activities[0].display_properties.description,
+                            matchmade=activities[0].matchmaking.is_matchmade,
+                            max_players=activities[0].matchmaking.max_players,
+                            activity_ids=[activity.hash for activity in activities],
+                            mode=activities[0].direct_activity_mode_type,
+                            image_url=f"https://www.bungie.net/{activities[0].pgcr_image}"
+                            if activities[0].pgcr_image
+                            else None,
+                        )
+                    )
 
-    async def get_all_collectibles(self, db: AsyncSession) -> list[DestinyNamedItemModel]:
+                self._manifest_activities = sorted(result, key=lambda entry: entry.name)
+
+        return self._manifest_activities
+
+    async def get_all_collectibles(self) -> dict[int, DestinyCollectibleDefinition]:
         """Gets all collectibles"""
 
-        return await self._get_all_named_items(db=db, table=DestinyCollectibleDefinition)
+        async with get_collectible_lock:
+            if not self._manifest_collectibles:
+                results: list[DestinyCollectibleDefinition] = await bungie_client.manifest.fetch_all(
+                    manifest_class=DestinyCollectibleDefinition
+                )
+                self._manifest_collectibles = {result.hash: result for result in results}
+        return self._manifest_collectibles
 
-    async def get_all_triumphs(self, db: AsyncSession) -> list[DestinyNamedItemModel]:
+    async def get_all_triumphs(self) -> dict[int, DestinyRecordDefinition]:
         """Gets all triumphs"""
 
-        return await self._get_all_named_items(db=db, table=DestinyRecordDefinition)
+        async with get_triumph_lock:
+            if not self._manifest_triumphs:
+                results: list[DestinyRecordDefinition] = await bungie_client.manifest.fetch_all(
+                    manifest_class=DestinyRecordDefinition
+                )
+                self._manifest_triumphs = {result.hash: result for result in results}
+        return self._manifest_triumphs
 
-    async def _get_all_named_items(self, db: AsyncSession, table: ModelType) -> list[DestinyNamedItemModel]:
-        """Gets all named items"""
+    async def get_triumph(self, triumph_id: int) -> DestinyRecordDefinition:
+        """Gets triumph"""
 
-        # get them all from the db
-        query = select(table)
-        db_items: list[table] = (await self._execute_query(db=db, query=query)).scalars().fetchall()
+        async with get_triumph_lock:
+            triumphs = await self.get_all_triumphs()
+        if not (triumph := triumphs.get(int(triumph_id))):
+            raise CustomException("BungieDestinyItemNotExist")
+        return triumph
 
-        pydantic_items = [DestinyNamedItemModel.from_orm(item) for item in db_items if item.name]
+    async def get_seals(self) -> dict[DestinyPresentationNodeDefinition, list[DestinyRecordDefinition]]:
+        """Returns a list of the current seals. Returns {title_name: DestinyRecordDefinition}"""
 
-        return sorted(pydantic_items, key=lambda entry: entry.name)
+        async with get_seals_lock:
+            if not self._manifest_seals:
+                presentation_nodes: list[DestinyPresentationNodeDefinition] = await bungie_client.manifest.fetch_all(
+                    manifest_class=DestinyPresentationNodeDefinition
+                )
 
-    async def get_all_lore(self, db: AsyncSession) -> list[DestinyLoreModel]:
+                seals = []
+                for node in presentation_nodes:
+                    if DestinyPresentationNodesEnum.SEALS.value in node.parent_node_hashes:
+                        seals.append(node)
+
+                # now loop through all the seals and get the record infos
+                for seal in seals:
+                    records = []
+                    for triumph in seal.children.records:
+                        records.append(await self.get_triumph(triumph_id=triumph.record_hash))
+
+                self._manifest_seals[seal] = records
+
+        return self._manifest_seals
+
+    async def get_catalysts(self) -> list[DestinyRecordDefinition]:
+        """Returns a list of the current catalysts"""
+
+        async with get_catalyst_lock:
+            if not self._manifest_catalysts:
+                triumphs = await self.get_all_triumphs()
+
+                for triumph in triumphs.values():
+                    if " Catalyst" in triumph.display_properties.name:
+                        self._manifest_catalysts.append(triumph)
+
+        return self._manifest_catalysts
+
+    async def get_all_lore(self) -> dict[int, DestinyLoreModel]:
         """Gets all lore"""
 
         # get them all from the db
-        query = select(DestinyLoreDefinition)
+        async with get_lore_lock:
+            if not self._manifest_lore:
+                results: list[DestinyLoreDefinition] = await bungie_client.manifest.fetch_all(
+                    manifest_class=DestinyLoreDefinition
+                )
+                for result in results:
+                    self._manifest_lore[result.hash] = DestinyLoreModel(
+                        reference_id=result.hash,
+                        name=result.display_properties.name,
+                        description=result.display_properties.description,
+                        sub_title=result.subtitle,
+                        redacted=result.redacted,
+                    )
+        return self._manifest_triumphs
 
-        db_lore: list[DestinyLoreDefinition] = (await self._execute_query(db=db, query=query)).scalars().fetchall()
+    async def get_current_season_pass(self) -> DestinySeasonPassDefinition:
+        """Get the current season pass from the DB"""
 
-        # format them correctly
-        return [DestinyLoreModel.from_orm(lore) for lore in db_lore]
+        async with get_season_pass_lock:
+            if not self._manifest_season_pass_definition:
+                results: list[DestinySeasonPassDefinition] = await bungie_client.manifest.fetch_all(
+                    manifest_class=DestinySeasonPassDefinition
+                )
+                self._manifest_season_pass_definition = results[-1]
+        return self._manifest_season_pass_definition
 
-    async def get_grandmaster_nfs(self, db: AsyncSession) -> list[DestinyActivityModel]:
+    async def get_grandmaster_nfs(self) -> list[DestinyActivityModel]:
         """Get all grandmaster nfs"""
 
-        query = select(DestinyActivityDefinition)
-        query = query.filter(
-            DestinyActivityDefinition.activity_mode_types.any(UsableDestinyActivityModeTypeEnum.NIGHTFALL.value)
-        )
-        query = query.filter(
-            or_(
-                DestinyActivityDefinition.name.contains("Grandmaster"),
-                (DestinyActivityDefinition.activity_light_level == 1100),
-            )
-        )
-
-        results = await self._execute_query(db=db, query=query)
-        db_result: list[DestinyActivityDefinition] = results.scalars().all()
-
-        # loop through all activities and save them by name
-        data = {}
-        for activity in db_result:
-            if activity.description not in data:
-                data.update({activity.description: []})
-            data[activity.description].append(activity)
-
-        # contains all gm ids
-        all_grandmaster = DestinyActivityModel(
-            name="Grandmaster: All",
-            description="Grandmaster: All",
-            matchmade=False,
-            max_players=3,
-            activity_ids=[],
-        )
-
-        # format them correctly
-        result = []
-        for activities in data.values():
-            all_grandmaster.activity_ids.extend(activity.reference_id for activity in activities)
-            result.append(
-                DestinyActivityModel(
-                    name=f"Grandmaster: {activities[0].description}",
-                    description=f"Grandmaster: {activities[0].description}",
-                    matchmade=activities[0].matchmade,
-                    max_players=activities[0].max_players,
-                    activity_ids=[activity.reference_id for activity in activities],
-                    mode=activities[0].direct_activity_mode_type,
-                    image_url=activities[0].pgcr_image_url,
+        async with get_gm_lock:
+            if not self._manifest_grandmasters:
+                results: list[DestinyActivityDefinition] = await bungie_client.manifest.fetch_all(
+                    manifest_class=DestinyActivityDefinition
                 )
-            )
 
-        result.insert(0, all_grandmaster)
-        return result
+                # loop through all activities and save the gms
+                gms: dict[str, list[DestinyActivityDefinition]] = {}
+                for result in results:
+                    if DestinyActivityModeType.NIGHTFALL in result.activity_mode_types:
+                        if "Grandmaster" in result.display_properties.name or result.activity_light_level == 1100:
+                            if result.display_properties.description not in gms:
+                                gms[result.display_properties.description] = []
+                            gms[result.display_properties.description].append(result)
 
-    async def get_challenging_solo_activities(self, db: AsyncSession) -> dict[str, list[DestinyActivityModel]]:
+                # contains all gm ids
+                all_grandmaster = DestinyActivityModel(
+                    name="Grandmaster: All",
+                    description="Grandmaster: All",
+                    matchmade=False,
+                    max_players=3,
+                    activity_ids=[],
+                )
+
+                # format them correctly
+                result = []
+                for activities in gms.values():
+                    reference_ids = [activity.hash for activity in activities]
+                    all_grandmaster.activity_ids.extend(reference_ids)
+                    result.append(
+                        DestinyActivityModel(
+                            name=f"Grandmaster: {activities[0].display_properties.description}",
+                            description=f"Grandmaster: {activities[0].display_properties.description}",
+                            matchmade=activities[0].matchmaking.is_matchmade,
+                            max_players=activities[0].matchmaking.max_players,
+                            activity_ids=reference_ids,
+                            mode=activities[0].direct_activity_mode_type,
+                            image_url=f"https://www.bungie.net/{activities[0].pgcr_image}"
+                            if activities[0].pgcr_image
+                            else None,
+                        )
+                    )
+
+                result.insert(0, all_grandmaster)
+
+                self._manifest_grandmasters = result
+        return self._manifest_grandmasters
+
+    async def get_challenging_solo_activities(self) -> dict[str, list[DestinyActivityModel]]:
         """Get activities that are difficult to solo"""
 
         async with get_challenging_solo_activities_lock:
-            # check cache
-            if not cache.interesting_solos:
+            # check self
+            if not self._manifest_interesting_solos:
                 # key is the topic, then the activity display name
                 # the value is a list with list[0] being what string the activity name has to include list[1] and what to exclude
                 interesting_solos = {
@@ -222,30 +389,32 @@ class CRUDManifest(CRUDBase):
                     "Miscellaneous": {"Grandmaster Nightfalls": "grandmaster_nf"},
                 }
 
+                db_activities: list[DestinyActivityDefinition] = await bungie_client.manifest.fetch_all(
+                    manifest_class=DestinyActivityDefinition
+                )
+
                 # loop through each of the entries
                 for category, items in interesting_solos.items():
-                    if category not in cache.interesting_solos:
-                        cache.interesting_solos[category] = []
+                    if category not in self._manifest_interesting_solos:
+                        self._manifest_interesting_solos[category] = []
 
                     for activity_name, search_data in items.items():
                         # special handling for grandmasters
                         if search_data == "grandmaster_nf":
-                            gms = await self.get_grandmaster_nfs(db=db)
+                            gms = await self.get_grandmaster_nfs()
 
                             # all gms is the first index there
                             data = gms[0]
                             data.name = activity_name
 
                         else:
-                            query = select(DestinyActivityDefinition)
-                            query = query.filter(DestinyActivityDefinition.name.contains(search_data[0]))
-
-                            # do we want to exclude a search string
-                            if search_data[1]:
-                                query = query.filter(not_(DestinyActivityDefinition.name.contains(search_data[1])))
-
-                            db_results = await self._execute_query(db=db, query=query)
-                            db_result: list[DestinyActivityDefinition] = db_results.scalars().all()
+                            # very inefficient, but it is a one-off
+                            db_result = []
+                            for entry in db_activities:
+                                if search_data[0] in entry.display_properties.name:
+                                    # do we want to exclude a search string
+                                    if search_data[1] and search_data[1] not in entry.display_properties.name:
+                                        db_result.append(entry)
 
                             # loop through all activities and save them by name
                             data = None
@@ -253,32 +422,26 @@ class CRUDManifest(CRUDBase):
                                 if not data:
                                     data = DestinyActivityModel(
                                         name=activity_name,
-                                        description=activity.description,
-                                        matchmade=activity.matchmade,
-                                        max_players=activity.max_players,
-                                        activity_ids=[activity.reference_id],
+                                        description=activity.display_properties.description,
+                                        matchmade=activity.matchmaking.is_matchmade,
+                                        max_players=activity.matchmaking.max_players,
+                                        activity_ids=[activity.hash],
                                         mode=activity.direct_activity_mode_type,
-                                        image_url=activity.pgcr_image_url,
+                                        image_url=f"https://www.bungie.net/{activity.pgcr_image}"
+                                        if activity.pgcr_image
+                                        else None,
                                     )
                                 else:
-                                    data.activity_ids.append(activity.reference_id)
+                                    data.activity_ids.append(activity.hash)
 
                         # check that we got some
                         if not is_test_mode():
                             assert data is not None
 
                         if data:
-                            cache.interesting_solos[category].append(data)
+                            self._manifest_interesting_solos[category].append(data)
 
-            return cache.interesting_solos
-
-    async def get_current_season_pass(self, db: AsyncSession) -> DestinySeasonPassDefinition:
-        """Get the current season pass from the DB"""
-
-        query = select(DestinySeasonPassDefinition).order_by(DestinySeasonPassDefinition.index.desc()).limit(1)
-
-        result = await self._execute_query(db=db, query=query)
-        return result.scalar()
+            return self._manifest_interesting_solos
 
 
-destiny_manifest = CRUDManifest(Base)
+destiny_manifest = CRUDManifest()

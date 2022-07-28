@@ -16,8 +16,6 @@ from Backend.database.base import acquire_db_session
 from Backend.database.models import ActivitiesUsers, DiscordUsers
 from Backend.misc.cache import cache
 from Backend.misc.helperFunctions import get_datetime_from_bungie_entry
-from Backend.networking.bungieApi import BungieApi
-from Backend.networking.bungieRoutes import activities_route, pgcr_route
 from Backend.networking.schemas import WebResponse
 from Shared.enums.destiny import UsableDestinyActivityModeTypeEnum
 from Shared.functions.helperFunctions import get_now_with_tz

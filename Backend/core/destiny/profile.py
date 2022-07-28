@@ -11,7 +11,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from Backend.core.errors import CustomException
 from Backend.crud import crud_activities, destiny_manifest, discord_users
 from Backend.crud.destiny.collectibles import collectibles
-from Backend.crud.destiny.items import destiny_items
 from Backend.crud.destiny.records import records
 from Backend.database.models import (
     Collectibles,
@@ -22,8 +21,6 @@ from Backend.database.models import (
 )
 from Backend.misc.cache import cache
 from Backend.misc.helperFunctions import get_datetime_from_bungie_entry
-from Backend.networking.bungieApi import BungieApi
-from Backend.networking.bungieRoutes import clan_user_route, profile_route, stat_route
 from Shared.enums.destiny import DestinyInventoryBucketEnum, DestinyPresentationNodeWeaponSlotEnum
 from Shared.functions.formatting import make_progress_bar_text
 from Shared.functions.helperFunctions import get_now_with_tz
@@ -91,7 +88,7 @@ class DestinyProfile:
         """Gets all seals and the users completion status"""
 
         # get the seals
-        seals = await destiny_items.get_seals(db=self.db)
+        seals = await destiny_manifest.get_seals()
 
         # loop through the seals and format the data
         result = DestinySealsModel()
@@ -102,10 +99,10 @@ class DestinyProfile:
             user_completed = []
             user_completed_int = 0
             for triumph in triumphs:
-                user_data = await self.has_triumph(triumph.reference_id)
+                user_data = await self.has_triumph(triumph.hash)
                 model = DestinyRecordModel(
-                    name=triumph.name,
-                    description=triumph.description,
+                    name=triumph.display_properties.name,
+                    description=triumph.display_properties.description,
                     completed=user_data.bool,
                 )
 
@@ -130,8 +127,8 @@ class DestinyProfile:
                     completion_percentage = 1
 
             data = DestinySealModel(
-                name=seal.name,
-                description=seal.description,
+                name=seal.display_properties.name,
+                description=seal.display_properties.description,
                 completed=True if completion_percentage == 1 else False,
                 completion_percentage=completion_percentage,
                 completion_status=make_progress_bar_text(completion_percentage),
@@ -148,8 +145,8 @@ class DestinyProfile:
             if user_guilded_completed:
                 completion_percentage = user_guilded_completed_int / len(user_guilded_completed)
                 data = DestinySealModel(
-                    name=seal.name,
-                    description=seal.description,
+                    name=seal.display_properties.name,
+                    description=seal.display_properties.description,
                     completed=True if completion_percentage == 1 else False,
                     completion_percentage=completion_percentage,
                     completion_status=make_progress_bar_text(completion_percentage),
@@ -167,7 +164,7 @@ class DestinyProfile:
     async def get_catalyst_completion(self) -> DestinyCatalystsModel:
         """Gets all catalysts and the users completion status"""
 
-        catalysts = await destiny_items.get_catalysts(db=self.db)
+        catalysts = await destiny_manifest.get_catalysts()
         triumphs = await self.get_triumphs()
 
         # check their completion
@@ -479,68 +476,20 @@ class DestinyProfile:
     async def get_season_pass_level(self) -> ValueModel:
         """Returns the seasonal pass level"""
 
-        # get the current season pass hash
-        async with get_season_pass_level_lock:
-            if not cache.season_pass_definition:
-                cache.season_pass_definition = copy.copy(await destiny_manifest.get_current_season_pass(db=self.db))
-
         # get a character id since they are character specific
         character_id = (await self.get_character_ids())[0]
 
         result = await self.__get_profile()
         character_data = result["characterProgressions"]["data"][str(character_id)]["progressions"]
         return ValueModel(
-            value=character_data[str(cache.season_pass_definition.reward_progression_hash)]["level"]
-            + character_data[str(cache.season_pass_definition.prestige_progression_hash)]["level"]
+            value=character_data[str(cache.manifest_season_pass_definition.reward_progression_hash)]["level"]
+            + character_data[str(cache.manifest_season_pass_definition.prestige_progression_hash)]["level"]
         )
 
     async def get_seasonal_challenges(self) -> SeasonalChallengesModel:
         """Returns the seasonal challenges completion info"""
 
-        # do we have the info cached?
-        async with get_seasonal_challenges_lock:
-            if not cache.seasonal_challenges_definition:
-                definition = SeasonalChallengesModel()
-
-                # get the info from the db
-                sc_category_hash = 3443694067
-                sc_presentation_node = await destiny_manifest.get(
-                    db=self.db, table=DestinyPresentationNodeDefinition, primary_key=sc_category_hash
-                )
-
-                # loop through those categories and get the "Weekly" one
-                for category_hash in sc_presentation_node.children_presentation_node_hash:
-                    category = await destiny_manifest.get(
-                        db=self.db, table=DestinyPresentationNodeDefinition, primary_key=category_hash
-                    )
-
-                    if category.name == "Weekly":
-                        # loop through the seasonal challenges topics (Week1, Week2, etc...)
-                        for sc_topic_hash in category.children_presentation_node_hash:
-                            sc_topic = await destiny_manifest.get(
-                                db=self.db, table=DestinyPresentationNodeDefinition, primary_key=sc_topic_hash
-                            )
-
-                            topic = SeasonalChallengesTopicsModel(name=sc_topic.name)
-
-                            # loop through the actual seasonal challenges
-                            for sc_hash in sc_topic.children_record_hash:
-                                sc = await destiny_manifest.get(
-                                    db=self.db, table=DestinyRecordDefinition, primary_key=sc_hash
-                                )
-
-                                topic.seasonal_challenges.append(
-                                    SeasonalChallengesRecordModel(
-                                        record_id=sc.reference_id, name=sc.name, description=sc.description
-                                    )
-                                )
-
-                            definition.topics.append(topic)
-                        break
-
-                cache.seasonal_challenges_definition = copy.copy(definition)
-
-        user_sc = cache.seasonal_challenges_definition.copy()
+        user_sc = copy.deepcopy(await destiny_manifest.get_seasonal_challenges_definition())
         user_records = await self.get_triumphs()
 
         # now calculate the members completions status
@@ -859,7 +808,7 @@ class DestinyProfile:
                 and "itemInstanceId" in profile_data
             ):
                 # get the character class and actual bucket hash from the item id
-                definition = await destiny_items.get_item(db=self.db, item_id=profile_data["itemHash"])
+                definition = await destiny_manifest.get_item(item_id=profile_data["itemHash"])
                 profile_data["bucketHash"] = definition.bucket_type_hash
 
                 # try to catch users which deleted their warlock but still have warlock items

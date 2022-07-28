@@ -2,7 +2,7 @@ import asyncio
 import logging
 import os
 from contextlib import asynccontextmanager, suppress
-from typing import AsyncContextManager, Optional
+from typing import AsyncContextManager, Optional, Self
 
 import orjson
 from sqlalchemy.engine import Engine
@@ -32,7 +32,15 @@ _SESSIONMAKER = None
 _TEST_MODE = False
 
 
-Base = declarative_base()
+_Base = declarative_base()
+
+
+class Base(_Base):
+    def update_from_class(self, other_class: Self):
+        if id(self) != id(other_class):
+            for key, value in other_class.__dict__.items():
+                if not key.startswith("_"):
+                    setattr(self, key, value)
 
 
 def setup_engine(database_url: str = DATABASE_URL) -> Engine:

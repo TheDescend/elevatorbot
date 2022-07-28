@@ -11,10 +11,11 @@ from rich.text import Text
 
 from Backend.core.destiny.manifest import DestinyManifest
 from Backend.core.errors import CustomException, handle_custom_exception
-from Backend.crud import backend_user
+from Backend.crud import backend_user, destiny_manifest
 from Backend.database.base import acquire_db_session
 from Backend.database.models import BackendUser
 from Backend.dependencies import auth_get_user_with_read_perm, auth_get_user_with_write_perm
+from Backend.networking.bungieApi import bungio_setup
 from Backend.startup.initBackgroundEvents import register_background_events
 from Backend.startup.initLogging import init_logging
 from Shared.functions.logging import DESCEND_COLOUR
@@ -149,11 +150,12 @@ async def startup():
         await backend_user.create_admin(db=db)
     startup_progress.update(startup_task, advance=1)
 
+    # register bungio
+    bungio_setup()
+
     # Update the Destiny 2 manifest
     default_logger.debug("Updating Destiny 2 Manifest...")
-    async with acquire_db_session() as db:
-        manifest = DestinyManifest(db=db)
-        await manifest.update()
+    await destiny_manifest.reset()
     startup_progress.update(startup_task, advance=1)
 
     # register background events

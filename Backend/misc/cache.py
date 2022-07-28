@@ -2,15 +2,11 @@ import dataclasses
 import datetime
 from typing import Optional
 
-from Backend.database.models import (
-    DestinyInventoryItemDefinition,
-    DestinyPresentationNodeDefinition,
-    DestinyRecordDefinition,
-    DestinySeasonPassDefinition,
-    DiscordUsers,
-    PersistentMessage,
-    Roles,
-)
+from bungio.models import DestinyCollectibleDefinition, DestinyRecordDefinition, DestinySeasonPassDefinition
+
+from Backend.crud import destiny_manifest
+from Backend.database.models import DiscordUsers, PersistentMessage, Roles
+from Shared.networkingSchemas import DestinyLoreModel, DestinyNamedItemModel
 from Shared.networkingSchemas.destiny import DestinyActivityModel, SeasonalChallengesModel
 
 
@@ -40,34 +36,6 @@ class Cache:
 
     # User Collectibles - Key: destiny_id[collectible_hash]
     collectibles: dict[int, set] = dataclasses.field(init=False, default_factory=dict)
-
-    # Manifest Definitions. Saving DB calls since 1982. Make sure to `asyncio.Lock():` them
-    season_pass_definition: Optional[DestinySeasonPassDefinition] = dataclasses.field(init=False, default=None)
-    seasonal_challenges_definition: Optional[SeasonalChallengesModel] = dataclasses.field(init=False, default=None)
-
-    # Inventory Items  - Key: reference_id
-    items: dict[int, Optional[DestinyInventoryItemDefinition]] = dataclasses.field(init=False, default_factory=dict)
-
-    # Catalysts
-    catalysts: list[DestinyRecordDefinition] = dataclasses.field(init=False, default_factory=list)
-
-    # Seals
-    seals: dict[DestinyPresentationNodeDefinition, list[DestinyRecordDefinition]] = dataclasses.field(
-        init=False, default_factory=dict
-    )
-
-    # Interesting Solos - Key: activity_category
-    interesting_solos: dict[str, list[DestinyActivityModel]] = dataclasses.field(init=False, default_factory=dict)
-
-    def reset(self):
-        """Reset the caches after a manifest update"""
-
-        self.season_pass_definition = None
-        self.seasonal_challenges_definition = None
-        self.items = {}
-        self.catalysts = []
-        self.seals = {}
-        self.interesting_solos = {}
 
 
 cache = Cache()

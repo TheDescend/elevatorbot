@@ -290,7 +290,7 @@ async def test_seasonal_challenges(client: AsyncClient, mocker: MockerFixture):
     assert data.topics[0].seasonal_challenges[0].completion_percentage == 1.0
     assert data.topics[0].seasonal_challenges[0].name == "Master of All"
 
-    assert cache.seasonal_challenges_definition is not None
+    assert cache.manifest_seasonal_challenges_definition is not None
 
 
 @pytest.mark.asyncio

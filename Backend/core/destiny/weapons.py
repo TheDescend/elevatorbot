@@ -7,10 +7,8 @@ from sqlalchemy.engine import Row
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from Backend.core.errors import CustomException
-from Backend.crud import crud_activities, crud_weapons
-from Backend.crud.destiny.items import destiny_items
+from Backend.crud import crud_activities, crud_weapons, destiny_manifest
 from Backend.database.models import ActivitiesUsersWeapons, DestinyInventoryItemDefinition, DiscordUsers
-from Backend.networking.bungieApi import BungieApi
 from Shared.enums.destiny import (
     DestinyAmmunitionTypeEnum,
     DestinyDamageTypeEnum,
@@ -43,54 +41,6 @@ class DestinyWeapons:
 
             # the network class
             self.api = BungieApi(user=self.user)
-
-    async def get_all_weapons(self) -> DestinyWeaponsModel:
-        """Return all weapons"""
-
-        weapons = await destiny_items.get_all_weapons(db=self.db)
-
-        # loop through the weapons and format them
-        format_helper = {}
-        for weapon in weapons:
-            if weapon.name not in format_helper:
-                format_helper.update(
-                    {
-                        weapon.name: DestinyWeaponModel(
-                            name=weapon.name,
-                            description=weapon.description,
-                            flavor_text=weapon.flavor_text,
-                            weapon_type=" ".join(
-                                [
-                                    part.capitalize()
-                                    for part in DestinyItemSubTypeEnum(weapon.item_sub_type).name.split("_")
-                                ]
-                            ),
-                            weapon_slot=" ".join(
-                                [
-                                    part.capitalize()
-                                    for part in DestinyWeaponSlotEnum(weapon.bucket_type_hash).name.split("_")
-                                ]
-                            ),
-                            damage_type=" ".join(
-                                [
-                                    part.capitalize()
-                                    for part in DestinyDamageTypeEnum(weapon.default_damage_type).name.split("_")
-                                ]
-                            ),
-                            ammo_type=" ".join(
-                                [
-                                    part.capitalize()
-                                    for part in DestinyAmmunitionTypeEnum(weapon.ammo_type).name.split("_")
-                                ]
-                            ),
-                            reference_ids=[weapon.reference_id],
-                        )
-                    }
-                )
-            else:
-                format_helper[weapon.name].reference_ids.append(weapon.reference_id)
-
-        return DestinyWeaponsModel(weapons=list(format_helper.values()))
 
     async def get_weapon_stats(
         self,
@@ -151,7 +101,7 @@ class DestinyWeapons:
         # get information about the sought weapon
         sought_weapon = None
         if include_weapon_with_ids:
-            sought_weapon = await destiny_items.get_item(db=self.db, item_id=include_weapon_with_ids[0])
+            sought_weapon = await destiny_manifest.get_item(item_id=include_weapon_with_ids[0])
 
             # check if the weapon / damage type matches
             if weapon_type and sought_weapon.item_sub_type != weapon_type.value:

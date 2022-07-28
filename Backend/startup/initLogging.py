@@ -40,8 +40,7 @@ def init_logging() -> None:
     logger.make_logger("requestsExceptions")
 
     # Initialize logging for external api requests
-    logger.make_logger("bungieApi")
-    logger.make_logger("bungieApiExceptions")
+    logger.make_logger("bungio")
 
     logger.make_logger("elevatorApi")
     logger.make_logger("elevatorApiExceptions")

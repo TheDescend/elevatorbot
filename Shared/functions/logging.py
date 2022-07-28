@@ -131,9 +131,9 @@ class ElevatorLogger:
         logger.handlers = []
         logger.addHandler(console_handler)
 
-    def make_logger(self, log_name: str, only_console: bool = False):
+    def make_logger(self, log_name: str, only_console: bool = False, level: Optional[int] = None):
         logger = logging.getLogger(log_name)
-        logger.setLevel(logging.DEBUG if get_setting("ENABLE_DEBUG_MODE") else logging.DEBUG)
+        logger.setLevel(level or logging.DEBUG)
 
         # log to console (DEBUG)
         self.make_console_logger(logger=logger, highlighter=self.highlighter)

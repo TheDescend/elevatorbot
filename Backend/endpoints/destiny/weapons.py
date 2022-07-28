@@ -2,9 +2,10 @@ from fastapi import APIRouter
 
 from Backend.core.destiny.activities import DestinyActivities
 from Backend.core.destiny.weapons import DestinyWeapons
-from Backend.crud import discord_users
+from Backend.crud import destiny_manifest, discord_users
 from Backend.database import acquire_db_session
-from Shared.enums.destiny import DestinyDamageTypeEnum, DestinyItemSubTypeEnum
+from Shared.enums.destiny import DestinyDamageTypeEnum, DestinyItemSubTypeEnum, DestinyWeaponSlotEnum
+from Shared.networkingSchemas import DestinyWeaponModel
 from Shared.networkingSchemas.destiny import (
     DestinyTopWeaponsInputModel,
     DestinyTopWeaponsModel,
@@ -23,9 +24,30 @@ router = APIRouter(
 async def get_all():
     """Return all weapons there currently are"""
 
-    async with acquire_db_session() as db:
-        weapons = DestinyWeapons(db=db, user=None)
-        return await weapons.get_all_weapons()
+    weapons = await destiny_manifest.get_all_weapons()
+
+    # loop through the weapons and format them
+    format_helper = {}
+    for weapon in weapons.values():
+        if weapon.display_properties.name not in format_helper:
+            format_helper.update(
+                {
+                    weapon.name: DestinyWeaponModel(
+                        name=weapon.display_properties.name,
+                        description=weapon.display_properties.description,
+                        flavor_text=weapon.flavor_text,
+                        weapon_type=weapon.item_sub_type.display_name,
+                        weapon_slot=DestinyWeaponSlotEnum(weapon.inventory.bucket_type_hash).display_name,
+                        damage_type=weapon.default_damage_type.display_name,
+                        ammo_type=weapon.equipping_block.ammo_type.display_name,
+                        reference_ids=[weapon.hash],
+                    )
+                }
+            )
+        else:
+            format_helper[weapon.name].reference_ids.append(weapon.reference_id)
+
+    return DestinyWeaponsModel(weapons=list(format_helper.values()))
 
 
 @router.post("/{guild_id}/{discord_id}/top", response_model=DestinyTopWeaponsModel)  # has test

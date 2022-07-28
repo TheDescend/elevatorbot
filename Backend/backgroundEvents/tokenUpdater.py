@@ -2,7 +2,6 @@ from Backend.backgroundEvents.base import BaseEvent
 from Backend.core.errors import CustomException
 from Backend.crud import discord_users
 from Backend.database.base import acquire_db_session
-from Backend.networking.bungieApi import BungieApi
 
 
 class TokenUpdater(BaseEvent):

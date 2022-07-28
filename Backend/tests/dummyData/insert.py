@@ -6,6 +6,7 @@ import time
 import unittest.mock
 from urllib.parse import urlencode
 
+from bungio.models import AuthData
 from dummyData.static import *
 from httpx import AsyncClient
 from orjson import orjson
@@ -101,16 +102,17 @@ async def mock_elevator_post(self, *args, **kwargs):
 @unittest.mock.patch("Backend.networking.elevatorApi.ElevatorApi.post", mock_elevator_post)
 async def insert_dummy_data(db: AsyncSession, client: AsyncClient):
     # create our registered destiny user
-    token_data = BungieTokenInput(
-        access_token=dummy_token,
-        token_type="EMPTY",
-        expires_in=999999999,
+    token_data = AuthData(
+        token=dummy_token,
+        token_expiry=get_now_with_tz() + datetime.timedelta(days=1000),
         refresh_token=dummy_refresh_token,
-        refresh_expires_in=999999999,
+        refresh_token_expiry=get_now_with_tz() + datetime.timedelta(days=1000),
         membership_id=dummy_destiny_id,
-        state=f"{dummy_discord_id}:{dummy_discord_guild_id}:{dummy_discord_channel_id}",
+        membership_type=dummy_destiny_system,
     )
-    result, user, discord_id, guild_id = await discord_users.insert_profile(db=db, bungie_token=token_data)
+    result, user, discord_id, guild_id = await discord_users.insert_profile(
+        db=db, auth=token_data, state=f"{dummy_discord_id}:{dummy_discord_guild_id}:{dummy_discord_channel_id}"
+    )
     assert result.bungie_name == dummy_bungie_name
     assert user.destiny_id == dummy_destiny_id
     assert result.system == "PYTEST"
