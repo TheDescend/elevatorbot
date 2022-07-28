@@ -58,7 +58,7 @@ class CRUDManifest:
     _manifest_catalysts: list[DestinyRecordDefinition] = []
 
     # DestinyActivityModel
-    _manifest_activities: list[DestinyActivityModel] = []
+    _manifest_activities: dict[int, DestinyActivityModel] = {}
     _manifest_grandmasters: list[DestinyActivityModel] = []
     _manifest_interesting_solos: dict[str, list[DestinyActivityModel]] = {}  # Key: activity_category
 
@@ -92,7 +92,7 @@ class CRUDManifest:
         self._manifest_catalysts = []
         await destiny_manifest.get_catalysts()
 
-        self._manifest_activities = []
+        self._manifest_activities = {}
         await destiny_manifest.get_all_activities()
 
         self._manifest_grandmasters = []
@@ -112,6 +112,14 @@ class CRUDManifest:
                 for result in results:
                     self._manifest_weapons[result.hash] = result
         return self._manifest_weapons
+
+    async def get_weapon(self, weapon_id: int) -> DestinyInventoryItemDefinition:
+        """Gets weapon"""
+
+        weapons = await self.get_all_weapons()
+        if not (weapon := weapons.get(int(weapon_id))):
+            raise CustomException("BungieDestinyItemNotExist")
+        return weapon
 
     async def get_seasonal_challenges_definition(self) -> SeasonalChallengesModel:
         """Gets all seasonal challenges"""
@@ -170,7 +178,7 @@ class CRUDManifest:
 
         return self._manifest_items[item_id]
 
-    async def get_all_activities(self) -> list[DestinyActivityModel]:
+    async def get_all_activities(self) -> dict[int, DestinyActivityModel]:
         """Gets all activities"""
 
         async with get_activities_lock:
@@ -187,25 +195,33 @@ class CRUDManifest:
                     data[activity.name].append(activity)
 
                 # format them correctly
-                result = []
+                result = {}
                 for activities in data.values():
-                    result.append(
-                        DestinyActivityModel(
-                            name=activities[0].display_properties.name or "Unknown",
-                            description=activities[0].display_properties.description,
-                            matchmade=activities[0].matchmaking.is_matchmade,
-                            max_players=activities[0].matchmaking.max_players,
-                            activity_ids=[activity.hash for activity in activities],
-                            mode=activities[0].direct_activity_mode_type,
-                            image_url=f"https://www.bungie.net/{activities[0].pgcr_image}"
-                            if activities[0].pgcr_image
-                            else None,
-                        )
+                    model = DestinyActivityModel(
+                        name=activities[0].display_properties.name or "Unknown",
+                        description=activities[0].display_properties.description,
+                        matchmade=activities[0].matchmaking.is_matchmade,
+                        max_players=activities[0].matchmaking.max_players,
+                        activity_ids=[activity.hash for activity in activities],
+                        mode=activities[0].direct_activity_mode_type,
+                        image_url=f"https://www.bungie.net/{activities[0].pgcr_image}"
+                        if activities[0].pgcr_image
+                        else None,
                     )
+                    for reference_id in model.activity_ids:
+                        result[reference_id] = model
 
-                self._manifest_activities = sorted(result, key=lambda entry: entry.name)
+                self._manifest_activities = {k: v for k, v in sorted(result.items(), key=lambda item: item[1].name)}
 
         return self._manifest_activities
+
+    async def get_activity(self, activity_id: int) -> DestinyActivityModel:
+        """Gets activity"""
+
+        activities = await self.get_all_activities()
+        if not (activity := activities.get(int(activity_id))):
+            raise CustomException("BungieDestinyItemNotExist")
+        return activity
 
     async def get_all_collectibles(self) -> dict[int, DestinyCollectibleDefinition]:
         """Gets all collectibles"""
@@ -232,8 +248,7 @@ class CRUDManifest:
     async def get_triumph(self, triumph_id: int) -> DestinyRecordDefinition:
         """Gets triumph"""
 
-        async with get_triumph_lock:
-            triumphs = await self.get_all_triumphs()
+        triumphs = await self.get_all_triumphs()
         if not (triumph := triumphs.get(int(triumph_id))):
             raise CustomException("BungieDestinyItemNotExist")
         return triumph

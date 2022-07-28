@@ -6,15 +6,10 @@ from sqlalchemy import distinct, func, not_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from Backend.core.errors import CustomException
+from Backend.crud import destiny_manifest
 from Backend.crud.base import CRUDBase
 from Backend.database import acquire_db_session
-from Backend.database.models import (
-    Activities,
-    ActivitiesFailToGet,
-    ActivitiesUsers,
-    ActivitiesUsersWeapons,
-    DestinyActivityDefinition,
-)
+from Backend.database.models import Activities, ActivitiesFailToGet, ActivitiesUsers, ActivitiesUsersWeapons
 from Shared.networkingSchemas.destiny.roles import TimePeriodModel
 
 fail_to_get_insert_lock = asyncio.Lock()
@@ -50,18 +45,6 @@ class CRUDActivities(CRUDBase):
         """Get the activity with the instance_id"""
 
         return await self._get_with_key(db=db, primary_key=instance_id)
-
-    async def get_activity_name(self, db: AsyncSession, activity_id: int) -> str:
-        """Get the activity name"""
-
-        query = select(DestinyActivityDefinition.name).filter(DestinyActivityDefinition.reference_id == activity_id)
-
-        result = await self._execute_query(db=db, query=query)
-        result = result.scalar()
-        if not result:
-            raise CustomException("UnknownError")
-
-        return result
 
     async def insert(self, data: list[tuple[int, datetime.datetime, dict]]):
         """Get the activity with the instance_id"""

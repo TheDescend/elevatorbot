@@ -1,5 +1,4 @@
 import asyncio
-import copy
 import dataclasses
 import datetime
 import logging
@@ -51,9 +50,6 @@ class DestinyActivities:
         self.discord_id = self.user.discord_id
         self.destiny_id = self.user.destiny_id
         self.system = self.user.system
-
-        # the network class
-        self.api = BungieApi(user=self.user)
 
     async def get_lowman_count(
         self,

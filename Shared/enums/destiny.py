@@ -2,10 +2,10 @@ from __future__ import annotations
 
 from enum import Enum
 
-# todo delete
 from bungio.models.base import BaseEnum, EnumMixin
 
 
+# todo delete
 class DestinyItemTypeEnum(Enum):
     NONE = 0
     CURRENCY = 1
@@ -36,6 +36,7 @@ class DestinyItemTypeEnum(Enum):
     FINISHER = 29
 
 
+# todo delete
 class DestinyWeaponTypeEnum(Enum):
     AUTO_RIFLE = 6
     SHOTGUN = 7
@@ -56,6 +57,7 @@ class DestinyWeaponTypeEnum(Enum):
     GLAIVE = 33
 
 
+# todo delete
 class DestinyItemSubTypeEnum(Enum):
     AUTO_RIFLE = 6
     SHOTGUN = 7
@@ -87,6 +89,7 @@ class DestinyItemSubTypeEnum(Enum):
     REPEATABLE_BOUNTY = 32
 
 
+# todo delete
 class UsableDestinyDamageTypeEnum(Enum):
     NONE = 0
     KINETIC = 1
@@ -96,6 +99,7 @@ class UsableDestinyDamageTypeEnum(Enum):
     STASIS = 6
 
 
+# todo delete
 class DestinyDamageTypeEnum(Enum):
     KINETIC = 1
     ARC = 2
@@ -107,12 +111,14 @@ class DestinyDamageTypeEnum(Enum):
     RAID = 5
 
 
+# todo delete
 class UsableDestinyAmmunitionTypeEnum(Enum):
     PRIMARY = 1
     SPECIAL = 2
     HEAVY = 3
 
 
+# todo delete
 class DestinyAmmunitionTypeEnum(Enum):
     PRIMARY = 1
     SPECIAL = 2
@@ -122,6 +128,7 @@ class DestinyAmmunitionTypeEnum(Enum):
     UNKNOWN = 4
 
 
+# todo delete
 class DestinyItemTierTypeEnum(Enum):
     UNKNOWN = 0
     CURRENCY = 1
@@ -167,6 +174,7 @@ class UsableDestinyActivityModeTypeEnum(Enum):
     ALL_PVP = 5
 
 
+# todo delete
 class DestinyActivityModeTypeEnum(Enum):
     ALL = 0
     RAID = 4

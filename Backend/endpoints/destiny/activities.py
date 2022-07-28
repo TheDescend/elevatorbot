@@ -21,7 +21,8 @@ router = APIRouter(
 async def get_all():
     """Return all activities and their hashes"""
 
-    return DestinyActivitiesModel(activities=await destiny_manifest.get_all_activities())
+    activities = await destiny_manifest.get_all_activities()
+    return DestinyActivitiesModel(activities=list(set(activities.values())))
 
 
 @router.post("/{guild_id}/{discord_id}/last", response_model=DestinyActivityDetailsModel)  # has test

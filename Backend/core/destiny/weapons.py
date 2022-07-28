@@ -3,12 +3,13 @@ import datetime
 from typing import Any, Optional
 
 from anyio import to_thread
+from bungio.models import DamageType, DestinyInventoryItemDefinition, DestinyItemSubType
 from sqlalchemy.engine import Row
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from Backend.core.errors import CustomException
 from Backend.crud import crud_activities, crud_weapons, destiny_manifest
-from Backend.database.models import ActivitiesUsersWeapons, DestinyInventoryItemDefinition, DiscordUsers
+from Backend.database.models import ActivitiesUsersWeapons, DiscordUsers
 from Shared.enums.destiny import (
     DestinyAmmunitionTypeEnum,
     DestinyDamageTypeEnum,
@@ -19,8 +20,6 @@ from Shared.networkingSchemas.destiny import (
     DestinyTopWeaponModel,
     DestinyTopWeaponsModel,
     DestinyTopWeaponsStatInputModelEnum,
-    DestinyWeaponModel,
-    DestinyWeaponsModel,
     DestinyWeaponStatsModel,
 )
 
@@ -38,9 +37,6 @@ class DestinyWeapons:
             self.discord_id = self.user.discord_id
             self.destiny_id = self.user.destiny_id
             self.system = self.user.system
-
-            # the network class
-            self.api = BungieApi(user=self.user)
 
     async def get_weapon_stats(
         self,
@@ -73,9 +69,8 @@ class DestinyWeapons:
         result = await to_thread.run_sync(get_weapon_stats_subprocess, usages)
 
         # change the reference id of the best activity to the actual name
-        result.best_kills_activity_name = await crud_activities.get_activity_name(
-            db=self.db, activity_id=int(result.best_kills_activity_name)
-        )
+        activity = await destiny_manifest.get_activity(int(result.best_kills_activity_name))
+        result.best_kills_activity_name = activity.name
 
         return result
 
@@ -84,8 +79,8 @@ class DestinyWeapons:
         stat: DestinyTopWeaponsStatInputModelEnum,
         how_many_per_slot: Optional[int] = None,
         include_weapon_with_ids: Optional[list[int]] = None,
-        weapon_type: Optional[DestinyItemSubTypeEnum] = None,
-        damage_type: Optional[DestinyDamageTypeEnum] = None,
+        weapon_type: Optional[DestinyItemSubType] = None,
+        damage_type: Optional[DamageType] = None,
         character_class: Optional[str] = None,
         character_ids: Optional[list[int]] = None,
         mode: Optional[int] = None,
@@ -130,13 +125,14 @@ class DestinyWeapons:
             )
 
             sorted_slot = await to_thread.run_sync(
-                get_top_weapons_subprocess,
-                top_weapons,
-                stat,
-                sought_weapon,
-                slot,
-                how_many_per_slot,
-                include_weapon_with_ids,
+                lambda: get_top_weapons_subprocess(
+                    top_weapons=top_weapons,
+                    stat=stat,
+                    sought_weapon=sought_weapon,
+                    slot=slot,
+                    how_many_per_slot=how_many_per_slot,
+                    include_weapon_with_ids=include_weapon_with_ids,
+                )
             )
 
             # update the result
@@ -187,38 +183,33 @@ def get_top_weapons_subprocess(
 
     # sort the weapons. This is needed because some weapons are reissued and have multiple ids
     to_sort = {}
-    for weapon in top_weapons:
+    for weapon_data in top_weapons:
+        weapon = await destiny_manifest.get_weapon(weapon_id=weapon_data.weapon_id)
+
         # get the stat value
-        stat_value = getattr(weapon, stat.name.lower())
+        stat_value = getattr(weapon_data, stat.name.lower())
 
         # insert into the sorting thing
-        if weapon.name not in to_sort:
+        if weapon.display_properties.name not in to_sort:
             to_sort.update(
                 {
-                    weapon.name: DestinyTopWeaponModel(
+                    weapon.display_properties.name: DestinyTopWeaponModel(
                         ranking=0,  # temp value
                         stat_value=stat_value,
-                        weapon_ids=[weapon.weapon_id],
-                        weapon_name=weapon.name,
-                        weapon_type=" ".join(
-                            part.capitalize() for part in DestinyItemSubTypeEnum(weapon.item_sub_type).name.split("_")
-                        ),
-                        weapon_tier=weapon.tier_type_name,
-                        weapon_damage_type=" ".join(
-                            part.capitalize()
-                            for part in DestinyDamageTypeEnum(weapon.default_damage_type).name.split("_")
-                        ),
-                        weapon_ammo_type=" ".join(
-                            part.capitalize() for part in DestinyAmmunitionTypeEnum(weapon.ammo_type).name.split("_")
-                        ),
+                        weapon_ids=[weapon.hash],
+                        weapon_name=weapon.display_properties.name,
+                        weapon_type=weapon.item_sub_type.display_name,
+                        weapon_tier=weapon.inventory.tier_type_name,
+                        weapon_damage_type=weapon.default_damage_type.display_name,
+                        weapon_ammo_type=weapon.equipping_block.ammo_type.display_name,
                     )
                 }
             )
 
         # append the id and add the stat
         else:
-            to_sort[weapon.name].stat_value += stat_value
-            to_sort[weapon.name].weapon_ids.append(weapon.weapon_id)
+            to_sort[weapon.display_properties.name].stat_value += stat_value
+            to_sort[weapon.display_properties.name].weapon_ids.append(weapon.hash)
 
     # sort the items
     sorted_slot: list[DestinyTopWeaponModel] = sorted(
