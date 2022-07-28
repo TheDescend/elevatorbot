@@ -1,10 +1,11 @@
+from bungio.models import DamageType, DestinyItemSubType
 from fastapi import APIRouter
 
 from Backend.core.destiny.activities import DestinyActivities
 from Backend.core.destiny.weapons import DestinyWeapons
 from Backend.crud import destiny_manifest, discord_users
 from Backend.database import acquire_db_session
-from Shared.enums.destiny import DestinyDamageTypeEnum, DestinyItemSubTypeEnum, DestinyWeaponSlotEnum
+from Shared.enums.destiny import DestinyWeaponSlotEnum
 from Shared.networkingSchemas import DestinyWeaponModel
 from Shared.networkingSchemas.destiny import (
     DestinyTopWeaponsInputModel,
@@ -70,8 +71,8 @@ async def get_top(
             stat=input_model.stat,
             how_many_per_slot=input_model.how_many_per_slot,
             include_weapon_with_ids=input_model.include_weapon_with_ids,
-            weapon_type=DestinyItemSubTypeEnum(input_model.weapon_type) if input_model.weapon_type else None,
-            damage_type=DestinyDamageTypeEnum(input_model.damage_type) if input_model.damage_type else None,
+            weapon_type=DestinyItemSubType(input_model.weapon_type) if input_model.weapon_type else None,
+            damage_type=DamageType(input_model.damage_type) if input_model.damage_type else None,
             character_class=input_model.character_class,
             character_ids=input_model.character_ids,
             mode=input_model.mode,

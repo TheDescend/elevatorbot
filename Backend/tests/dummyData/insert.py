@@ -158,7 +158,6 @@ async def insert_dummy_data(db: AsyncSession, client: AsyncClient):
     await activities.update_activity_db()
 
     # noinspection PyProtectedMember
-    assert activities._full_character_list == [{"char_id": 666, "deleted": False}]
     assert user.activities_last_updated.day == 15
     assert user.activities_last_updated.month == 12
     assert dummy_instance_id in cache.saved_pgcrs

@@ -3,7 +3,7 @@ from __future__ import annotations
 import asyncio
 from typing import Optional
 
-from bungio.models import AuthData
+from bungio.models import AuthData, DestinyUser
 from sqlalchemy import (
     ARRAY,
     JSON,
@@ -189,6 +189,10 @@ class DiscordUsers(Base):
             membership_type=self.system,
             destiny_membership_id=self.destiny_id,
         )
+
+    @property
+    def bungio_user(self) -> DestinyUser:
+        return DestinyUser(membership_id=self.destiny_id, membership_type=self.system)
 
 
 class DestinyClanLinks(Base):

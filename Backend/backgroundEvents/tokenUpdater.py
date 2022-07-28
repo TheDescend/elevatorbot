@@ -1,11 +1,14 @@
+from contextlib import suppress
+
+from bungio.error import InvalidAuthentication
+
 from Backend.backgroundEvents.base import BaseEvent
-from Backend.core.errors import CustomException
 from Backend.crud import discord_users
 from Backend.database.base import acquire_db_session
 
 
 class TokenUpdater(BaseEvent):
-    """Every week, this updates user tokens, so they dont have to re-register so much"""
+    """Every week, this updates user tokens, so they don't have to re-register so much"""
 
     def __init__(self):
         dow_day_of_week = "fri"
@@ -25,13 +28,7 @@ class TokenUpdater(BaseEvent):
             # loop through all users
             # no need to task group this. this can take time, it's fine
             for user in all_users:
-                if user.token:
-                    auth = BungieApi(user=user)
-
+                if auth := user.auth:
                     # get a working token aka update
-                    try:
-                        await auth.get_working_token()
-                    except CustomException as exc:
-                        # this can get raised for outdated tokens and is expected
-                        if exc.error != "NoToken":
-                            raise exc
+                    with suppress(InvalidAuthentication):
+                        await auth.refresh()

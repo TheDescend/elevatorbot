@@ -2,11 +2,11 @@ import asyncio
 import datetime
 from typing import Optional
 
+from bungio.models import DestinyPostGameCarnageReportData
 from sqlalchemy import distinct, func, not_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from Backend.core.errors import CustomException
-from Backend.crud import destiny_manifest
 from Backend.crud.base import CRUDBase
 from Backend.database import acquire_db_session
 from Backend.database.models import Activities, ActivitiesFailToGet, ActivitiesUsers, ActivitiesUsersWeapons
@@ -46,7 +46,7 @@ class CRUDActivities(CRUDBase):
 
         return await self._get_with_key(db=db, primary_key=instance_id)
 
-    async def insert(self, data: list[tuple[int, datetime.datetime, dict]]):
+    async def insert(self, data: list[tuple[int, datetime.datetime, DestinyPostGameCarnageReportData]]):
         """Get the activity with the instance_id"""
 
         to_create = []
@@ -57,97 +57,91 @@ class CRUDActivities(CRUDBase):
             await self._insert_multi(db=session, to_create=to_create)
 
     @staticmethod
-    def _convert_to_model(instance_id: int, activity_time: datetime, pgcr: dict) -> Activities:
+    def _convert_to_model(
+        instance_id: int, activity_time: datetime.datetime, pgcr: DestinyPostGameCarnageReportData
+    ) -> Activities:
         """Actually do the insert"""
 
         # starting phase index is only the way to go before 22/2/22, after we should use activityWasStartedFromBeginning
         if activity_time > starting_phase_cutoff:
-            starting_phase_index = 0 if pgcr["activityWasStartedFromBeginning"] else 99
+            starting_phase_index = 0 if pgcr.activity_was_started_from_beginning else 99
         else:
-            starting_phase_index = pgcr["startingPhaseIndex"]
+            starting_phase_index = pgcr.starting_phase_index
 
         # build the activity
         activity = Activities(
             instance_id=instance_id,
             period=activity_time,
-            reference_id=pgcr["activityDetails"]["referenceId"],
-            director_activity_hash=pgcr["activityDetails"]["directorActivityHash"],
+            reference_id=pgcr.activity_details.reference_id,
+            director_activity_hash=pgcr.activity_details.director_activity_hash,
             starting_phase_index=starting_phase_index,
-            mode=pgcr["activityDetails"]["mode"],
-            modes=pgcr["activityDetails"]["modes"],
-            is_private=pgcr["activityDetails"]["isPrivate"],
-            system=pgcr["activityDetails"]["membershipType"],
+            mode=pgcr.activity_details.mode.value,
+            modes=[mode.value for mode in pgcr.activity_details.modes],
+            is_private=pgcr.activity_details.is_private,
+            system=pgcr.activity_details.membership_type.value,
         )
 
         # loop through the members of the activity and append that data
-        for player_pgcr in pgcr["entries"]:
+        for player_pgcr in pgcr.entries:
             # get the bungie name separately, since bungie decided it would be fun to pass it as an empty string if it does not exist yet
             try:
-                bungie_name = player_pgcr["player"]["destinyUserInfo"]["bungieGlobalDisplayName"]
-                if bungie_name == "":
-                    bungie_name = player_pgcr["player"]["destinyUserInfo"]["displayName"]
+                bungie_name = player_pgcr.player.destiny_user_info.bungie_global_display_name
+                if bungie_name == "" or bungie_name:
+                    bungie_name = player_pgcr.player.destiny_user_info.display_name
                     bungie_code = "0000"
                 else:
-                    bungie_code = str(player_pgcr["player"]["destinyUserInfo"]["bungieGlobalDisplayNameCode"]).zfill(4)
-            except KeyError:
+                    bungie_code = str(player_pgcr.player.destiny_user_info.bungie_global_display_name_code).zfill(4)
+            except AttributeError:
                 # sometimes do not even pass the field, very fun
                 bungie_name = "UnknownName"
                 bungie_code = "0000"
 
-            extended_data = player_pgcr.get("extended", None)
+            extended_data = player_pgcr.extended or None
             player = ActivitiesUsers(
-                destiny_id=int(player_pgcr["player"]["destinyUserInfo"]["membershipId"]),
+                destiny_id=player_pgcr.player.destiny_user_info.membership_id,
                 bungie_name=f"{bungie_name}#{bungie_code}",
-                character_id=int(player_pgcr["characterId"]),
-                character_class=player_pgcr["player"]["characterClass"]
-                if "characterClass" in player_pgcr["player"]
-                else None,
-                character_level=player_pgcr["player"]["characterLevel"],
-                system=player_pgcr["player"]["destinyUserInfo"]["membershipType"],
-                light_level=player_pgcr["player"]["lightLevel"],
-                emblem_hash=player_pgcr["player"]["emblemHash"],
-                standing=player_pgcr["standing"],
-                assists=int(player_pgcr["values"]["assists"]["basic"]["value"]),
-                completed=int(player_pgcr["values"]["completed"]["basic"]["value"]),
-                deaths=int(player_pgcr["values"]["deaths"]["basic"]["value"]),
-                kills=int(player_pgcr["values"]["kills"]["basic"]["value"]),
-                opponents_defeated=int(player_pgcr["values"]["opponentsDefeated"]["basic"]["value"]),
-                efficiency=player_pgcr["values"]["efficiency"]["basic"]["value"],
-                kills_deaths_ratio=player_pgcr["values"]["killsDeathsRatio"]["basic"]["value"],
-                kills_deaths_assists=player_pgcr["values"]["killsDeathsAssists"]["basic"]["value"],
-                score=int(player_pgcr["values"]["score"]["basic"]["value"]),
-                activity_duration_seconds=int(player_pgcr["values"]["activityDurationSeconds"]["basic"]["value"]),
-                completion_reason=int(player_pgcr["values"]["completionReason"]["basic"]["value"]),
-                start_seconds=int(player_pgcr["values"]["startSeconds"]["basic"]["value"]),
-                time_played_seconds=int(player_pgcr["values"]["timePlayedSeconds"]["basic"]["value"]),
-                player_count=int(player_pgcr["values"]["playerCount"]["basic"]["value"]),
-                team_score=int(player_pgcr["values"]["teamScore"]["basic"]["value"]),
-                precision_kills=int(extended_data["values"]["precisionKills"]["basic"]["value"])
+                character_id=player_pgcr.character_id,
+                character_class=player_pgcr.player.character_class or None,
+                character_level=player_pgcr.player.character_level,
+                system=player_pgcr.player.destiny_user_info.membership_type.value,
+                light_level=player_pgcr.player.light_level,
+                emblem_hash=player_pgcr.player.emblem_hash,
+                standing=player_pgcr.standing,
+                assists=int(player_pgcr.values["assists"].basic.value),
+                completed=int(player_pgcr.values["completed"].basic.value),
+                deaths=int(player_pgcr.values["deaths"].basic.value),
+                kills=int(player_pgcr.values["kills"].basic.value),
+                opponents_defeated=int(player_pgcr.values["opponentsDefeated"].basic.value),
+                efficiency=player_pgcr.values["efficiency"].basic.value,
+                kills_deaths_ratio=player_pgcr.values["killsDeathsRatio"].basic.value,
+                kills_deaths_assists=player_pgcr.values["killsDeathsAssists"].basic.value,
+                score=int(player_pgcr.values["score"].basic.value),
+                activity_duration_seconds=int(player_pgcr.values["activityDurationSeconds"].basic.value),
+                completion_reason=int(player_pgcr.values["completionReason"].basic.value),
+                start_seconds=int(player_pgcr.values["startSeconds"].basic.value),
+                time_played_seconds=int(player_pgcr.values["timePlayedSeconds"].basic.value),
+                player_count=int(player_pgcr.values["playerCount"].basic.value),
+                team_score=int(player_pgcr.values["teamScore"].basic.value),
+                precision_kills=int(extended_data.values["precisionKills"].basic.value) if extended_data else 0,
+                weapon_kills_grenade=int(extended_data.values["weaponKillsGrenade"].basic.value)
                 if extended_data
                 else 0,
-                weapon_kills_grenade=int(extended_data["values"]["weaponKillsGrenade"]["basic"]["value"])
-                if extended_data
-                else 0,
-                weapon_kills_melee=int(extended_data["values"]["weaponKillsMelee"]["basic"]["value"])
-                if extended_data
-                else 0,
-                weapon_kills_super=int(extended_data["values"]["weaponKillsSuper"]["basic"]["value"])
-                if extended_data
-                else 0,
-                weapon_kills_ability=int(extended_data["values"]["weaponKillsAbility"]["basic"]["value"])
+                weapon_kills_melee=int(extended_data.values["weaponKillsMelee"].basic.value) if extended_data else 0,
+                weapon_kills_super=int(extended_data.values["weaponKillsSuper"].basic.value) if extended_data else 0,
+                weapon_kills_ability=int(extended_data.values["weaponKillsAbility"].basic.value)
                 if extended_data
                 else 0,
             )
 
             if extended_data:
                 # loop through the weapons the player used and append that data
-                if "weapons" in player_pgcr["extended"]:
-                    for weapon_pgcr in player_pgcr["extended"]["weapons"]:
+                if extended_data.weapons:
+                    for weapon_pgcr in extended_data.weapons:
                         weapon = ActivitiesUsersWeapons(
-                            weapon_id=weapon_pgcr["referenceId"],
-                            unique_weapon_kills=int(weapon_pgcr["values"]["uniqueWeaponKills"]["basic"]["value"]),
+                            weapon_id=weapon_pgcr.reference_id,
+                            unique_weapon_kills=int(weapon_pgcr.values["uniqueWeaponKills"].basic.value),
                             unique_weapon_precision_kills=int(
-                                weapon_pgcr["values"]["uniqueWeaponPrecisionKills"]["basic"]["value"]
+                                weapon_pgcr.values["uniqueWeaponPrecisionKills"].basic.value
                             ),
                         )
 

@@ -2,6 +2,7 @@ import dataclasses
 from typing import Optional
 
 from anyio import create_task_group
+from bungio.models import DamageType, DestinyActivityModeType, DestinyAmmunitionType
 from naff import Member, TimestampStyles
 
 from ElevatorBot.commandHelpers import autocomplete
@@ -17,13 +18,7 @@ from ElevatorBot.networking.destiny.weapons import DestinyWeapons
 from ElevatorBot.networking.errors import BackendException
 from ElevatorBot.static.destinyActivities import raid_to_emblem_hash
 from ElevatorBot.static.emojis import custom_emojis
-from Shared.enums.destiny import (
-    DestinyActivityModeTypeEnum,
-    DestinyWeaponTypeEnum,
-    UsableDestinyActivityModeTypeEnum,
-    UsableDestinyAmmunitionTypeEnum,
-    UsableDestinyDamageTypeEnum,
-)
+from Shared.enums.destiny import DestinyWeaponTypeEnum, UsableDestinyActivityModeTypeEnum
 from Shared.networkingSchemas.destiny import (
     DestinyActivityInputModel,
     DestinyActivityModel,
@@ -177,8 +172,8 @@ class RankCommandHandler:
                 [
                     f"Weapon: [{weapon.name}](https://www.light.gg/db/items/{weapon.reference_ids[0]})",
                     f"Weapon Type: {get_emoji_by_name(DestinyWeaponTypeEnum, weapon.weapon_type)} {weapon.weapon_type}",
-                    f"Damage Type: {get_emoji_by_name(UsableDestinyDamageTypeEnum, weapon.damage_type)} {weapon.damage_type}",
-                    f"Ammo Type: {get_emoji_by_name(UsableDestinyAmmunitionTypeEnum, weapon.ammo_type)} {weapon.ammo_type}",
+                    f"Damage Type: {get_emoji_by_name(DamageType, weapon.damage_type)} {weapon.damage_type}",
+                    f"Ammo Type: {get_emoji_by_name(DestinyAmmunitionType, weapon.ammo_type)} {weapon.ammo_type}",
                     "⁣",
                 ]
             )
@@ -414,11 +409,11 @@ class RankCommandHandler:
             case "basic_forges":
                 # get the stat
                 stat = await backend_activities.get_activity_stats(
-                    input_model=DestinyActivityInputModel(mode=DestinyActivityModeTypeEnum.FORGE.value)
+                    input_model=DestinyActivityInputModel(mode=DestinyActivityModeType.BLACK_ARMORY_RUN.value)
                 )
                 afk_stats = await backend_activities.get_activity_stats(
                     input_model=DestinyActivityInputModel(
-                        mode=DestinyActivityModeTypeEnum.FORGE.value, need_zero_kills=True
+                        mode=DestinyActivityModeType.BLACK_ARMORY_RUN.value, need_zero_kills=True
                     )
                 )
 
@@ -431,7 +426,7 @@ class RankCommandHandler:
                 # get the stat
                 stat = await backend_activities.get_activity_stats(
                     input_model=DestinyActivityInputModel(
-                        mode=DestinyActivityModeTypeEnum.FORGE.value, need_zero_kills=True
+                        mode=DestinyActivityModeType.BLACK_ARMORY_RUN.value, need_zero_kills=True
                     )
                 )
 

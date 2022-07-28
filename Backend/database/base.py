@@ -1,7 +1,6 @@
-import asyncio
 import logging
 import os
-from contextlib import asynccontextmanager, suppress
+from contextlib import asynccontextmanager
 from typing import AsyncContextManager, Optional, Self
 
 import orjson
