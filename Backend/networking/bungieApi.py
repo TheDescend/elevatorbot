@@ -8,7 +8,6 @@ from bungio.models import AuthData
 
 from Backend.crud import destiny_manifest, discord_users
 from Backend.database import acquire_db_session, setup_engine
-from Backend.misc.cache import cache
 from Shared.functions.readSettingsFile import get_setting
 
 

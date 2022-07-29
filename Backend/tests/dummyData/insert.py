@@ -13,23 +13,10 @@ from orjson import orjson
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from Backend.core.destiny.activities import DestinyActivities
-from Backend.core.destiny.manifest import DestinyManifest
 from Backend.core.destiny.profile import DestinyProfile
 from Backend.core.errors import CustomException
-from Backend.crud import crud_activities, crud_activities_fail_to_get, destiny_manifest, discord_users
-from Backend.database.models import (
-    DestinyActivityDefinition,
-    DestinyActivityModeDefinition,
-    DestinyActivityTypeDefinition,
-    DestinyCollectibleDefinition,
-    DestinyInventoryBucketDefinition,
-    DestinyInventoryItemDefinition,
-    DestinyLoreDefinition,
-    DestinyPresentationNodeDefinition,
-    DestinyRecordDefinition,
-    DestinySeasonPassDefinition,
-    DiscordUsers,
-)
+from Backend.crud import crud_activities, crud_activities_fail_to_get, discord_users
+from Backend.database.models import DiscordUsers
 from Backend.misc.cache import cache
 from Backend.networking.schemas import WebResponse
 from Shared.functions.helperFunctions import get_now_with_tz, localize_datetime
@@ -39,7 +26,6 @@ from Shared.networkingSchemas.destiny.roles import (
     RoleModel,
     RolesModel,
 )
-from Shared.networkingSchemas.misc.auth import BungieTokenInput
 from Shared.networkingSchemas.misc.persistentMessages import (
     PersistentMessage,
     PersistentMessages,
@@ -196,111 +182,6 @@ async def insert_dummy_data(db: AsyncSession, client: AsyncClient):
     # test DB call
     data = await profile.has_triumph(dummy_gotten_record_id)
     assert data.bool is True
-
-    # =========================================================================
-    # insert manifest data
-    manifest = DestinyManifest(db=db)
-    await manifest.update()
-
-    # check if the entries are ok
-    version = await destiny_manifest.get_version(db=db)
-    assert version.version == "99687.21.11.15.1900-1-bnet.41786"
-
-    data = await destiny_manifest.get(db=db, table=DestinyActivityDefinition, primary_key=dummy_activity_reference_id)
-    assert data.description == 'Enter the realm of the Nine and ask the question: "What is the nature of the Darkness?"'
-    assert data.name == "Prophecy"
-    assert data.activity_light_level == 1040
-    assert data.destination_hash == 1553550479
-    assert data.place_hash == 3747705955
-    assert data.activity_type_hash == 2043403989
-    assert data.is_pvp is False
-    assert data.direct_activity_mode_hash == 2043403989
-    assert data.direct_activity_mode_type == 4
-    assert data.activity_mode_hashes == [2043403989]
-    assert data.activity_mode_types == [4]
-    assert data.max_players == 3
-    assert data.matchmade is False
-
-    data = await destiny_manifest.get(db=db, table=DestinyActivityTypeDefinition, primary_key=2043403989)
-    assert data.description == "Form a fireteam of six and brave the strange and powerful realms of our enemies."
-    assert data.name == "Raid"
-
-    data = await destiny_manifest.get(db=db, table=DestinyActivityModeDefinition, primary_key=2043403989)
-    assert data.parent_hashes == [1164760493]
-    assert data.mode_type == 4
-    assert data.description == "All of your Raid stats rolled into one."
-    assert data.name == "Raid"
-    assert data.activity_mode_category == 1
-    assert data.is_team_based is False
-    assert data.friendly_name == "raid"
-    assert data.display is True
-    assert data.redacted is False
-
-    data = await destiny_manifest.get(
-        db=db, table=DestinyCollectibleDefinition, primary_key=dummy_gotten_collectible_id
-    )
-    assert data.description == ""
-    assert data.name == "Earned Collectible"
-    assert data.source_hash == 897576623
-    assert data.item_hash == 2094233929
-    assert data.parent_node_hashes == [1633867910]
-
-    data = await destiny_manifest.get(db=db, table=DestinyInventoryItemDefinition, primary_key=41)
-    assert data.description == ""
-    assert data.name == "Collectible"
-    assert data.flavor_text == ""
-    assert data.item_type == 2
-    assert data.item_sub_type == 27
-    assert data.class_type == 1
-    assert data.bucket_type_hash == 3551918588
-    assert data.tier_type == 2
-    assert data.tier_type_name == "Common"
-    assert data.equippable is True
-    assert data.default_damage_type == 0
-    assert data.ammo_type == 0
-
-    data = await destiny_manifest.get(db=db, table=DestinyRecordDefinition, primary_key=dummy_gotten_record_id)
-    assert data.description == "Trophies from conquest in the Crucible."
-    assert data.name == "Gotten Record"
-    assert data.for_title_gilding is False
-    assert data.objective_hashes == [1192806779]
-    assert data.score_value == 0
-    assert data.parent_node_hashes == []
-
-    data = await destiny_manifest.get(db=db, table=DestinyInventoryBucketDefinition, primary_key=1498876634)
-    assert data.description == "Weapons that deal kinetic damage"
-    assert data.name == "Kinetic Weapons"
-    assert data.category == 3
-    assert data.item_count == 10
-    assert data.location == 1
-
-    data = await destiny_manifest.get(db=db, table=DestinyPresentationNodeDefinition, primary_key=3790247699)
-    assert data.description == ""
-    assert data.name == "Items"
-    assert data.objective_hash == 3395152237
-    assert data.presentation_node_type == 1
-    assert data.children_presentation_node_hash == [1068557105, 1528930164]
-    assert data.children_collectible_hash == []
-    assert data.children_record_hash == []
-    assert data.children_metric_hash == []
-    assert data.parent_node_hashes == []
-    assert data.index == 0
-    assert data.redacted is False
-
-    data = await destiny_manifest.get(db=db, table=DestinySeasonPassDefinition, primary_key=155514181)
-    assert data.name == "Season of the Undying"
-    assert data.reward_progression_hash == 1628407317
-    assert data.prestige_progression_hash == 3184735011
-    assert data.index == 0
-
-    data = await destiny_manifest.get(db=db, table=DestinyLoreDefinition, primary_key=dummy_lore_id)
-    assert data.name == "The Gate Lord's Eye"
-    assert (
-        data.description
-        == "An iris unfurls. Our gaze caught. Cortex clutched. Suspended.\n\nA million lights bend inward. Pulled on a wave of enigmatic tone.\n\nA million lights rip inward. Fall. Link. Scream. Cycle. Bleed. Blend. Cycle.\n\nOne light alone. Pulled. Discordant. Suspended in the Endless.\n\nScreams.\n\nAn iris unfurls.\n\nRun. Run. Run.\n\nAn iris unfurls.\n\nRun. Run.\n\nAn iris unfurls.\n\nRun.\n\nBlink. An iris folds in."
-    )
-    assert data.sub_title == "It looks through you, toward the infinite."
-    assert data.redacted is False
 
     # =========================================================================
     # insert persistent messages

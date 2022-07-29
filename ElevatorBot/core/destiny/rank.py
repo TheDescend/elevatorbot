@@ -211,7 +211,7 @@ class RankCommandHandler:
                 break
 
         if not found:
-            description.append(f"{result.discord_member.mention} does not have this stat.")
+            description.append(f"{member.mention} does not have this stat.")
 
         embed.description = "\n".join(description)
         await ctx.send(embeds=embed)

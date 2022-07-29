@@ -9,7 +9,6 @@ from rich.panel import Panel
 from rich.progress import Progress
 from rich.text import Text
 
-from Backend.core.destiny.manifest import DestinyManifest
 from Backend.core.errors import CustomException, handle_custom_exception
 from Backend.crud import backend_user, destiny_manifest
 from Backend.database.base import acquire_db_session
