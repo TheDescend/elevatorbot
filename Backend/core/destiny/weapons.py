@@ -8,7 +8,7 @@ from sqlalchemy.engine import Row
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from Backend.core.errors import CustomException
-from Backend.crud import crud_activities, crud_weapons, destiny_manifest
+from Backend.crud import crud_weapons, destiny_manifest
 from Backend.database.models import ActivitiesUsersWeapons, DiscordUsers
 from Shared.enums.destiny import DestinyWeaponSlotEnum
 from Shared.networkingSchemas.destiny import (

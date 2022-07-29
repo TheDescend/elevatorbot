@@ -1,6 +1,5 @@
 from fastapi import APIRouter
 
-from Backend.core.errors import CustomException
 from Backend.crud import discord_users
 from Backend.database import acquire_db_session
 from Shared.networkingSchemas import EmptyResponseModel
@@ -26,23 +25,13 @@ async def discord_has_token(discord_id: int):
     """Return if a user has a valid token"""
 
     async with acquire_db_session() as db:
-        no_token = DestinyHasTokenModel(token=False, value=None)
-
         profile = await discord_users.get_profile_from_discord_id(discord_id, db=db)
         if not profile:
-            return no_token
+            return DestinyHasTokenModel(token=False, value=None)
 
     # get a working token
-    auth = BungieApi(user=profile)
-    try:
-        await auth.get_working_token()
-    except CustomException as error:
-        if error.error == "NoToken":
-            return no_token
-        raise error
-
-    else:
-        return DestinyHasTokenModel(token=True, value=profile.token)
+    await profile.auth.refresh()
+    return DestinyHasTokenModel(token=True, value=profile.token)
 
 
 @router.get("/{guild_id}/{discord_id}/registration_role/", response_model=EmptyResponseModel)  # has test

@@ -165,3 +165,6 @@ async def startup():
     startup_progress.update(startup_task, advance=1)
 
     startup_progress.stop()
+
+
+# todo bungio exceptions need to issue 429 responses

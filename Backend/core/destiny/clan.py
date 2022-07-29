@@ -66,7 +66,7 @@ class DestinyClan:
                 DestinyClanMemberModel(
                     system=member.destiny_user_info.membership_type.value,
                     destiny_id=destiny_id,
-                    name=f"""{member.destiny_user_info.bungie_global_display_name}#{str(member.destiny_user_info.bungie_global_display_name_code).zfill(4)}""",
+                    name=member.destiny_user_info.full_bungie_name,
                     is_online=member.is_online,
                     last_online_status_change=localize_datetime(
                         datetime.datetime.fromtimestamp(member.last_online_status_change)

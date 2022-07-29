@@ -3,24 +3,35 @@ import copy
 import dataclasses
 import datetime
 import logging
-from typing import Optional
+from typing import Any, Literal, Optional
 
 from anyio import to_thread
+from bungio.models import (
+    DestinyClass,
+    DestinyCollectibleComponent,
+    DestinyCollectibleState,
+    DestinyCraftableComponent,
+    DestinyHistoricalStatsAccountResult,
+    DestinyItemComponent,
+    DestinyMetricComponent,
+    DestinyProfileResponse,
+    DestinyRecordComponent,
+    DestinyRecordDefinition,
+    DestinyRecordState,
+    DestinyStatsGroupType,
+    GroupsForMemberFilter,
+    GroupType,
+)
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from Backend.core.errors import CustomException
 from Backend.crud import crud_activities, destiny_manifest, discord_users
 from Backend.crud.destiny.collectibles import collectibles
 from Backend.crud.destiny.records import records
-from Backend.database.models import (
-    Collectibles,
-    DestinyPresentationNodeDefinition,
-    DestinyRecordDefinition,
-    DiscordUsers,
-    Records,
-)
+from Backend.database.models import Collectibles, DiscordUsers, Records
 from Backend.misc.cache import cache
 from Backend.misc.helperFunctions import get_datetime_from_bungie_entry
+from Backend.networking.bungieApi import bungie_client
 from Shared.enums.destiny import DestinyInventoryBucketEnum, DestinyPresentationNodeWeaponSlotEnum
 from Shared.functions.formatting import make_progress_bar_text
 from Shared.functions.helperFunctions import get_now_with_tz
@@ -55,16 +66,17 @@ class DestinyProfile:
     db: AsyncSession
     user: DiscordUsers
 
-    race_map = {2803282938: "Awoken", 898834093: "Exo", 3887404748: "Human"}
-    gender_map = {
-        2204441813: "Female",
-        3111576190: "Male",
-    }
-    class_map = {671679327: "Hunter", 2271682572: "Warlock", 3655393761: "Titan"}
-
-    _triumphs: dict = dataclasses.field(init=False, default_factory=dict, repr=False)
-    _profile: dict = dataclasses.field(init=False, default_factory=dict, repr=False)
-    _inventory_bucket: dict = dataclasses.field(init=False, default_factory=dict, repr=False)
+    _triumphs: dict[int | str, DestinyRecordComponent | int] = dataclasses.field(
+        init=False, default_factory=dict, repr=False
+    )
+    _collectibles: dict[int, DestinyCollectibleComponent] = dataclasses.field(
+        init=False, default_factory=dict, repr=False
+    )
+    _profile: DestinyProfileResponse = dataclasses.field(init=False, default=None, repr=False)
+    _inventory_bucket: dict[
+        DestinyInventoryBucketEnum,
+        dict[int, dict[Literal["item", "power_level", "quantity"], DestinyItemComponent | int]],
+    ] = dataclasses.field(init=False, default_factory=dict, repr=False)
 
     def __post_init__(self):
         # some shortcuts
@@ -72,17 +84,16 @@ class DestinyProfile:
         self.destiny_id = self.user.destiny_id
         self.system = self.user.system
 
-        # the network class
-        self.api = BungieApi(user=self.user)
-
     async def get_clan(self) -> DestinyClanModel:
         """Return the user's clan"""
 
-        response = await self.api.get(route=clan_user_route.format(destiny_id=self.destiny_id, system=self.system))
-        results = response.content["results"]
-        if not results:
+        result = await self.user.bungio_user.get_groups_for_member(
+            filter=GroupsForMemberFilter.ALL, group_type=GroupType.CLAN, auth=self.user.auth
+        )
+
+        if not result.results:
             raise CustomException("UserNoClan")
-        return DestinyClanModel(id=results[0]["group"]["groupId"], name=results[0]["group"]["name"])
+        return DestinyClanModel(id=result.results[0].group.group_id, name=result.results[0].group.name)
 
     async def get_seal_completion(self) -> DestinySealsModel:
         """Gets all seals and the users completion status"""
@@ -171,25 +182,23 @@ class DestinyProfile:
         result = DestinyCatalystsModel()
         for catalyst in catalysts:
             # get the completion rate
-            if await self.has_triumph(catalyst.reference_id):
+            if await self.has_triumph(catalyst.hash):
                 completion_percentage = 1
             else:
-                user_data = triumphs[str(catalyst.reference_id)]
+                user_data = triumphs[catalyst.hash]
 
-                if user_data["objectives"] and user_data["objectives"][0]["completionValue"]:
+                if user_data.objectives and user_data.objectives[0].completion_value:
                     i = 0
                     percentages = []
-                    for part in user_data["objectives"]:
+                    for part in user_data.objectives:
                         i += 1
-                        percentages.append(
-                            part["progress"] / part["completionValue"] if part["completionValue"] != 0 else 0
-                        )
+                        percentages.append(part.progress / part.completion_value if part.completion_value != 0 else 0)
                     completion_percentage = sum(percentages) / len(percentages)
                 else:
                     completion_percentage = 0
 
             model = DestinyCatalystModel(
-                name=catalyst.name,
+                name=catalyst.display_properties.name,
                 complete=completion_percentage == 1,
                 completion_percentage=completion_percentage,
                 completion_status=make_progress_bar_text(completion_percentage),
@@ -232,9 +241,9 @@ class DestinyProfile:
         """Returns the amount of a consumable this user has"""
 
         result = await self.__get_profile()
-        items = list(result["characterCurrencyLookups"]["data"].values())[0]["itemQuantities"]
+        items = list(result.character_currency_lookups.data.values())[0].item_quantities
         try:
-            value = items[str(consumable_id)]
+            value = items[consumable_id]
         except KeyError:
             value = 0
 
@@ -259,7 +268,7 @@ class DestinyProfile:
         char_data = await self.__get_all_inventory_bucket(include_item_level=True)
 
         # look at each character
-        max_power = await to_thread.run_sync(get_max_power_subprocess, char_data)
+        max_power = await to_thread.run_sync(lambda: get_max_power_subprocess(char_data=char_data))
 
         return max_power
 
@@ -267,7 +276,7 @@ class DestinyProfile:
         """Returns the last online time"""
 
         result = await self.__get_profile()
-        return get_datetime_from_bungie_entry(result["profile"]["data"]["dateLastPlayed"])
+        return result.profile.data.date_last_played
 
     async def get_triumph_score(self) -> DestinyTriumphScoreModel:
         """Returns the triumph score"""
@@ -324,13 +333,12 @@ class DestinyProfile:
 
                     # calculate if the triumph is gotten and save the triumph we are looking for
                     status = True
-                    if "objectives" not in triumph_info:
-                        # https://bungie-net.github.io/multi/schema_Destiny-DestinyRecordState.html#schema_Destiny-DestinyRecordState
-                        status &= triumph_info["state"] & 1
+                    if not triumph_info.objectives:
+                        status &= DestinyRecordState.OBJECTIVE_NOT_COMPLETED not in triumph_info.state
 
                     else:
-                        for part in triumph_info["objectives"]:
-                            status &= part["complete"]
+                        for part in triumph_info.objectives:
+                            status &= part.complete
 
                     # is this the triumph we are looking for?
                     if triumph_id == triumph_hash:
@@ -355,11 +363,9 @@ class DestinyProfile:
         # if not, return the data with the objectives info
         result = BoolModelRecord(bool=False)
         if send_details:
-            if "objectives" in sought_triumph:
-                for part in sought_triumph["objectives"]:
-                    result.objectives.append(
-                        BoolModelObjective(objective_id=part["objectiveHash"], bool=part["complete"])
-                    )
+            if sought_triumph.objectives:
+                for part in sought_triumph.objectives:
+                    result.objectives.append(BoolModelObjective(objective_id=part.objective_hash, bool=part.complete))
         return result
 
     async def has_collectible(self, collectible_hash: str | int) -> bool:
@@ -392,18 +398,12 @@ class DestinyProfile:
 
                 # loop through the collectibles
                 for collectible_id, collectible_info in collectibles_data.items():
-                    collectible_id = int(collectible_id)
-
                     # if its in cache, its also in the db
                     if collectible_id in cache.collectibles[self.destiny_id]:
                         continue
 
-                    # bit 1 not being set means the collectible is gotten
-                    # see https://bungie-net.github.io/multi/schema_Destiny-DestinyCollectibleState.html#schema_Destiny-DestinyCollectibleState
-                    status = collectible_info["state"] & 1 == 0
-
                     # don't really need to insert not-owned collectibles
-                    if status:
+                    if DestinyCollectibleState.NOT_ACQUIRED not in collectible_info.state:
                         cache.collectibles[self.destiny_id].add(collectible_id)
                         to_insert.append(Collectibles(destiny_id=self.destiny_id, collectible_id=collectible_id))
 
@@ -420,18 +420,22 @@ class DestinyProfile:
     async def get_metric_value(self, metric_hash: str | int) -> int:
         """Returns the value of the given metric hash"""
 
-        metric_hash = str(metric_hash)
+        metric_hash = int(metric_hash)
         metrics = await self.get_metrics()
 
         try:
-            return metrics[metric_hash]["objectiveProgress"]["progress"]
+            return metrics[metric_hash].objective_progress.progress
         except KeyError:
             raise CustomException("BungieDestinyItemNotExist")
 
     async def get_stat_value(
         self,
         stat_name: str,
-        stat_category: str = "allTime",
+        stat_category: Literal[
+            "allTime",
+            "allPvE",
+            "allPvP",
+        ] = "allTime",
         character_id: Optional[int | str] = None,
     ) -> int | float:
         """Returns the value of the given stat. Int if no decimals, else float"""
@@ -442,16 +446,15 @@ class DestinyProfile:
             "allPvP",
         ]
         assert stat_category in possible_stat_categories, f"Stat must be one of {possible_stat_categories}"
-        topic = "merged" if stat_category == "allTime" else "results"
 
         stats = await self.get_stats()
 
         # character stats
         if character_id:
             found = False
-            for char in stats["characters"]:
-                if char["characterId"] == str(character_id):
-                    stats = char
+            for char in stats.characters:
+                if char.character_id == int(character_id):
+                    stats = char.results[stat_category]
                     found = True
 
             if not found:
@@ -459,31 +462,30 @@ class DestinyProfile:
 
         # total stats
         else:
-            stats = stats["mergedAllCharacters"]
+            if stat_category == "allTime":
+                stats = stats.merged_all_characters.merged.all_time
+            else:
+                stats = stats.merged_all_characters.results[stat_category]
 
-        stats = stats[topic][stat_category]
-        if stat_category != "allTime":
-            stats = stats["allTime"]
-        stat: float = stats[stat_name]["basic"]["value"]
+        stat = stats[stat_name].basic.value
         return int(stat) if stat.is_integer() else stat
 
     async def get_artifact_level(self) -> ValueModel:
         """Returns the seasonal artifact data"""
 
         result = await self.__get_profile()
-        return ValueModel(value=result["profileProgression"]["data"]["seasonalArtifact"]["powerBonus"])
+        return ValueModel(value=result.profile_progression.data.seasonal_artifact.power_bonus)
 
     async def get_season_pass_level(self) -> ValueModel:
         """Returns the seasonal pass level"""
 
-        # get a character id since they are character specific
-        character_id = (await self.get_character_ids())[0]
-
         result = await self.__get_profile()
-        character_data = result["characterProgressions"]["data"][str(character_id)]["progressions"]
+        data = list(result.character_progressions.data.values())[0].progressions
+
+        season_pass = await destiny_manifest.get_current_season_pass()
+
         return ValueModel(
-            value=character_data[str(cache.manifest_season_pass_definition.reward_progression_hash)]["level"]
-            + character_data[str(cache.manifest_season_pass_definition.prestige_progression_hash)]["level"]
+            value=data[season_pass.reward_progression_hash].level + data[season_pass.prestige_progression_hash].level
         )
 
     async def get_seasonal_challenges(self) -> SeasonalChallengesModel:
@@ -493,7 +495,9 @@ class DestinyProfile:
         user_records = await self.get_triumphs()
 
         # now calculate the members completions status
-        user_sc = await to_thread.run_sync(get_seasonal_challenges_subprocess, user_sc, user_records)
+        user_sc = await to_thread.run_sync(
+            lambda: get_seasonal_challenges_subprocess(user_sc=user_sc, user_records=user_records)
+        )
 
         return user_sc
 
@@ -501,15 +505,14 @@ class DestinyProfile:
         """Return the matching character id if exists"""
 
         # make sure the class exists
-        class_names = list(self.class_map.values())
-        if character_class not in class_names:
+        if not (character_class := getattr(DestinyClass, character_class.upper(), None)):
             return None
 
         # loop through the chars and return the matching one
         characters = await self.get_character_info()
         if characters:
             for character_data in characters.characters:
-                if character_data.character_class == character_class:
+                if character_data.character_class == character_class.display_name:
                     return character_data.character_id
         return None
 
@@ -531,45 +534,45 @@ class DestinyProfile:
         result = await self.__get_profile()
 
         # loop through each character
-        for character_id, character_data in result["characters"]["data"].items():
-            character_id = int(character_id)
-
+        for character_id, character_data in result.characters.data.items():
             # format the data correctly and convert the hashes to strings
             characters.characters.append(
                 DestinyCharacterModel(
                     character_id=character_id,
-                    character_class=self.class_map[character_data["classHash"]],
-                    character_race=self.race_map[character_data["raceHash"]],
-                    character_gender=self.gender_map[character_data["genderHash"]],
+                    character_class=character_data.class_type.display_name,
+                    character_race=character_data.race_type.display_name,
+                    character_gender=character_data.gender_type.display_name,
                 )
             )
 
         return characters
 
-    async def get_triumphs(self) -> dict:
+    async def get_triumphs(self) -> dict[int | str, DestinyRecordComponent | int]:
         """Populate the triumphs and then return them"""
 
-        result = await self.__get_profile()
+        if not self._triumphs:
+            result = await self.__get_profile()
 
-        # combine profile and character ones
-        self._triumphs = await to_thread.run_sync(get_triumphs_subprocess, result)
+            # combine profile and character ones
+            self._triumphs = await to_thread.run_sync(lambda: get_triumphs_subprocess(result=result))
 
         return self._triumphs
 
-    async def get_collectibles(self) -> dict:
+    async def get_collectibles(self) -> dict[int, DestinyCollectibleComponent]:
         """Populate the collectibles and then return them"""
 
-        result = await self.__get_profile()
+        if not self._collectibles:
+            result = await self.__get_profile()
 
-        # combine profile and character ones
-        return await to_thread.run_sync(get_collectibles_subprocess, result)
+            # combine profile and character ones
+            self._collectibles = await to_thread.run_sync(lambda: get_collectibles_subprocess(result=result))
+        return self._collectibles
 
     async def get_craftables(self) -> dict:
         """Populate the craftables and then return them"""
 
         result = await self.__get_profile()
-        # combine profile and character ones
-        return await to_thread.run_sync(get_craftables_subprocess, result)
+        return await to_thread.run_sync(lambda: get_craftables_subprocess(result=result))
 
     async def get_materials(self) -> DestinyAllMaterialsModel:
         """Get all noteworthy materials of the user"""
@@ -649,20 +652,20 @@ class DestinyProfile:
 
         return materials
 
-    async def get_metrics(self) -> dict:
+    async def get_metrics(self) -> dict[int, DestinyMetricComponent]:
         """Populate the metrics and then return them"""
 
         metrics = await self.__get_profile()
-        return metrics["metrics"]["data"]["metrics"]
+        return metrics.metrics.data.metrics
 
-    async def get_stats(self) -> dict:
+    async def get_stats(self) -> DestinyHistoricalStatsAccountResult:
         """Get destiny stats"""
 
-        route = stat_route.format(system=self.system, destiny_id=self.destiny_id)
-        result = await self.api.get(route=route)
-        return result.content
+        return await self.user.bungio_user.get_historical_stats_for_account(
+            groups=[DestinyStatsGroupType.NONE], auth=self.user.auth
+        )
 
-    async def get_items_in_inventory_bucket(self, bucket: int) -> list:
+    async def get_items_in_inventory_bucket(self, bucket: int) -> list[DestinyItemComponent]:
         """
         Returns all items in bucket. Default is vault hash, for others search "bucket" at https://data.destinysets.com/
 
@@ -671,10 +674,10 @@ class DestinyProfile:
         """
 
         result = await self.__get_profile()
-        all_items = result["profileInventory"]["data"]["items"]
+        all_items = result.profile_inventory.data.items
         items = []
         for item in all_items:
-            if item["bucketHash"] == bucket:
+            if item.bucket_hash == bucket:
                 items.append(item)
 
         return items
@@ -701,14 +704,20 @@ class DestinyProfile:
 
     async def __get_inventory_bucket(
         self, *buckets: DestinyInventoryBucketEnum
-    ) -> dict[DestinyInventoryBucketEnum, dict[int, dict]]:
+    ) -> dict[
+        DestinyInventoryBucketEnum,
+        dict[int, dict[Literal["item", "power_level", "quantity"], DestinyItemComponent | int]],
+    ]:
         """
         Get all the items from an inventory bucket. Default: All buckets
 
         Returns:
         {
             DestinyInventoryBucketEnum: {
-                item_hash: dict_data,
+                item_hash: {
+                    "item": item,
+                    "power_level": power_level
+                },
                 ...
             },
             ...
@@ -719,17 +728,26 @@ class DestinyProfile:
         if not buckets:
             buckets = DestinyInventoryBucketEnum.all()
 
-        if buckets not in self._inventory_bucket:
-            result = await self.__get_profile()
+        result = {}
+        for bucket in buckets:
+            if bucket not in self._inventory_bucket:
+                profile = await self.__get_profile()
 
-            # only get the items in the correct buckets
-            self._inventory_bucket[buckets] = await to_thread.run_sync(get_inventory_bucket_subprocess, result, buckets)
+                # only get the items in the correct buckets
+                self._inventory_bucket.update(
+                    await to_thread.run_sync(lambda: get_inventory_bucket_subprocess(result=profile, buckets=buckets))
+                )
 
-        return self._inventory_bucket[buckets]
+            result[bucket] = self._inventory_bucket[bucket]
+
+        return result
 
     async def __get_all_inventory_bucket(
         self, *buckets: DestinyInventoryBucketEnum, include_item_level: bool = False
-    ) -> dict[int, dict[DestinyInventoryBucketEnum, dict[int, dict]]]:
+    ) -> dict[
+        int,
+        dict[DestinyInventoryBucketEnum, dict[int, dict[Literal["item", "power_level"], DestinyItemComponent | int]]],
+    ]:
         """
         Get all the items from an inventory bucket. Includes both profile and character. Default: All buckets
         Includes the power level is asked for under "power_level"
@@ -747,24 +765,30 @@ class DestinyProfile:
         }
         """
 
-        def add_info(result_dict: dict, item: dict, char_id: int):
+        def add_info(
+            result_dict: dict[
+                int,
+                dict[
+                    DestinyInventoryBucketEnum,
+                    dict[int, dict[Literal["item", "power_level"], DestinyItemComponent | int]],
+                ],
+            ],
+            item: DestinyItemComponent,
+            char_id: int,
+        ):
             """Func to add the items"""
 
             # only get the items in the correct buckets
             for bucket in buckets:
-                if item["bucketHash"] == bucket.value:
+                if item.bucket_hash == bucket.value:
                     if bucket not in result_dict[char_id]:
                         result_dict[char_id].update({bucket: {}})
-                    result_dict[char_id][bucket].update({item["itemInstanceId"]: item})
+                    result_dict[char_id][bucket].update({item.item_instance_id: {"item": item}})
                     if include_item_level:
                         try:
-                            result_dict[char_id][bucket][item["itemInstanceId"]].update(
-                                {
-                                    "power_level": result["itemComponents"]["instances"]["data"][
-                                        item["itemInstanceId"]
-                                    ]["primaryStat"]["value"]
-                                }
-                            )
+                            result_dict[char_id][bucket][item.item_instance_id][
+                                "power_level"
+                            ] = result.item_components.instances.data[item.item_instance_id].primary_stat.value
                         except KeyError:
                             pass
                     break
@@ -774,60 +798,62 @@ class DestinyProfile:
             buckets = DestinyInventoryBucketEnum.all()
 
         result = await self.__get_profile()
-        items = {}
+        items: dict[
+            int,
+            dict[
+                DestinyInventoryBucketEnum, dict[int, dict[Literal["item", "power_level"], DestinyItemComponent | int]]
+            ],
+        ] = {}
 
         # first get the character ids and their class
         character_ids = {}
-        for character_id, character_data in result["characters"]["data"].items():
-            class_type = character_data["classType"]
+        for character_id, character_data in result.characters.data.items():
+            class_type = character_data.class_type
             if class_type not in character_ids:
-                character_ids.update({class_type: [int(character_id)]})
+                character_ids.update({class_type: [character_id]})
             else:
-                character_ids[class_type].append(int(character_id))
+                character_ids[class_type].append(character_id)
 
         # get character inventory
-        for character_id, character_data in result["characterInventories"]["data"].items():
-            character_id = int(character_id)
+        for character_id, character_data in result.character_inventories.data.items():
             if character_id not in items:
                 items.update({character_id: {}})
 
-            for inv_item in character_data["items"]:
-                await to_thread.run_sync(add_info, items, inv_item, character_id)
+            for inv_item in character_data.items:
+                await to_thread.run_sync(lambda: add_info(result_dict=items, item=inv_item, char_id=character_id))
 
         # get character equipped
-        for character_id, character_data in result["characterEquipment"]["data"].items():
-            character_id = int(character_id)
-            for inv_item in character_data["items"]:
-                await to_thread.run_sync(add_info, items, inv_item, character_id)
+        for character_id, character_data in result.character_equipment.data.items():
+            for inv_item in character_data.items:
+                await to_thread.run_sync(lambda: add_info(result_dict=items, item=inv_item, char_id=character_id))
 
         # get stuff in vault that is character specific
-        for profile_data in result["profileInventory"]["data"]["items"]:
+        for profile_data in result.profile_inventory.data.items:
             # only check if it has a instance id and is in the correct bucket
-            if (
-                profile_data["bucketHash"] == DestinyInventoryBucketEnum.VAULT.value
-                and "itemInstanceId" in profile_data
-            ):
+            if profile_data.bucket_hash == DestinyInventoryBucketEnum.VAULT.value and profile_data.item_instance_id:
                 # get the character class and actual bucket hash from the item id
-                definition = await destiny_manifest.get_item(item_id=profile_data["itemHash"])
-                profile_data["bucketHash"] = definition.bucket_type_hash
+                definition = await destiny_manifest.get_item(item_id=profile_data.item_hash)
+                profile_data.bucket_hash = definition.inventory.bucket_type_hash
 
                 # try to catch users which deleted their warlock but still have warlock items
                 if definition.class_type in character_ids:
                     # add the data to each character
                     actual_character_ids = character_ids[definition.class_type]
                     for actual_character_id in actual_character_ids:
-                        await to_thread.run_sync(add_info, items, profile_data, actual_character_id)
+                        await to_thread.run_sync(
+                            lambda: add_info(result_dict=items, item=profile_data, char_id=actual_character_id)
+                        )
 
         return items
 
-    async def __get_profile(self) -> dict:
+    async def __get_profile(self) -> DestinyProfileResponse:
         """
         Return info from the profile call
         https://bungie-net.github.io/multi/schema_Destiny-DestinyComponentType.html#schema_Destiny-DestinyComponentType
         """
         if not self._profile:
             # just calling nearly all of them. Don't need all quite yet, but who knows what the future will bring
-            components = (
+            components = [
                 100,
                 101,
                 102,
@@ -857,22 +883,16 @@ class DestinyProfile:
                 1100,
                 1200,
                 1300,
-            )
+            ]
 
-            route = profile_route.format(system=self.system, destiny_id=self.destiny_id)
-            params = {"components": ",".join(map(str, components))}
-
-            # need to call this with a token, since this data is sensitive
-            response = await self.api.get(route=route, params=params, with_token=True)
+            self._profile = await self.user.bungio_user.get_profile(components=components, auth=self.user.auth)
 
             # get bungie name
-            bungie_name = f"""{response.content["profile"]["data"]["userInfo"]["bungieGlobalDisplayName"]}#{str(response.content["profile"]["data"]["userInfo"]["bungieGlobalDisplayNameCode"]).zfill(4)}"""
+            bungie_name = self._profile.profile.data.user_info.full_bungie_name
 
             # update name if different
             if bungie_name != self.user.bungie_name:
                 await discord_users.update(db=self.db, to_update=self.user, bungie_name=bungie_name)
-
-            self._profile = response.content
 
         return self._profile
 
@@ -880,17 +900,22 @@ class DestinyProfile:
         """Returns the amount of the specified currency owned"""
 
         profile = await self.__get_profile()
-        items = profile["profileCurrencies"]["data"]["items"]
+        items = profile.profile_currencies.data.items
 
         # get the item with the correct bucket
         value = 0
         for item in items:
-            if item["bucketHash"] == bucket.value:
-                value = item["quantity"]
+            if item.bucket_hash == bucket.value:
+                value = item.quantity
         return value
 
 
-def get_max_power_subprocess(char_data: dict) -> int:
+def get_max_power_subprocess(
+    char_data: dict[
+        int,
+        dict[DestinyInventoryBucketEnum, dict[int, dict[Literal["item", "power_level"], DestinyItemComponent | int]]],
+    ]
+) -> int:
     """Run in anyio subprocess on another thread since this might be slow"""
 
     max_power = 0
@@ -942,20 +967,20 @@ def get_max_power_subprocess(char_data: dict) -> int:
     return max_power
 
 
-def get_seasonal_challenges_subprocess(user_sc: SeasonalChallengesModel, user_records: dict) -> SeasonalChallengesModel:
+def get_seasonal_challenges_subprocess(
+    user_sc: SeasonalChallengesModel, user_records: dict[int | str, DestinyRecordComponent | int]
+) -> SeasonalChallengesModel:
     """Run in anyio subprocess on another thread since this might be slow"""
 
     for topic in user_sc.topics:
         for sc in topic.seasonal_challenges:
-            record = user_records[str(sc.record_id)]
+            record = user_records[sc.record_id]
 
             # calculate completion rate
             rate = []
-            for objective in record["objectives"]:
+            for objective in record.objectives:
                 try:
-                    rate.append(
-                        objective["progress"] / objective["completionValue"] if not objective["complete"] else 1
-                    )
+                    rate.append(objective.progress / objective.completion_value if not objective.complete else 1)
                 except ZeroDivisionError:
                     # the item is classified
                     rate.append(0)
@@ -968,22 +993,23 @@ def get_seasonal_challenges_subprocess(user_sc: SeasonalChallengesModel, user_re
     return user_sc
 
 
-def get_triumphs_subprocess(result: dict) -> dict:
+def get_triumphs_subprocess(result: DestinyProfileResponse) -> dict[int | str, DestinyRecordComponent | int]:
     """Run in anyio subprocess on another thread since this might be slow"""
 
     # get profile triumphs
-    triumphs = result["profileRecords"]["data"]["records"]
+    triumphs = result.profile_records.data.records
+    # noinspection PyTypeChecker
     triumphs.update(
         {
-            "active_score": result["profileRecords"]["data"]["activeScore"],
-            "legacy_score": result["profileRecords"]["data"]["legacyScore"],
-            "lifetime_score": result["profileRecords"]["data"]["lifetimeScore"],
+            "active_score": result.profile_records.data.active_score,
+            "legacy_score": result.profile_records.data.legacy_score,
+            "lifetime_score": result.profile_records.data.lifetime_score,
         }
     )
 
     # get character triumphs
     character_triumphs = [
-        character_triumphs["records"] for character_id, character_triumphs in result["characterRecords"]["data"].items()
+        character_triumphs.records for character_id, character_triumphs in result.character_records.data.items()
     ]
 
     # combine them
@@ -993,88 +1019,89 @@ def get_triumphs_subprocess(result: dict) -> dict:
     return triumphs
 
 
-def get_collectibles_subprocess(result: dict) -> dict:
+def get_collectibles_subprocess(result: DestinyProfileResponse) -> dict[int, DestinyCollectibleComponent]:
     """Run in anyio subprocess on another thread since this might be slow"""
 
-    # get profile triumphs
-    user_collectibles = result["profileCollectibles"]["data"]["collectibles"]
+    # get profile collectibles
+    user_collectibles = result.profile_collectibles.data.collectibles
 
-    # get character triumphs
+    # get character collectibles
     character_collectibles = [
-        character_triumphs["collectibles"] for _, character_triumphs in result["characterCollectibles"]["data"].items()
+        character_triumphs.collectibles for _, character_triumphs in result.character_collectibles.data.items()
     ]
 
     # combine them
     for character in character_collectibles:
         # loop through all the collectibles and only update them if the collectible is earned
-        # see https://bungie-net.github.io/multi/schema_Destiny-DestinyCollectibleState.html#schema_Destiny-DestinyCollectibleState
-        for collectible_hash, collectible_state in character.items():
-            if collectible_state["state"] & 1 == 0:
-                user_collectibles.update({collectible_hash: collectible_state})
+        for collectible_hash, collectible in character.items():
+            if DestinyCollectibleState.NOT_ACQUIRED not in collectible.state:
+                user_collectibles.update({collectible_hash: collectible})
 
     return user_collectibles
 
 
-def get_craftables_subprocess(result: dict) -> dict:
+def get_craftables_subprocess(result: DestinyProfileResponse) -> dict[int, DestinyCraftableComponent]:
     """Run in anyio subprocess on another thread since this might be slow"""
 
-    # get profile triumphs
-    user_craftables = []
+    # get profile craftables
+    user_craftables = {}
 
-    # get character triumphs
+    # get character craftables
     character_craftables = [
-        character_info["craftables"] for _character_id, character_info in result["characterCraftables"]["data"].items()
+        character_info.craftables for _character_id, character_info in result.character_craftables.data.items()
     ]
 
     # combine them
     for character in character_craftables:
-        # loop through all the collectibles and only update them if the collectible is earned
-        # see https://bungie-net.github.io/multi/schema_Destiny-DestinyCollectibleState.html#schema_Destiny-DestinyCollectibleState
-        for collectible_hash, collectible_state in character.items():
-            if collectible_state["state"] & 1 == 0:
-                user_craftables.update({collectible_hash: collectible_state})
+        # loop through all the craftables and only update them if the collectible is earned
+        for craftable_hash, craftable in character.items():
+            user_craftables[craftable_hash] = craftable
 
     return user_craftables
 
 
-def get_inventory_bucket_subprocess(result: dict, buckets: list[DestinyInventoryBucketEnum]) -> dict:
+def get_inventory_bucket_subprocess(
+    result: DestinyProfileResponse, buckets: list[DestinyInventoryBucketEnum]
+) -> dict[
+    DestinyInventoryBucketEnum, dict[int, dict[Literal["item", "power_level", "quantity"], DestinyItemComponent | int]]
+]:
     """Run in anyio subprocess on another thread since this might be slow"""
 
     def check_bucket():
         for bucket in buckets:
-            if item["bucketHash"] == bucket.value:
-                item_hash = int(item["itemHash"])
+            if item.bucket_hash == bucket.value:
+                item_hash = item.item_hash
                 if bucket not in items:
-                    items.update({bucket: {}})
+                    items[bucket] = {
+                        "item": None,
+                        "power_level": 0,
+                        "quantity": 0,
+                    }
 
                 # unique items
                 if item_hash not in items[bucket]:
-                    items[bucket].update({item_hash: item})
+                    items[bucket][item_hash]["item"] = item
                     try:
-                        items[bucket][item_hash].update(
-                            {
-                                "power_level": result["itemComponents"]["instances"]["data"][str(item_hash)][
-                                    "primaryStat"
-                                ]["value"]
-                            }
-                        )
+                        items[bucket][item_hash]["power_level"] = result.item_components.instances.data[
+                            item_hash
+                        ].primary_stat.value
                     except KeyError:
                         pass
                     break
                 # stackables, like enhancement prims
                 else:
-                    items[bucket][item_hash]["quantity"] += item["quantity"]
+                    items[bucket][item_hash]["quantity"] += item.quantity
 
     items = {}
 
     # profile items
-    for item in result["profileInventory"]["data"]["items"]:
+    for item in result.profile_inventory.data.items:
         check_bucket()
 
     if DestinyInventoryBucketEnum.POSTMASTER in buckets:
         # character items
-        for data in result["characterInventories"]["data"].values():
-            for item in data["items"]:
+        for data in result.character_inventories.data.values():
+            for item in data.items:
                 check_bucket()
 
     return items

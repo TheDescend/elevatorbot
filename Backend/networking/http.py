@@ -35,8 +35,10 @@ class NetworkBase:
     )
 
     # get logger
-    logger: logging.Logger = dataclasses.field(init=False, default=logging.getLogger("bungieApi"))
-    logger_exceptions: logging.Logger = dataclasses.field(init=False, default=logging.getLogger("bungieApiExceptions"))
+    logger: logging.Logger = dataclasses.field(init=False, default=logging.getLogger("elevatorApi"))
+    logger_exceptions: logging.Logger = dataclasses.field(
+        init=False, default=logging.getLogger("elevatorApiExceptions")
+    )
 
     # how many times to retry a request
     request_retries: int = dataclasses.field(init=False, default=10)

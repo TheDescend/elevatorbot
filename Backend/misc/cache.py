@@ -32,10 +32,10 @@ class Cache:
     persistent_messages: dict[str, Optional[PersistentMessage]] = dataclasses.field(init=False, default_factory=dict)
 
     # User Triumphs - Key: destiny_id[triumph_hash]
-    triumphs: dict[int, set] = dataclasses.field(init=False, default_factory=dict)
+    triumphs: dict[int, set[int]] = dataclasses.field(init=False, default_factory=dict)
 
     # User Collectibles - Key: destiny_id[collectible_hash]
-    collectibles: dict[int, set] = dataclasses.field(init=False, default_factory=dict)
+    collectibles: dict[int, set[int]] = dataclasses.field(init=False, default_factory=dict)
 
 
 cache = Cache()

@@ -22,8 +22,6 @@ class ElevatorApi(NetworkBase):
 
     def __post_init__(self):
         self.request_retries = 1
-        self.logger = logging.getLogger("elevatorApi")
-        self.logger_exceptions = logging.getLogger("elevatorApiExceptions")
 
     async def post(
         self, route: str, json: Optional[dict] = None, params: Optional[dict] = None
