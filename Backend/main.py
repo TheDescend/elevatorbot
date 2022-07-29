@@ -3,13 +3,14 @@ import logging
 import os
 import time
 
+from bungio.error import BungieException
 from fastapi import Depends, FastAPI, Request
 from rich.console import Console
 from rich.panel import Panel
 from rich.progress import Progress
 from rich.text import Text
 
-from Backend.core.errors import CustomException, handle_custom_exception
+from Backend.core.errors import CustomException, handle_bungio_exception, handle_custom_exception
 from Backend.crud import backend_user, destiny_manifest
 from Backend.database.base import acquire_db_session
 from Backend.database.models import BackendUser
@@ -138,6 +139,7 @@ startup_progress.update(startup_task, advance=1)
 # add exception handlers
 default_logger.debug("Adding Exception Handlers...")
 app.add_exception_handler(CustomException, handle_custom_exception)
+app.add_exception_handler(BungieException, handle_bungio_exception)
 startup_progress.update(startup_task, advance=1)
 
 

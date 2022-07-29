@@ -15,6 +15,7 @@ class BackendResult:
     success: bool
     result: Optional[dict] = None
     error: Optional[str] = None
+    message: Optional[str] = None
 
     __error_message: Optional[str] = None
 
@@ -38,7 +39,10 @@ class BackendResult:
             if self.error in error_codes_and_responses:
                 self.__error_message = error_codes_and_responses[self.error]
             else:
-                self.__error_message = "Something went wrong"
+                if self.message is not None:
+                    self.__error_message = f"{self.error}: {self.message}"
+                else:
+                    self.__error_message = "Something went wrong"
 
         return self.__error_message
 

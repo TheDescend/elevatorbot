@@ -1,3 +1,13 @@
+from bungio.error import (
+    AuthenticationTooSlow,
+    BadRequest,
+    BungieDead,
+    BungieException,
+    BungIOException,
+    InvalidAuthentication,
+    NotFound,
+    TimeoutException,
+)
 from fastapi import Request
 from starlette.responses import JSONResponse
 
@@ -21,4 +31,29 @@ async def handle_custom_exception(request: Request, exception: CustomException):
         content={
             "error": exception.error,
         },
+    )
+
+
+async def handle_bungio_exception(request: Request, exception: BungieException):
+    content = {}
+    if isinstance(exception, InvalidAuthentication):
+        error = "NoToken"
+    elif isinstance(exception, NotFound):
+        error = "BungieBadRequest"
+    elif isinstance(exception, BadRequest):
+        error = "BungieBadRequest"
+    elif isinstance(exception, AuthenticationTooSlow):
+        error = "BungieUnauthorized"
+    elif isinstance(exception, BungieDead):
+        error = "BungieDed"
+    elif isinstance(exception, TimeoutException):
+        error = "ProgrammingError"
+    else:
+        error = exception.error
+        content["message"] = exception.message
+    content["error"] = error
+
+    return JSONResponse(
+        status_code=409,
+        content=content,
     )
