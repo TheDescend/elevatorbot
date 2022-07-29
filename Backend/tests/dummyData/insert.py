@@ -4,6 +4,7 @@ import json as json_lib
 import os
 import time
 import unittest.mock
+from typing import Optional
 from urllib.parse import urlencode
 
 from bungio.models import AuthData
@@ -82,6 +83,35 @@ async def mock_request(
 
 async def mock_elevator_post(self, *args, **kwargs):
     return True
+
+
+async def mock_bungio_request(
+    self,
+    route: str,
+    method: str,
+    headers: dict,
+    params: Optional[dict] = None,
+    data: Optional[dict | list] = None,
+    form_data: Optional[dict] = None,
+    auth: Optional[AuthData] = None,
+    use_ratelimiter: bool = True,
+    *args,
+    **kwargs,
+) -> dict:
+    if params is None:
+        params = {}
+    param_route = f"{route}?{urlencode(params)}"
+
+    with open(os.path.join(os.path.dirname(os.path.realpath(__file__)), "data.json"), "r", encoding="utf-8") as file:
+        dummy_data: dict = json_lib.load(file)
+
+        # capture the required route when this fails
+        try:
+            return dummy_data[param_route]
+        except KeyError as e:
+            print("Tried to call this route, but it doesnt exist in the dummy data:")
+            print(route)
+            raise e
 
 
 @unittest.mock.patch("Backend.networking.http.NetworkBase._request", mock_request)

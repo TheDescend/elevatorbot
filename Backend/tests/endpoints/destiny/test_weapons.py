@@ -1,5 +1,5 @@
 import pytest
-from dummyData.insert import mock_request
+from dummyData.insert import mock_bungio_request, mock_request
 from dummyData.static import *
 from httpx import AsyncClient
 from orjson import orjson
@@ -19,6 +19,7 @@ from Shared.networkingSchemas.destiny import (
 @pytest.mark.asyncio
 async def test_get_all(client: AsyncClient, mocker: MockerFixture):
     mocker.patch("Backend.networking.http.NetworkBase._request", mock_request)
+    mocker.patch("bungio.http.client.HttpClient._request", mock_bungio_request)
 
     r = await client.get("/destiny/weapons/get/all")
     assert r.status_code == 200
@@ -39,6 +40,7 @@ async def test_get_all(client: AsyncClient, mocker: MockerFixture):
 @pytest.mark.asyncio
 async def test_get_top(client: AsyncClient, mocker: MockerFixture):
     mocker.patch("Backend.networking.http.NetworkBase._request", mock_request)
+    mocker.patch("bungio.http.client.HttpClient._request", mock_bungio_request)
 
     # prec kills
     input_model = DestinyTopWeaponsInputModel(
@@ -132,6 +134,7 @@ async def test_get_top(client: AsyncClient, mocker: MockerFixture):
 @pytest.mark.asyncio
 async def test_get_weapon(client: AsyncClient, mocker: MockerFixture):
     mocker.patch("Backend.networking.http.NetworkBase._request", mock_request)
+    mocker.patch("bungio.http.client.HttpClient._request", mock_bungio_request)
 
     input_model = DestinyWeaponStatsInputModel(weapon_ids=[61])
     r = await client.post(

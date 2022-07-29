@@ -1,5 +1,5 @@
 import pytest
-from dummyData.insert import mock_request
+from dummyData.insert import mock_bungio_request, mock_request
 from dummyData.static import *
 from httpx import AsyncClient
 from pytest_mock import MockerFixture
@@ -13,6 +13,7 @@ async def test_elevator(client: AsyncClient, mocker: MockerFixture):
     """This tests all function in the file, because add_discord_server() needs to be called first"""
 
     mocker.patch("Backend.networking.http.NetworkBase._request", mock_request)
+    mocker.patch("bungio.http.client.HttpClient._request", mock_bungio_request)
 
     # =====================================================================
     # no guild exists yet

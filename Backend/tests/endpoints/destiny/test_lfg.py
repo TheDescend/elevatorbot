@@ -22,8 +22,6 @@ from Shared.networkingSchemas.destiny.lfgSystem import (
 async def test_lfg(client: AsyncClient, mocker: MockerFixture):
     """This tests all function in the file, because create() needs to be called first"""
 
-    mocker.patch("Backend.networking.http.NetworkBase._request", mock_request)
-
     # =====================================================================
     # no lfg exists yet
     r = await client.get(f"/destiny/lfg/{dummy_discord_guild_id}/get/all")
