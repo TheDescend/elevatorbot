@@ -8,7 +8,7 @@
         "destinyMemberships": [
             {
                 "LastSeenDisplayName": "Tom",
-                "membershipType": 555,
+                "membershipType": 254,
                 "membershipId": "444",
                 "bungieGlobalDisplayName": "Tom",
                 "bungieGlobalDisplayNameCode": 1234
@@ -23,7 +23,7 @@
         ],
         "primaryMembershipId": "444"
     },
-    "https://www.bungie.net/Platform/Destiny2/555/Account/444/Stats/?": {
+    "https://www.bungie.net/Platform/Destiny2/254/Account/444/Stats/?groups=0": {
         "mergedDeletedCharacters": {
             "results": {
                 "allPvE": {
@@ -176,7 +176,7 @@
             }
         ]
     },
-    "https://www.bungie.net/Platform/Destiny2/555/Account/444/Character/666/Stats/Activities/?mode=0&count=250&page=0": {
+    "https://www.bungie.net/Platform/Destiny2/254/Account/444/Character/666/Stats/Activities/?count=250&mode=0&page=0": {
         "activities": [
             {
                 "period": "2021-12-15T14:24:15Z",
@@ -191,7 +191,7 @@
                         18
                     ],
                     "isPrivate": false,
-                    "membershipType": 555
+                    "membershipType": 254
                 },
                 "values": {
                     "assists": {
@@ -342,7 +342,7 @@
                         18
                     ],
                     "isPrivate": false,
-                    "membershipType": 555
+                    "membershipType": 254
                 },
                 "values": {
                     "assists": {
@@ -482,7 +482,7 @@
             }
         ]
     },
-    "https://www.bungie.net/Platform/Destiny2/555/Account/444/Character/666/Stats/Activities/?mode=0&count=250&page=1": {},
+    "https://www.bungie.net/Platform/Destiny2/254/Account/444/Character/666/Stats/Activities/?count=250&mode=0&page=1": {},
     "https://stats.bungie.net/Platform/Destiny2/Stats/PostGameCarnageReport/12345/?": {
         "period": "2021-12-15T14:24:15Z",
         "startingPhaseIndex": 0,
@@ -497,7 +497,7 @@
                 18
             ],
             "isPrivate": false,
-            "membershipType": 555
+            "membershipType": 254
         },
         "entries": [
             {
@@ -511,12 +511,12 @@
                 "player": {
                     "destinyUserInfo": {
                         "iconPath": "/common/destiny2_content/icons/8980083dab60cc239bcf5d68463034cf.jpg",
-                        "crossSaveOverride": 555,
+                        "crossSaveOverride": 254,
                         "applicableMembershipTypes": [
-                            555
+                            254
                         ],
                         "isPublic": true,
-                        "membershipType": 555,
+                        "membershipType": 254,
                         "membershipId": "444",
                         "displayName": "Tom",
                         "bungieGlobalDisplayName": "Tom",
@@ -706,7 +706,7 @@
                 18
             ],
             "isPrivate": false,
-            "membershipType": 555
+            "membershipType": 254
         },
         "entries": [
             {
@@ -720,12 +720,12 @@
                 "player": {
                     "destinyUserInfo": {
                         "iconPath": "/common/destiny2_content/icons/8980083dab60cc239bcf5d68463034cf.jpg",
-                        "crossSaveOverride": 555,
+                        "crossSaveOverride": 254,
                         "applicableMembershipTypes": [
-                            555
+                            254
                         ],
                         "isPublic": true,
-                        "membershipType": 555,
+                        "membershipType": 254,
                         "membershipId": "444",
                         "displayName": "Tom",
                         "bungieGlobalDisplayName": "Tom",
@@ -1090,16 +1090,16 @@
         ],
         "teams": []
     },
-    "https://www.bungie.net/Platform/Destiny2/555/Profile/444/?components=100%2C101%2C102%2C103%2C104%2C105%2C200%2C201%2C202%2C204%2C205%2C300%2C301%2C302%2C304%2C305%2C306%2C307%2C400%2C401%2C402%2C500%2C600%2C700%2C800%2C900%2C1100%2C1200%2C1300": {
+    "https://www.bungie.net/Platform/Destiny2/254/Profile/444/?components=100%2C101%2C102%2C103%2C104%2C105%2C200%2C201%2C202%2C204%2C205%2C300%2C301%2C302%2C304%2C305%2C306%2C307%2C400%2C401%2C402%2C500%2C600%2C700%2C800%2C900%2C1100%2C1200%2C1300": {
         "profile": {
             "data": {
                 "userInfo": {
-                    "crossSaveOverride": 555,
+                    "crossSaveOverride": 254,
                     "applicableMembershipTypes": [
-                        555
+                        254
                     ],
                     "isPublic": true,
-                    "membershipType": 555,
+                    "membershipType": 254,
                     "membershipId": "444",
                     "displayName": "Tom",
                     "bungieGlobalDisplayName": "Tom",
@@ -1131,7 +1131,7 @@
             "data": {
                 "666": {
                     "membershipId": "444",
-                    "membershipType": 555,
+                    "membershipType": 254,
                     "characterId": "666",
                     "dateLastPlayed": "2021-12-15T15:01:38Z",
                     "minutesPlayedThisSession": "89",
@@ -1697,7 +1697,7 @@
                          "293622383": 3001,
                          "3467984096": 1,
                          "2993288448": 891,
-                         "3702027555": 240,
+                         "3702027254": 240,
                          "685299502": 5,
                          "2473252800": 1,
                          "3107195131": 500,
@@ -2086,7 +2086,7 @@
             }
         }
     },
-    "https://www.bungie.net/Platform/User/555/444/0/1/?": {
+    "https://www.bungie.net/Platform/User/254/444/0/1/?": {
         "results": [
             {
                 "group": {
@@ -2156,7 +2156,7 @@
         },
         "useTotalResults": true
     },
-    "https://www.bungie.net/Platform/User/555/445/0/1/?": {
+    "https://www.bungie.net/Platform/User/254/445/0/1/?": {
         "results": [
             {
                 "group": {
@@ -2226,7 +2226,7 @@
         },
         "useTotalResults": true
     },
-    "https://www.bungie.net/Platform/GroupV2/User/555/444/0/1/?": {
+    "https://www.bungie.net/Platform/GroupV2/User/254/444/0/1/?": {
         "areAllMembershipsInactive": {
             "4107840": false
         },
@@ -2368,7 +2368,7 @@
             }
         ]
     },
-    "https://www.bungie.net/Platform/GroupV2/User/555/445/0/1/?": {
+    "https://www.bungie.net/Platform/GroupV2/User/254/445/0/1/?": {
         "areAllMembershipsInactive": {
             "4107840": false
         },
@@ -2571,7 +2571,7 @@
     "https://www.bungie.net/Platform/GroupV2/4107840/AdminsAndFounder/?": {
         "results": [
             {
-                "memberType": 555,
+                "memberType": 254,
                 "isOnline": false,
                 "lastOnlineStatusChange": "1639914359",
                 "groupId": "4107840",
@@ -2579,12 +2579,12 @@
                     "LastSeenDisplayName": "Tom",
                     "LastSeenDisplayNameType": 3,
                     "iconPath": "/img/theme/bungienet/icons/steamLogo.png",
-                    "crossSaveOverride": 555,
+                    "crossSaveOverride": 254,
                     "applicableMembershipTypes": [
-                        555
+                        254
                     ],
                     "isPublic": false,
-                    "membershipType": 555,
+                    "membershipType": 254,
                     "membershipId": "444",
                     "displayName": "Tom",
                     "bungieGlobalDisplayName": "Tom",
@@ -2621,14 +2621,14 @@
                 "groupId": "4107840",
                 "destinyUserInfo": {
                     "LastSeenDisplayName": "Tom",
-                    "LastSeenDisplayNameType": 555,
+                    "LastSeenDisplayNameType": 254,
                     "iconPath": "/img/theme/bungienet/icons/steamLogo.png",
-                    "crossSaveOverride": 555,
+                    "crossSaveOverride": 254,
                     "applicableMembershipTypes": [
-                        555
+                        254
                     ],
                     "isPublic": false,
-                    "membershipType": 555,
+                    "membershipType": 254,
                     "membershipId": "444",
                     "displayName": "kev",
                     "bungieGlobalDisplayName": "Tom",
@@ -2665,14 +2665,14 @@
                 "groupId": "4107840",
                 "destinyUserInfo": {
                     "LastSeenDisplayName": "Tom",
-                    "LastSeenDisplayNameType": 555,
+                    "LastSeenDisplayNameType": 254,
                     "iconPath": "/img/theme/bungienet/icons/steamLogo.png",
-                    "crossSaveOverride": 555,
+                    "crossSaveOverride": 254,
                     "applicableMembershipTypes": [
-                        555
+                        254
                     ],
                     "isPublic": false,
-                    "membershipType": 555,
+                    "membershipType": 254,
                     "membershipId": "444",
                     "displayName": "kev",
                     "bungieGlobalDisplayName": "Tom",
@@ -2700,8 +2700,8 @@
         },
         "useTotalResults": true
     },
-    "https://www.bungie.net/Platform/GroupV2/4107840/Members/IndividualInvite/555/444/?": {},
-    "https://www.bungie.net/Platform/GroupV2/4107840/Members/555/444/Kick/?": {},
+    "https://www.bungie.net/Platform/GroupV2/4107840/Members/IndividualInvite/254/444/?": {},
+    "https://www.bungie.net/Platform/GroupV2/4107840/Members/254/444/Kick/?": {},
     "https://www.bungie.net/Platform/Destiny2/Manifest/?": {
         "version": "99687.21.11.15.1900-1-bnet.41786",
         "jsonWorldComponentContentPaths": {

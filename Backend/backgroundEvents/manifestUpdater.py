@@ -1,5 +1,5 @@
 from Backend.backgroundEvents.base import BaseEvent
-from Backend.networking.bungieApi import bungie_client
+from Backend.bungio.client import get_bungio_client
 
 
 class ManifestUpdater(BaseEvent):
@@ -11,4 +11,4 @@ class ManifestUpdater(BaseEvent):
 
     async def run(self):
         # noinspection PyProtectedMember
-        await bungie_client.manifest._check_for_updates()
+        await get_bungio_client().manifest._check_for_updates()

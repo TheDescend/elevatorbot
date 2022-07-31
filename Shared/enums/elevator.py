@@ -8,4 +8,4 @@ class DestinySystemEnum(Enum):
     BLIZZARD = 3
     STADIA = 5
 
-    PYTEST = 555
+    PYTEST = 254

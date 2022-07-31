@@ -9,12 +9,13 @@ from bungio.error import BungieDead, BungIOException
 from bungio.models import DestinyActivityModeType, DestinyPostGameCarnageReportData
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from Backend.bungio.client import get_bungio_client
+from Backend.bungio.manifest import destiny_manifest
 from Backend.core.errors import CustomException
-from Backend.crud import crud_activities, crud_activities_fail_to_get, destiny_manifest, discord_users
+from Backend.crud import crud_activities, crud_activities_fail_to_get, discord_users
 from Backend.database.base import acquire_db_session
 from Backend.database.models import ActivitiesUsers, DiscordUsers
 from Backend.misc.cache import cache
-from Backend.networking.bungieApi import bungie_client
 from Shared.functions.helperFunctions import get_now_with_tz
 from Shared.networkingSchemas.destiny import (
     DestinyActivityDetailsModel,
@@ -103,7 +104,7 @@ class DestinyActivities:
 
                 # get PGCR
                 try:
-                    pgcr = await bungie_client.api.get_post_game_carnage_report(activity_id=activity.instance_id)
+                    pgcr = await get_bungio_client().api.get_post_game_carnage_report(activity_id=activity.instance_id)
                 except BungIOException:
                     # only continue if we get a response this time
                     continue
@@ -188,7 +189,7 @@ class DestinyActivities:
 
             try:
                 async with pgcr_getter_semaphore:
-                    pgcr = await bungie_client.api.get_post_game_carnage_report(i)
+                    pgcr = await get_bungio_client().api.get_post_game_carnage_report(i)
                     results.append((i, t, pgcr))
 
             except Exception as e:
@@ -333,7 +334,7 @@ class DestinyActivities:
                 if entry.category == t_category:
                     entry.solos = solos
 
-        interesting_solos = await destiny_manifest.get_challenging_solo_activities(db=self.db)
+        interesting_solos = await destiny_manifest.get_challenging_solo_activities()
 
         # get the results for all categories in anyio tasks
         solos_by_categories = DestinyLowMansByCategoryModel()

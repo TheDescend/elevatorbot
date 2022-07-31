@@ -1,7 +1,8 @@
 from fastapi import APIRouter
 
+from Backend.bungio.manifest import destiny_manifest
 from Backend.core.destiny.activities import DestinyActivities
-from Backend.crud import destiny_manifest, discord_users
+from Backend.crud import discord_users
 from Backend.database import acquire_db_session
 from Shared.networkingSchemas.destiny import (
     DestinyActivitiesModel,

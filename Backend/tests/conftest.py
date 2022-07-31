@@ -6,6 +6,7 @@ from dummyData.insert import insert_dummy_data
 from httpx import AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from Backend.bungio.client import get_bungio_client
 from Backend.database.base import acquire_db_session, is_test_mode, setup_engine
 from Backend.database.models import create_tables
 from Backend.main import app
@@ -32,6 +33,9 @@ def setup(event_loop):
     # insert a local testing db
     TESTING_DATABASE_URL = f"""postgresql+asyncpg://{os.environ.get("POSTGRES_USER")}:{os.environ.get("POSTGRES_PASSWORD")}@localhost:{os.environ.get("POSTGRES_PORT")}/postgres"""
     setup_engine(database_url=TESTING_DATABASE_URL)
+
+    # create bungio client
+    get_bungio_client()
 
 
 # init the tables

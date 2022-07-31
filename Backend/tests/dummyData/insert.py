@@ -115,10 +115,12 @@ async def mock_bungio_request(
 
 
 @unittest.mock.patch("Backend.networking.http.NetworkBase._request", mock_request)
+@unittest.mock.patch("bungio.http.client.HttpClient._request", mock_bungio_request)
 @unittest.mock.patch("Backend.networking.elevatorApi.ElevatorApi.post", mock_elevator_post)
 async def insert_dummy_data(db: AsyncSession, client: AsyncClient):
     # create our registered destiny user
     token_data = AuthData(
+        bungie_name=dummy_bungie_name,
         token=dummy_token,
         token_expiry=get_now_with_tz() + datetime.timedelta(days=1000),
         refresh_token=dummy_refresh_token,

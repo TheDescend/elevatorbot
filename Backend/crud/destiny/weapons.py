@@ -7,7 +7,7 @@ from sqlalchemy.engine import Row
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.sql import Select
 
-from Backend.crud import destiny_manifest
+from Backend.bungio.manifest import destiny_manifest
 from Backend.crud.base import CRUDBase
 from Backend.database.models import Activities, ActivitiesUsers, ActivitiesUsersWeapons
 from Shared.enums.destiny import DestinyWeaponSlotEnum

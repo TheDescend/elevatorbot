@@ -3,6 +3,7 @@ import datetime
 from typing import Optional
 
 from bungio.models import DestinyPostGameCarnageReportData
+from bungio.models.base import MISSING
 from sqlalchemy import distinct, func, not_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -86,7 +87,7 @@ class CRUDActivities(CRUDBase):
             # get the bungie name separately, since bungie decided it would be fun to pass it as an empty string if it does not exist yet
             try:
                 bungie_name = player_pgcr.player.destiny_user_info.bungie_global_display_name
-                if bungie_name == "" or bungie_name:
+                if bungie_name == "" or bungie_name is MISSING:
                     bungie_name = player_pgcr.player.destiny_user_info.display_name
                     bungie_code = "0000"
                 else:

@@ -187,7 +187,8 @@ class DiscordUsers(Base):
             refresh_token=self.refresh_token,
             refresh_token_expiry=self.refresh_token_expiry,
             membership_type=self.system,
-            destiny_membership_id=self.destiny_id,
+            membership_id=self.destiny_id,
+            bungie_name=self.bungie_name,
         )
 
     @property

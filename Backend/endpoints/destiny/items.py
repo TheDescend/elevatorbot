@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 
-from Backend.crud import destiny_manifest
+from Backend.bungio.manifest import destiny_manifest
 from Shared.networkingSchemas import (
     DestinyAllCollectibleModel,
     DestinyAllTriumphModel,
@@ -32,7 +32,7 @@ async def collectible_get_all():
 
     pydantic_items: list[DestinyNamedItemModel] = [
         DestinyNamedItemModel(reference_id=item.hash, name=item.display_properties.name)
-        for item in results
+        for item in results.values()
         if item.display_properties.name
     ]
     return DestinyAllCollectibleModel(collectibles=sorted(pydantic_items, key=lambda item: item.name))
@@ -55,7 +55,7 @@ async def triumph_get_all():
 
     pydantic_items: list[DestinyNamedItemModel] = [
         DestinyNamedItemModel(reference_id=item.hash, name=item.display_properties.name)
-        for item in results
+        for item in results.values()
         if item.display_properties.name
     ]
     return DestinyAllCollectibleModel(collectibles=sorted(pydantic_items, key=lambda item: item.name))
@@ -66,4 +66,4 @@ async def get_all_lore():
     """Return all lore"""
 
     res = await destiny_manifest.get_all_lore()
-    return DestinyAllLoreModel(collectibles=list(res.values()))
+    return DestinyAllLoreModel(items=list(res.values()))

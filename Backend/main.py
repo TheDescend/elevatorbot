@@ -10,12 +10,13 @@ from rich.panel import Panel
 from rich.progress import Progress
 from rich.text import Text
 
+from Backend.bungio.client import get_bungio_client
+from Backend.bungio.manifest import destiny_manifest
 from Backend.core.errors import CustomException, handle_bungio_exception, handle_custom_exception
-from Backend.crud import backend_user, destiny_manifest
+from Backend.crud import backend_user
 from Backend.database.base import acquire_db_session
 from Backend.database.models import BackendUser
 from Backend.dependencies import auth_get_user_with_read_perm, auth_get_user_with_write_perm
-from Backend.networking.bungieApi import bungio_setup
 from Backend.startup.initBackgroundEvents import register_background_events
 from Backend.startup.initLogging import init_logging
 from Shared.functions.logging import DESCEND_COLOUR
@@ -43,7 +44,7 @@ console.print(Panel.fit(text, padding=(0, 6), border_style="black"))
 # loading bar
 startup_progress = Progress()
 startup_progress.start()
-startup_task = startup_progress.add_task("Starting Up...", total=6)
+startup_task = startup_progress.add_task("Starting Up...", total=7)
 
 app = FastAPI()
 
@@ -152,7 +153,8 @@ async def startup():
     startup_progress.update(startup_task, advance=1)
 
     # register bungio
-    bungio_setup()
+    get_bungio_client()
+    startup_progress.update(startup_task, advance=1)
 
     # Update the Destiny 2 manifest
     default_logger.debug("Updating Destiny 2 Manifest...")

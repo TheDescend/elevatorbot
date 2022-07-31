@@ -2,8 +2,7 @@ import asyncio
 import copy
 import dataclasses
 import datetime
-import logging
-from typing import Any, Literal, Optional
+from typing import Literal, Optional
 
 from anyio import to_thread
 from bungio.models import (
@@ -16,7 +15,6 @@ from bungio.models import (
     DestinyMetricComponent,
     DestinyProfileResponse,
     DestinyRecordComponent,
-    DestinyRecordDefinition,
     DestinyRecordState,
     DestinyStatsGroupType,
     GroupsForMemberFilter,
@@ -24,14 +22,13 @@ from bungio.models import (
 )
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from Backend.bungio.manifest import destiny_manifest
 from Backend.core.errors import CustomException
-from Backend.crud import crud_activities, destiny_manifest, discord_users
+from Backend.crud import crud_activities, discord_users
 from Backend.crud.destiny.collectibles import collectibles
 from Backend.crud.destiny.records import records
 from Backend.database.models import Collectibles, DiscordUsers, Records
 from Backend.misc.cache import cache
-from Backend.misc.helperFunctions import get_datetime_from_bungie_entry
-from Backend.networking.bungieApi import bungie_client
 from Shared.enums.destiny import DestinyInventoryBucketEnum, DestinyPresentationNodeWeaponSlotEnum
 from Shared.functions.formatting import make_progress_bar_text
 from Shared.functions.helperFunctions import get_now_with_tz
@@ -48,8 +45,6 @@ from Shared.networkingSchemas.destiny import (
     DestinySealsModel,
     DestinyTriumphScoreModel,
     SeasonalChallengesModel,
-    SeasonalChallengesRecordModel,
-    SeasonalChallengesTopicsModel,
 )
 from Shared.networkingSchemas.destiny.clan import DestinyClanModel
 
@@ -465,7 +460,7 @@ class DestinyProfile:
             if stat_category == "allTime":
                 stats = stats.merged_all_characters.merged.all_time
             else:
-                stats = stats.merged_all_characters.results[stat_category]
+                stats = stats.merged_all_characters.results[stat_category].all_time
 
         stat = stats[stat_name].basic.value
         return int(stat) if stat.is_integer() else stat

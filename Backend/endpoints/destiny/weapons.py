@@ -1,9 +1,10 @@
 from bungio.models import DamageType, DestinyItemSubType
 from fastapi import APIRouter
 
+from Backend.bungio.manifest import destiny_manifest
 from Backend.core.destiny.activities import DestinyActivities
 from Backend.core.destiny.weapons import DestinyWeapons
-from Backend.crud import destiny_manifest, discord_users
+from Backend.crud import discord_users
 from Backend.database import acquire_db_session
 from Shared.enums.destiny import DestinyWeaponSlotEnum
 from Shared.networkingSchemas import DestinyWeaponModel
@@ -33,7 +34,7 @@ async def get_all():
         if weapon.display_properties.name not in format_helper:
             format_helper.update(
                 {
-                    weapon.name: DestinyWeaponModel(
+                    weapon.display_properties.name: DestinyWeaponModel(
                         name=weapon.display_properties.name,
                         description=weapon.display_properties.description,
                         flavor_text=weapon.flavor_text,

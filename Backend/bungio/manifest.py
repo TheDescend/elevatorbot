@@ -12,9 +12,9 @@ from bungio.models import (
     DestinySeasonPassDefinition,
 )
 
+from Backend.bungio.client import get_bungio_client
 from Backend.core.errors import CustomException
 from Backend.database.base import is_test_mode
-from Backend.networking.bungieApi import bungie_client
 from Shared.enums.destiny import DestinyPresentationNodesEnum
 from Shared.networkingSchemas import (
     SeasonalChallengesModel,
@@ -106,7 +106,7 @@ class CRUDManifest:
 
         async with get_all_weapons_lock:
             if not self._manifest_weapons:
-                results: list[DestinyInventoryItemDefinition] = await bungie_client.manifest.fetch_all(
+                results: list[DestinyInventoryItemDefinition] = await get_bungio_client().manifest.fetch_all(
                     manifest_class=DestinyInventoryItemDefinition
                 )
                 for result in results:
@@ -129,7 +129,7 @@ class CRUDManifest:
                 definition = SeasonalChallengesModel()
 
                 # get the info from the db
-                sc_presentation_node: DestinyPresentationNodeDefinition = await bungie_client.manifest.fetch(
+                sc_presentation_node: DestinyPresentationNodeDefinition = await get_bungio_client().manifest.fetch(
                     manifest_class=DestinyPresentationNodeDefinition, value="3443694067"
                 )
                 await sc_presentation_node.fetch_manifest_information()
@@ -138,6 +138,7 @@ class CRUDManifest:
 
                 # loop through those categories and get the "Weekly" one
                 for category in sc_presentation_node.children.presentation_nodes:
+                    await category.fetch_manifest_information()
                     category = category.manifest_presentation_node_hash
                     if category.display_properties.name == "Weekly":
                         # loop through the seasonal challenges topics (Week1, Week2, etc...)
@@ -171,7 +172,7 @@ class CRUDManifest:
 
         async with get_item_lock:
             if item_id not in self._manifest_items:
-                item: DestinyInventoryItemDefinition = await bungie_client.manifest.fetch(
+                item: DestinyInventoryItemDefinition = await get_bungio_client().manifest.fetch(
                     manifest_class=DestinyInventoryItemDefinition, value=str(item_id)
                 )
                 self._manifest_items.update({item_id: item})
@@ -183,16 +184,17 @@ class CRUDManifest:
 
         async with get_activities_lock:
             if not self._manifest_activities:
-                results: list[DestinyActivityDefinition] = await bungie_client.manifest.fetch_all(
+                results: list[DestinyActivityDefinition] = await get_bungio_client().manifest.fetch_all(
                     manifest_class=DestinyActivityDefinition
                 )
 
                 # loop through all activities and save them by name
                 data: dict[str, list[DestinyActivityDefinition]] = {}
                 for activity in results:
-                    if activity.display_properties.name not in data:
-                        data.update({activity.name: []})
-                    data[activity.name].append(activity)
+                    name = activity.display_properties.name
+                    if name not in data:
+                        data.update({name: []})
+                    data[name].append(activity)
 
                 # format them correctly
                 result = {}
@@ -228,7 +230,7 @@ class CRUDManifest:
 
         async with get_collectible_lock:
             if not self._manifest_collectibles:
-                results: list[DestinyCollectibleDefinition] = await bungie_client.manifest.fetch_all(
+                results: list[DestinyCollectibleDefinition] = await get_bungio_client().manifest.fetch_all(
                     manifest_class=DestinyCollectibleDefinition
                 )
                 self._manifest_collectibles = {result.hash: result for result in results}
@@ -239,7 +241,7 @@ class CRUDManifest:
 
         async with get_triumph_lock:
             if not self._manifest_triumphs:
-                results: list[DestinyRecordDefinition] = await bungie_client.manifest.fetch_all(
+                results: list[DestinyRecordDefinition] = await get_bungio_client().manifest.fetch_all(
                     manifest_class=DestinyRecordDefinition
                 )
                 self._manifest_triumphs = {result.hash: result for result in results}
@@ -258,9 +260,9 @@ class CRUDManifest:
 
         async with get_seals_lock:
             if not self._manifest_seals:
-                presentation_nodes: list[DestinyPresentationNodeDefinition] = await bungie_client.manifest.fetch_all(
-                    manifest_class=DestinyPresentationNodeDefinition
-                )
+                presentation_nodes: list[
+                    DestinyPresentationNodeDefinition
+                ] = await get_bungio_client().manifest.fetch_all(manifest_class=DestinyPresentationNodeDefinition)
 
                 seals = []
                 for node in presentation_nodes:
@@ -296,7 +298,7 @@ class CRUDManifest:
         # get them all from the db
         async with get_lore_lock:
             if not self._manifest_lore:
-                results: list[DestinyLoreDefinition] = await bungie_client.manifest.fetch_all(
+                results: list[DestinyLoreDefinition] = await get_bungio_client().manifest.fetch_all(
                     manifest_class=DestinyLoreDefinition
                 )
                 for result in results:
@@ -314,7 +316,7 @@ class CRUDManifest:
 
         async with get_season_pass_lock:
             if not self._manifest_season_pass_definition:
-                results: list[DestinySeasonPassDefinition] = await bungie_client.manifest.fetch_all(
+                results: list[DestinySeasonPassDefinition] = await get_bungio_client().manifest.fetch_all(
                     manifest_class=DestinySeasonPassDefinition
                 )
                 self._manifest_season_pass_definition = results[-1]
@@ -325,7 +327,7 @@ class CRUDManifest:
 
         async with get_gm_lock:
             if not self._manifest_grandmasters:
-                results: list[DestinyActivityDefinition] = await bungie_client.manifest.fetch_all(
+                results: list[DestinyActivityDefinition] = await get_bungio_client().manifest.fetch_all(
                     manifest_class=DestinyActivityDefinition
                 )
 
@@ -404,7 +406,7 @@ class CRUDManifest:
                     "Miscellaneous": {"Grandmaster Nightfalls": "grandmaster_nf"},
                 }
 
-                db_activities: list[DestinyActivityDefinition] = await bungie_client.manifest.fetch_all(
+                db_activities: list[DestinyActivityDefinition] = await get_bungio_client().manifest.fetch_all(
                     manifest_class=DestinyActivityDefinition
                 )
 

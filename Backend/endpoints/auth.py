@@ -4,12 +4,12 @@ from datetime import timedelta
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 
+from Backend.bungio.client import get_bungio_client
 from Backend.core.destiny.activities import update_activities_in_background
 from Backend.core.errors import CustomException
 from Backend.core.security.auth import ACCESS_TOKEN_EXPIRE_MINUTES, create_access_token
 from Backend.crud import backend_user, discord_users
 from Backend.database import acquire_db_session
-from Backend.networking.bungieApi import bungie_client
 from Backend.networking.elevatorApi import ElevatorApi
 from Shared.networkingSchemas.misc.auth import BungieRegistrationInput, BungieTokenOutput, Token
 
@@ -31,7 +31,7 @@ async def save_bungie_token(bungie_input: BungieRegistrationInput, background_ta
 
         # get the initial token from the authentication
         try:
-            auth = await bungie_client.generate_auth(code=bungie_input.code)
+            auth = await get_bungio_client().generate_auth(code=bungie_input.code)
 
             # save in db
             result, user, discord_id, guild_id = await discord_users.insert_profile(

@@ -7,8 +7,9 @@ from bungio.models import DamageType, DestinyInventoryItemDefinition, DestinyIte
 from sqlalchemy.engine import Row
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from Backend.bungio.manifest import destiny_manifest
 from Backend.core.errors import CustomException
-from Backend.crud import crud_weapons, destiny_manifest
+from Backend.crud import crud_weapons
 from Backend.database.models import ActivitiesUsersWeapons, DiscordUsers
 from Shared.enums.destiny import DestinyWeaponSlotEnum
 from Shared.networkingSchemas.destiny import (
@@ -103,7 +104,6 @@ class DestinyWeapons:
         result = DestinyTopWeaponsModel()
         for slot in DestinyWeaponSlotEnum:
             # query the db
-
             top_weapons = await crud_weapons.get_top(
                 db=self.db,
                 slot=slot,
@@ -119,9 +119,15 @@ class DestinyWeapons:
                 end_time=end_time,
             )
 
+            # get the weapon definitions
+            top_weapons_weapons = [
+                await destiny_manifest.get_weapon(weapon_id=weapon_data.weapon_id) for weapon_data in top_weapons
+            ]
+
             sorted_slot = await to_thread.run_sync(
                 lambda: get_top_weapons_subprocess(
                     top_weapons=top_weapons,
+                    top_weapons_weapons=top_weapons_weapons,
                     stat=stat,
                     sought_weapon=sought_weapon,
                     slot=slot,
@@ -168,6 +174,7 @@ def get_weapon_stats_subprocess(usages: list[ActivitiesUsersWeapons]) -> Destiny
 
 def get_top_weapons_subprocess(
     top_weapons: list[Row],
+    top_weapons_weapons: list[DestinyInventoryItemDefinition],
     stat: DestinyTopWeaponsStatInputModelEnum,
     sought_weapon: Optional[DestinyInventoryItemDefinition],
     slot: Any,
@@ -178,9 +185,7 @@ def get_top_weapons_subprocess(
 
     # sort the weapons. This is needed because some weapons are reissued and have multiple ids
     to_sort = {}
-    for weapon_data in top_weapons:
-        weapon = await destiny_manifest.get_weapon(weapon_id=weapon_data.weapon_id)
-
+    for weapon_data, weapon in zip(top_weapons, top_weapons_weapons):
         # get the stat value
         stat_value = getattr(weapon_data, stat.name.lower())
 

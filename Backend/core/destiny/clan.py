@@ -5,10 +5,10 @@ from typing import Optional
 from bungio.models import GroupApplicationRequest
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from Backend.bungio.client import get_bungio_client
 from Backend.core.errors import CustomException
 from Backend.crud import destiny_clan_links, discord_users
 from Backend.database.models import DiscordUsers
-from Backend.networking.bungieApi import bungie_client
 from Shared.functions.helperFunctions import localize_datetime
 from Shared.networkingSchemas.destiny.clan import DestinyClanMemberModel, DestinyClanModel
 
@@ -34,7 +34,7 @@ class DestinyClan:
         # get data from db
         link = await destiny_clan_links.get_link(db=self.db, discord_guild_id=self.guild_id)
 
-        result = await bungie_client.api.get_group(group_id=link.destiny_clan_id)
+        result = await get_bungio_client().api.get_group(group_id=link.destiny_clan_id)
 
         # check if clan exists
         if not result:
@@ -51,7 +51,9 @@ class DestinyClan:
             clan = await self.get_clan()
             clan_id = clan.id
 
-        result = await bungie_client.api.get_members_of_group(currentpage=1, group_id=clan_id, name_search=member_name)
+        result = await get_bungio_client().api.get_members_of_group(
+            currentpage=1, group_id=clan_id, name_search=member_name
+        )
         members = []
         for member in result.results:
             destiny_id = member.destiny_user_info.membership_id
@@ -93,7 +95,7 @@ class DestinyClan:
             clan = await self.get_clan()
             clan_id = clan.id
 
-        results = await bungie_client.api.get_admins_and_founder_of_group(currentpage=1, group_id=clan_id)
+        results = await get_bungio_client().api.get_admins_and_founder_of_group(currentpage=1, group_id=clan_id)
 
         # look if destiny_id is in there
         for result in results.results:
@@ -115,7 +117,7 @@ class DestinyClan:
         if not await self.is_clan_admin(clan_id=clan.id):
             raise CustomException("ClanNoPermissions")
 
-        await bungie_client.api.individual_group_invite(
+        await get_bungio_client().api.individual_group_invite(
             group_id=clan.id,
             membership_id=to_invite_destiny_id,
             membership_type=to_invite_system,
@@ -136,7 +138,7 @@ class DestinyClan:
         if not await self.is_clan_admin(clan_id=clan.id):
             raise CustomException("ClanNoPermissions")
 
-        await bungie_client.api.kick_member(
+        await get_bungio_client().api.kick_member(
             group_id=clan.id,
             membership_id=to_remove_destiny_id,
             membership_type=to_remove_system,
