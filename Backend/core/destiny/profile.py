@@ -449,7 +449,7 @@ class DestinyProfile:
             found = False
             for char in stats.characters:
                 if char.character_id == int(character_id):
-                    stats = char.results[stat_category]
+                    stats = char.results[stat_category].all_time
                     found = True
 
             if not found:
@@ -1067,21 +1067,21 @@ def get_inventory_bucket_subprocess(
             if item.bucket_hash == bucket.value:
                 item_hash = item.item_hash
                 if bucket not in items:
-                    items[bucket] = {
-                        "item": None,
-                        "power_level": 0,
-                        "quantity": 0,
-                    }
+                    items[bucket] = {}
 
                 # unique items
                 if item_hash not in items[bucket]:
-                    items[bucket][item_hash]["item"] = item
                     try:
-                        items[bucket][item_hash]["power_level"] = result.item_components.instances.data[
-                            item_hash
-                        ].primary_stat.value
+                        power_level = result.item_components.instances.data[item_hash].primary_stat.value
                     except KeyError:
-                        pass
+                        power_level = 0
+
+                    items[bucket][item_hash] = {
+                        "item": item,
+                        "power_level": power_level,
+                        "quantity": item.quantity,
+                    }
+
                     break
                 # stackables, like enhancement prims
                 else:

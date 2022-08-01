@@ -7,6 +7,7 @@ from httpx import AsyncClient
 from orjson import orjson
 from pytest_mock import MockerFixture
 
+from Backend.bungio.manifest import destiny_manifest
 from Backend.misc.cache import cache
 from Shared.networkingSchemas import BoolModel, DestinyAllMaterialsModel, NameModel, ValueModel
 from Shared.networkingSchemas.destiny import (
@@ -300,7 +301,7 @@ async def test_seasonal_challenges(client: AsyncClient, mocker: MockerFixture):
     assert data.topics[0].seasonal_challenges[0].completion_percentage == 1.0
     assert data.topics[0].seasonal_challenges[0].name == "Master of All"
 
-    assert cache.manifest_seasonal_challenges_definition is not None
+    assert destiny_manifest._manifest_seasonal_challenges_definition is not None
 
 
 @pytest.mark.asyncio

@@ -10,12 +10,12 @@ import aiohttp
 import aiohttp_client_cache
 import orjson
 from aiohttp import ClientTimeout
+from bungio.http import RateLimiter
 from naff import Member
 
 from ElevatorBot.discordEvents.customInteractions import ElevatorComponentContext, ElevatorInteractionContext
 from ElevatorBot.networking.errors import BackendException
 from ElevatorBot.networking.results import BackendResult
-from Shared.functions.ratelimiter import RateLimiter
 from Shared.functions.readSettingsFile import get_setting
 from Shared.networkingSchemas.base import CustomBaseModel
 

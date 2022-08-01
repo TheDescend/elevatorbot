@@ -73,6 +73,7 @@ def get_bungio_client() -> MyClient:
             bungie_client_id="bungie_client_id",
             bungie_client_secret="bungie_client_secret",
             bungie_token="bungie_token",
+            manifest_storage=setup_engine(),
         )
 
     return _BUNGIO_CLIENT

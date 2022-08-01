@@ -42,8 +42,7 @@ async def collectible_get_all():
 async def get_triumph_name(triumph_id: int):
     """Gets the triumph name"""
 
-    results = await destiny_manifest.get_all_triumphs()
-    result = results.get(triumph_id)
+    result = await destiny_manifest.get_triumph(triumph_id=triumph_id)
     return NameModel(name=result.display_properties.name) if result else NameModel(name=None)
 
 
@@ -58,7 +57,7 @@ async def triumph_get_all():
         for item in results.values()
         if item.display_properties.name
     ]
-    return DestinyAllCollectibleModel(collectibles=sorted(pydantic_items, key=lambda item: item.name))
+    return DestinyAllTriumphModel(triumphs=sorted(pydantic_items, key=lambda item: item.name))
 
 
 @router.get("/lore/get/all", response_model=DestinyAllLoreModel)  # has test

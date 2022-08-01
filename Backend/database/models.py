@@ -462,9 +462,6 @@ async def create_tables(engine: Engine):
     async with create_tables_lock:
         if not _TABLES_CREATED:
             async with engine.begin() as connection:
-                if is_test_mode():
-                    await connection.run_sync(Base.metadata.drop_all)
-
                 await connection.run_sync(Base.metadata.create_all)
 
             _TABLES_CREATED = True

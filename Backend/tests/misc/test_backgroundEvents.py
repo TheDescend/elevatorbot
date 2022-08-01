@@ -1,6 +1,6 @@
 import pytest
 from anyio import create_task_group
-from dummyData.insert import mock_request
+from dummyData.insert import mock_bungio_request, mock_request
 from dummyData.static import dummy_discord_id
 from pytest_mock import MockerFixture
 

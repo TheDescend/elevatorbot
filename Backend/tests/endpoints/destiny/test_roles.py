@@ -1,7 +1,7 @@
 import copy
 
 import pytest
-from dummyData.insert import mock_request
+from dummyData.insert import mock_bungio_request, mock_request
 from dummyData.static import *
 from httpx import AsyncClient
 from orjson import orjson

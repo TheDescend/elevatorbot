@@ -2,10 +2,13 @@ import asyncio
 from typing import Optional
 
 from bungio.models import (
+    MISSING,
     DestinyActivityDefinition,
+    DestinyActivityModeDefinition,
     DestinyActivityModeType,
     DestinyCollectibleDefinition,
     DestinyInventoryItemDefinition,
+    DestinyItemType,
     DestinyLoreDefinition,
     DestinyPresentationNodeDefinition,
     DestinyRecordDefinition,
@@ -110,7 +113,8 @@ class CRUDManifest:
                     manifest_class=DestinyInventoryItemDefinition
                 )
                 for result in results:
-                    self._manifest_weapons[result.hash] = result
+                    if result.item_type == DestinyItemType.WEAPON:
+                        self._manifest_weapons[result.hash] = result
         return self._manifest_weapons
 
     async def get_weapon(self, weapon_id: int) -> DestinyInventoryItemDefinition:
@@ -132,24 +136,21 @@ class CRUDManifest:
                 sc_presentation_node: DestinyPresentationNodeDefinition = await get_bungio_client().manifest.fetch(
                     manifest_class=DestinyPresentationNodeDefinition, value="3443694067"
                 )
-                await sc_presentation_node.fetch_manifest_information()
-
-                #  sc_presentation_node.children_presentation_node_hash
 
                 # loop through those categories and get the "Weekly" one
                 for category in sc_presentation_node.children.presentation_nodes:
-                    await category.fetch_manifest_information()
+                    await category.fetch_manifest_information(include=["manifest_presentation_node_hash"])
                     category = category.manifest_presentation_node_hash
                     if category.display_properties.name == "Weekly":
                         # loop through the seasonal challenges topics (Week1, Week2, etc...)
                         for sc_topic in category.children.presentation_nodes:
-                            await sc_topic.fetch_manifest_information()
+                            await sc_topic.fetch_manifest_information(include=["manifest_presentation_node_hash"])
                             sc_topic = sc_topic.manifest_presentation_node_hash
 
                             # loop through the actual seasonal challenges
                             topic = SeasonalChallengesTopicsModel(name=sc_topic.display_properties.name)
                             for sc_record in sc_topic.children.records:
-                                await sc_record.fetch_manifest_information()
+                                await sc_record.fetch_manifest_information(include=["manifest_record_hash"])
                                 sc = sc_record.manifest_record_hash
 
                                 topic.seasonal_challenges.append(
@@ -179,6 +180,26 @@ class CRUDManifest:
 
         return self._manifest_items[item_id]
 
+    async def get_activity_mode(
+        self, activity: DestinyActivityDefinition
+    ) -> tuple[DestinyActivityModeType, list[DestinyActivityModeType]]:
+        """Get the mode of an activity"""
+
+        # sometimes bungie is not including some fields which is very annoying
+        # luckily we can get the info from somewhere else
+        if activity.direct_activity_mode_type is not MISSING and activity.activity_mode_types is not MISSING:
+            return DestinyActivityModeType(activity.direct_activity_mode_type), activity.activity_mode_types
+
+        # fill out the data with the activityTypeHash field which is the key to *some* mode definitions
+        result: DestinyActivityModeDefinition = await get_bungio_client().manifest.fetch(
+            manifest_class=DestinyActivityModeDefinition, value=activity.activity_type_hash
+        )
+        if result:
+            mode_type = result.mode_type
+        else:
+            mode_type = DestinyActivityModeType.NONE
+        return mode_type, [mode_type]
+
     async def get_all_activities(self) -> dict[int, DestinyActivityModel]:
         """Gets all activities"""
 
@@ -205,7 +226,7 @@ class CRUDManifest:
                         matchmade=activities[0].matchmaking.is_matchmade,
                         max_players=activities[0].matchmaking.max_players,
                         activity_ids=[activity.hash for activity in activities],
-                        mode=activities[0].direct_activity_mode_type,
+                        mode=(await self.get_activity_mode(activities[0]))[0].value,
                         image_url=f"https://www.bungie.net/{activities[0].pgcr_image}"
                         if activities[0].pgcr_image
                         else None,
@@ -309,7 +330,7 @@ class CRUDManifest:
                         sub_title=result.subtitle,
                         redacted=result.redacted,
                     )
-        return self._manifest_triumphs
+        return self._manifest_lore
 
     async def get_current_season_pass(self) -> DestinySeasonPassDefinition:
         """Get the current season pass from the DB"""
@@ -334,7 +355,9 @@ class CRUDManifest:
                 # loop through all activities and save the gms
                 gms: dict[str, list[DestinyActivityDefinition]] = {}
                 for result in results:
-                    if DestinyActivityModeType.NIGHTFALL in result.activity_mode_types:
+                    mode, modes = await self.get_activity_mode(result)
+
+                    if DestinyActivityModeType.NIGHTFALL in modes:
                         if "Grandmaster" in result.display_properties.name or result.activity_light_level == 1100:
                             if result.display_properties.description not in gms:
                                 gms[result.display_properties.description] = []

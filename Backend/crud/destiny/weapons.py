@@ -99,7 +99,7 @@ class CRUDWeapons(CRUDBase):
         query = query.group_by(ActivitiesUsersWeapons.weapon_id)
 
         # filter by weapon
-        query = query.filter(ActivitiesUsersWeapons.weapon_id.any(allowed_weapon_ids))
+        query = query.filter(ActivitiesUsersWeapons.weapon_id.in_(allowed_weapon_ids))
 
         # filter by params
         query = self.filter_by_params(
