@@ -69,7 +69,7 @@ class CRUDWeapons(CRUDBase):
         """Return the top weapons for the slot sorted by the input stat"""
 
         # which weapons are okay?
-        allowed_weapon_ids: list[int] = []
+        allowed_weapon_ids: set[int] = set()
         weapons = await destiny_manifest.get_all_weapons()
         for _, weapon in weapons.items():
             # filter by weapon slot
@@ -83,6 +83,8 @@ class CRUDWeapons(CRUDBase):
             # filter by the damage type
             if damage_type and weapon.default_damage_type != damage_type:
                 continue
+
+            allowed_weapon_ids.add(weapon.hash)
 
         # do the db request
         query = select(

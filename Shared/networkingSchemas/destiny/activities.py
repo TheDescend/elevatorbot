@@ -23,8 +23,8 @@ class DestinyActivityModel(CustomBaseModel):
     mode: Optional[int] = None
     image_url: Optional[str] = None
 
-    def __hash__(self):
-        return self.activity_ids
+    def __hash__(self) -> int:
+        return sum(self.activity_ids)
 
 
 class DestinyActivitiesModel(CustomBaseModel):

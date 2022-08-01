@@ -47,7 +47,7 @@ async def get_all():
                 }
             )
         else:
-            format_helper[weapon.name].reference_ids.append(weapon.reference_id)
+            format_helper[weapon.display_properties.name].reference_ids.append(weapon.hash)
 
     return DestinyWeaponsModel(weapons=list(format_helper.values()))
 

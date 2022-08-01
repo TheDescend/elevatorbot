@@ -449,7 +449,7 @@ class DestinyProfile:
             found = False
             for char in stats.characters:
                 if char.character_id == int(character_id):
-                    stats = char.results[stat_category].all_time
+                    stats = char
                     found = True
 
             if not found:
@@ -457,12 +457,14 @@ class DestinyProfile:
 
         # total stats
         else:
-            if stat_category == "allTime":
-                stats = stats.merged_all_characters.merged.all_time
-            else:
-                stats = stats.merged_all_characters.results[stat_category].all_time
+            stats = stats.merged_all_characters
 
-        stat = stats[stat_name].basic.value
+        if stat_category == "allTime":
+            stats = stats.merged
+        else:
+            stats = stats.results[stat_category]
+
+        stat = stats.all_time[stat_name].basic.value
         return int(stat) if stat.is_integer() else stat
 
     async def get_artifact_level(self) -> ValueModel:
@@ -563,7 +565,7 @@ class DestinyProfile:
             self._collectibles = await to_thread.run_sync(lambda: get_collectibles_subprocess(result=result))
         return self._collectibles
 
-    async def get_craftables(self) -> dict:
+    async def get_craftables(self) -> dict[int, DestinyCraftableComponent]:
         """Populate the craftables and then return them"""
 
         result = await self.__get_profile()

@@ -125,4 +125,3 @@ class DestinySealsModel(CustomBaseModel):
 
 class DestinyCraftableModel(CustomBaseModel):
     data: dict
-    pass

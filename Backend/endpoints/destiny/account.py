@@ -52,7 +52,9 @@ async def get_craftables(guild_id: int, discord_id: int):
     async with acquire_db_session() as db:
         user = await discord_users.get_profile_from_discord_id(discord_id, db=db)
         profile = DestinyProfile(db=db, user=user)
-        return [DestinyCraftableModel(craftable=craftable) for craftable in (await profile.get_craftables())]
+        craftables = await profile.get_craftables()
+        # todo change this model to not pass raw dicts
+        return [DestinyCraftableModel(data=craftable.to_dict()) for craftable in craftables.values()]
 
 
 @router.get("/triumph/{triumph_id}", response_model=BoolModelRecord)  # has test

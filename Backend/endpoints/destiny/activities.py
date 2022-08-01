@@ -23,7 +23,7 @@ async def get_all():
     """Return all activities and their hashes"""
 
     activities = await destiny_manifest.get_all_activities()
-    return DestinyActivitiesModel(activities=list(set(activities.values())))
+    return DestinyActivitiesModel(activities=sorted(set(activities.values()), key=lambda a: a.name))
 
 
 @router.post("/{guild_id}/{discord_id}/last", response_model=DestinyActivityDetailsModel)  # has test
