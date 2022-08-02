@@ -735,7 +735,7 @@ class DestinyProfile:
                     await to_thread.run_sync(lambda: get_inventory_bucket_subprocess(result=profile, buckets=buckets))
                 )
 
-            result[bucket] = self._inventory_bucket[bucket]
+            result[bucket] = self._inventory_bucket.get(bucket, {})
 
         return result
 

@@ -296,7 +296,7 @@ class CRUDManifest:
                     for triumph in seal.children.records:
                         records.append(await self.get_triumph(triumph_id=triumph.record_hash))
 
-                self._manifest_seals[seal] = records
+                    self._manifest_seals[seal] = records
 
         return self._manifest_seals
 
@@ -357,7 +357,7 @@ class CRUDManifest:
                 for result in results:
                     mode, modes = await self.get_activity_mode(result)
 
-                    if DestinyActivityModeType.NIGHTFALL in modes:
+                    if DestinyActivityModeType.SCORED_NIGHTFALL in modes:
                         if "Grandmaster" in result.display_properties.name or result.activity_light_level == 1100:
                             if result.display_properties.description not in gms:
                                 gms[result.display_properties.description] = []
@@ -453,8 +453,9 @@ class CRUDManifest:
                             for entry in db_activities:
                                 if search_data[0] in entry.display_properties.name:
                                     # do we want to exclude a search string
-                                    if search_data[1] and search_data[1] not in entry.display_properties.name:
-                                        db_result.append(entry)
+                                    if search_data[1] and search_data[1] in entry.display_properties.name:
+                                        continue
+                                    db_result.append(entry)
 
                             # loop through all activities and save them by name
                             data = None
@@ -466,7 +467,7 @@ class CRUDManifest:
                                         matchmade=activity.matchmaking.is_matchmade,
                                         max_players=activity.matchmaking.max_players,
                                         activity_ids=[activity.hash],
-                                        mode=activity.direct_activity_mode_type,
+                                        mode=(await self.get_activity_mode(activity))[0].value,
                                         image_url=f"https://www.bungie.net/{activity.pgcr_image}"
                                         if activity.pgcr_image
                                         else None,

@@ -449,7 +449,7 @@ async def test_get_seal_completion(client: AsyncClient, mocker: MockerFixture):
     assert len(data.not_guilded) == 1
     assert data.not_guilded[0].name == "Not Gambit"
 
-    assert cache.seals != {}
+    assert destiny_manifest._manifest_seals != {}
 
 
 @pytest.mark.asyncio
@@ -460,4 +460,4 @@ async def test_get_craftables(client: AsyncClient, mocker: MockerFixture):
     r = await client.get(f"/destiny/account/{dummy_discord_guild_id}/{dummy_discord_id}/craftables")
     assert r.status_code == 200
     data = [DestinyCraftableModel.parse_obj(res) for res in r.json()]
-    assert len(data) == 0
+    assert len(data) == 1
