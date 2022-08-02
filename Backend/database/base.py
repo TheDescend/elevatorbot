@@ -1,7 +1,8 @@
-import asyncio
+from __future__ import annotations
+
 import logging
 import os
-from contextlib import asynccontextmanager, suppress
+from contextlib import asynccontextmanager
 from typing import AsyncContextManager, Optional
 
 import orjson
@@ -32,7 +33,15 @@ _SESSIONMAKER = None
 _TEST_MODE = False
 
 
+def update_from_class(self, other_class: Base):
+    if id(self) != id(other_class):
+        for key, value in other_class.__dict__.items():
+            if not key.startswith("_"):
+                setattr(self, key, value)
+
+
 Base = declarative_base()
+Base.update_from_class = update_from_class
 
 
 def setup_engine(database_url: str = DATABASE_URL) -> Engine:

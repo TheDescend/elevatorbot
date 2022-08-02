@@ -1,10 +1,9 @@
-import asyncio
 import time
 
+import bungio
 import pytest
 from anyio import create_task_group
-
-from Shared.functions.ratelimiter import RateLimiter
+from bungio.http import RateLimiter
 
 
 @pytest.mark.asyncio

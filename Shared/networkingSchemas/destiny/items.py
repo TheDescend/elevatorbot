@@ -7,9 +7,6 @@ class DestinyNamedItemModel(CustomBaseModel):
     reference_id: int
     name: str
 
-    class Config:
-        orm_mode = True
-
 
 class DestinyNamedValueItemModel(DestinyNamedItemModel):
     value: float

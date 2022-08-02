@@ -1,8 +1,9 @@
+from bungio.models import DestinyActivityModeType
+
 from ElevatorBot.commandHelpers import autocomplete
 from ElevatorBot.networking.destiny.activities import DestinyActivities
 from ElevatorBot.networking.destiny.items import DestinyItems
 from ElevatorBot.networking.destiny.weapons import DestinyWeapons
-from Shared.enums.destiny import DestinyActivityModeTypeEnum
 from Shared.networkingSchemas.destiny import DestinyActivityModel
 
 
@@ -24,12 +25,12 @@ async def load_autocomplete_options():
     dungeons = []
     for activity in db_activities.activities:
         # save the raids
-        if activity.mode == DestinyActivityModeTypeEnum.RAID.value:
+        if activity.mode == DestinyActivityModeType.RAID.value:
             for activity_id in activity.activity_ids:
                 raids.append(activity_id)
 
         # save the dungeons
-        if activity.mode == DestinyActivityModeTypeEnum.DUNGEON.value:
+        if activity.mode == DestinyActivityModeType.DUNGEON.value:
             for activity_id in activity.activity_ids:
                 dungeons.append(activity_id)
 
@@ -53,7 +54,7 @@ async def load_autocomplete_options():
                 matchmade=False,
                 max_players=6,
                 activity_ids=raids,
-                mode=DestinyActivityModeTypeEnum.RAID.value,
+                mode=DestinyActivityModeType.RAID.value,
             )
         }
     )
@@ -67,7 +68,7 @@ async def load_autocomplete_options():
                 matchmade=False,
                 max_players=3,
                 activity_ids=dungeons,
-                mode=DestinyActivityModeTypeEnum.DUNGEON.value,
+                mode=DestinyActivityModeType.DUNGEON.value,
             )
         }
     )

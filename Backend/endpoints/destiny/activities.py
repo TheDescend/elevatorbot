@@ -1,7 +1,8 @@
 from fastapi import APIRouter
 
+from Backend.bungio.manifest import destiny_manifest
 from Backend.core.destiny.activities import DestinyActivities
-from Backend.crud import destiny_manifest, discord_users
+from Backend.crud import discord_users
 from Backend.database import acquire_db_session
 from Shared.networkingSchemas.destiny import (
     DestinyActivitiesModel,
@@ -21,8 +22,8 @@ router = APIRouter(
 async def get_all():
     """Return all activities and their hashes"""
 
-    async with acquire_db_session() as db:
-        return DestinyActivitiesModel(activities=await destiny_manifest.get_all_activities(db=db))
+    activities = await destiny_manifest.get_all_activities()
+    return DestinyActivitiesModel(activities=sorted(set(activities.values()), key=lambda a: a.name))
 
 
 @router.post("/{guild_id}/{discord_id}/last", response_model=DestinyActivityDetailsModel)  # has test
@@ -74,4 +75,4 @@ async def grandmaster():
     """Return information about all grandmaster nfs from the DB"""
 
     async with acquire_db_session() as db:
-        return DestinyActivitiesModel(activities=await destiny_manifest.get_grandmaster_nfs(db=db))
+        return DestinyActivitiesModel(activities=await destiny_manifest.get_grandmaster_nfs())

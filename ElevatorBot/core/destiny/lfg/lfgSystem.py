@@ -111,7 +111,7 @@ class LfgMessage:
 
     @classmethod
     async def from_lfg_output_model(
-        cls, client, model: LfgOutputModel, backend: DestinyLfgSystem, guild: Optional[Guild] = None
+        cls, client: ElevatorClient, model: LfgOutputModel, backend: DestinyLfgSystem, guild: Optional[Guild] = None
     ) -> Optional[LfgMessage]:
         """Parse the info from the pydantic model"""
 

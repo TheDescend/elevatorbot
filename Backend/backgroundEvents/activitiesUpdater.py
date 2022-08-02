@@ -8,7 +8,6 @@ from Backend.core.errors import CustomException
 from Backend.crud import discord_users
 from Backend.database.base import acquire_db_session, is_test_mode
 from Backend.database.models import DiscordUsers
-from Shared.functions.helperFunctions import split_list
 
 semaphore = asyncio.Semaphore(5)
 

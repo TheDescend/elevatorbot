@@ -1,5 +1,5 @@
 import pytest
-from dummyData.insert import mock_request
+from dummyData.insert import mock_bungio_request, mock_request
 from dummyData.static import *
 from httpx import AsyncClient
 from orjson import orjson
@@ -13,6 +13,7 @@ async def test_polls(client: AsyncClient, mocker: MockerFixture):
     """This tests all function in the file, because insert() needs to be called first"""
 
     mocker.patch("Backend.networking.http.NetworkBase._request", mock_request)
+    mocker.patch("bungio.http.client.HttpClient._request", mock_bungio_request)
 
     # =====================================================================
     # insert
@@ -25,7 +26,6 @@ async def test_polls(client: AsyncClient, mocker: MockerFixture):
     input_model = PollInsertSchema(
         name="My Poll",
         description="Nothing here",
-        data=dict,
         author_id=dummy_discord_id,
         guild_id=dummy_discord_id,
         channel_id=dummy_discord_channel_id,

@@ -1,18 +1,20 @@
 import asyncio
-import os
 
 import pytest
 from dummyData.insert import insert_dummy_data
 from httpx import AsyncClient
-from sqlalchemy.ext.asyncio import AsyncSession
 
-from Backend.database.base import acquire_db_session, is_test_mode, setup_engine
+# need to override the event loop to not close
+from misc.test_bungio_events import TestingClient
+from sqlalchemy import text
+
+import Backend.bungio.client as bungie_client
+from Backend.database.base import *
 from Backend.database.models import create_tables
 from Backend.main import app
 from Backend.startup.initLogging import init_logging
 
 
-# need to override the event loop to not close
 @pytest.fixture(scope="session")
 def event_loop():
     loop = asyncio.new_event_loop()
@@ -33,10 +35,26 @@ def setup(event_loop):
     TESTING_DATABASE_URL = f"""postgresql+asyncpg://{os.environ.get("POSTGRES_USER")}:{os.environ.get("POSTGRES_PASSWORD")}@localhost:{os.environ.get("POSTGRES_PORT")}/postgres"""
     setup_engine(database_url=TESTING_DATABASE_URL)
 
+    # create bungio client
+    bungie_client._BUNGIO_CLIENT = TestingClient(
+        bungie_client_id="bungie_client_id",
+        bungie_client_secret="bungie_client_secret",
+        bungie_token="bungie_token",
+        manifest_storage=setup_engine(),
+    )
+
 
 # init the tables
 @pytest.fixture(scope="session")
 async def init_db_tables(setup):
+    # drop all tables
+    async with setup_engine().begin() as connection:
+        await connection.execute(text("DROP SCHEMA public CASCADE"))
+        await connection.execute(text("CREATE SCHEMA public"))
+        await connection.execute(text("GRANT ALL ON SCHEMA public TO postgres"))
+        await connection.execute(text("GRANT ALL ON SCHEMA public TO public"))
+
+    # create tables again
     await create_tables(engine=setup_engine())
 
 

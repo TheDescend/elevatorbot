@@ -3,14 +3,16 @@ import logging
 import os
 import time
 
+from bungio.error import BungieException
 from fastapi import Depends, FastAPI, Request
 from rich.console import Console
 from rich.panel import Panel
 from rich.progress import Progress
 from rich.text import Text
 
-from Backend.core.destiny.manifest import DestinyManifest
-from Backend.core.errors import CustomException, handle_custom_exception
+from Backend.bungio.client import get_bungio_client
+from Backend.bungio.manifest import destiny_manifest
+from Backend.core.errors import CustomException, handle_bungio_exception, handle_custom_exception
 from Backend.crud import backend_user
 from Backend.database.base import acquire_db_session
 from Backend.database.models import BackendUser
@@ -42,7 +44,7 @@ console.print(Panel.fit(text, padding=(0, 6), border_style="black"))
 # loading bar
 startup_progress = Progress()
 startup_progress.start()
-startup_task = startup_progress.add_task("Starting Up...", total=6)
+startup_task = startup_progress.add_task("Starting Up...", total=7)
 
 app = FastAPI()
 
@@ -138,6 +140,7 @@ startup_progress.update(startup_task, advance=1)
 # add exception handlers
 default_logger.debug("Adding Exception Handlers...")
 app.add_exception_handler(CustomException, handle_custom_exception)
+app.add_exception_handler(BungieException, handle_bungio_exception)
 startup_progress.update(startup_task, advance=1)
 
 
@@ -149,11 +152,13 @@ async def startup():
         await backend_user.create_admin(db=db)
     startup_progress.update(startup_task, advance=1)
 
+    # register bungio
+    get_bungio_client()
+    startup_progress.update(startup_task, advance=1)
+
     # Update the Destiny 2 manifest
     default_logger.debug("Updating Destiny 2 Manifest...")
-    async with acquire_db_session() as db:
-        manifest = DestinyManifest(db=db)
-        await manifest.update()
+    await destiny_manifest.reset()
     startup_progress.update(startup_task, advance=1)
 
     # register background events
@@ -163,3 +168,6 @@ async def startup():
     startup_progress.update(startup_task, advance=1)
 
     startup_progress.stop()
+
+
+# todo bungio exceptions need to issue 429 responses

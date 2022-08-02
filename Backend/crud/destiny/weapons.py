@@ -1,14 +1,16 @@
 import datetime
 from typing import Optional
 
+from bungio.models import DamageType, DestinyItemSubType
 from sqlalchemy import func, select
 from sqlalchemy.engine import Row
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.sql import Select
 
+from Backend.bungio.manifest import destiny_manifest
 from Backend.crud.base import CRUDBase
-from Backend.database.models import Activities, ActivitiesUsers, ActivitiesUsersWeapons, DestinyInventoryItemDefinition
-from Shared.enums.destiny import DestinyDamageTypeEnum, DestinyItemSubTypeEnum, DestinyWeaponSlotEnum
+from Backend.database.models import Activities, ActivitiesUsers, ActivitiesUsersWeapons
+from Shared.enums.destiny import DestinyWeaponSlotEnum
 from Shared.networkingSchemas.destiny import DestinyTopWeaponsStatInputModelEnum
 
 
@@ -55,8 +57,8 @@ class CRUDWeapons(CRUDBase):
         slot: DestinyWeaponSlotEnum,
         stat: DestinyTopWeaponsStatInputModelEnum,
         destiny_id: int,
-        weapon_type: Optional[DestinyItemSubTypeEnum] = None,
-        damage_type: Optional[DestinyDamageTypeEnum] = None,
+        weapon_type: Optional[DestinyItemSubType] = None,
+        damage_type: Optional[DamageType] = None,
         character_class: Optional[str] = None,
         character_ids: Optional[list[int]] = None,
         mode: Optional[int] = None,
@@ -66,13 +68,27 @@ class CRUDWeapons(CRUDBase):
     ) -> list[Row]:
         """Return the top weapons for the slot sorted by the input stat"""
 
+        # which weapons are okay?
+        allowed_weapon_ids: set[int] = set()
+        weapons = await destiny_manifest.get_all_weapons()
+        for _, weapon in weapons.items():
+            # filter by weapon slot
+            if weapon.inventory.bucket_type_hash != slot.value:
+                continue
+
+            # filter by the weapon type
+            if weapon_type and weapon.item_sub_type != weapon_type:
+                continue
+
+            # filter by the damage type
+            if damage_type and weapon.default_damage_type != damage_type:
+                continue
+
+            allowed_weapon_ids.add(weapon.hash)
+
+        # do the db request
         query = select(
             ActivitiesUsersWeapons.weapon_id,
-            DestinyInventoryItemDefinition.name,
-            DestinyInventoryItemDefinition.item_sub_type,
-            DestinyInventoryItemDefinition.tier_type_name,
-            DestinyInventoryItemDefinition.default_damage_type,
-            DestinyInventoryItemDefinition.ammo_type,
             func.sum(ActivitiesUsersWeapons.unique_weapon_kills).label("kills"),
             func.sum(ActivitiesUsersWeapons.unique_weapon_precision_kills).label("precision_kills"),
         )
@@ -83,25 +99,9 @@ class CRUDWeapons(CRUDBase):
 
         # group them
         query = query.group_by(ActivitiesUsersWeapons.weapon_id)
-        query = query.group_by(DestinyInventoryItemDefinition.name)
-        query = query.group_by(DestinyInventoryItemDefinition.item_sub_type)
-        query = query.group_by(DestinyInventoryItemDefinition.tier_type_name)
-        query = query.group_by(DestinyInventoryItemDefinition.default_damage_type)
-        query = query.group_by(DestinyInventoryItemDefinition.ammo_type)
 
         # filter by weapon
-        query = query.filter(ActivitiesUsersWeapons.weapon_id == DestinyInventoryItemDefinition.reference_id)
-
-        # make sure the slot is correct
-        query = query.filter(DestinyInventoryItemDefinition.bucket_type_hash == slot.value)
-
-        # filter by the weapon type
-        if damage_type:
-            query = query.filter(DestinyInventoryItemDefinition.default_damage_type == damage_type.value)
-
-        # filter by the damage type
-        if weapon_type:
-            query = query.filter(DestinyInventoryItemDefinition.item_sub_type == weapon_type.value)
+        query = query.filter(ActivitiesUsersWeapons.weapon_id.in_(allowed_weapon_ids))
 
         # filter by params
         query = self.filter_by_params(

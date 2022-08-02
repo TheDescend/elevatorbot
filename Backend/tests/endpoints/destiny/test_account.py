@@ -1,12 +1,13 @@
 import datetime
 
 import pytest as pytest
-from dummyData.insert import mock_request
+from dummyData.insert import mock_bungio_request, mock_request
 from dummyData.static import *
 from httpx import AsyncClient
 from orjson import orjson
 from pytest_mock import MockerFixture
 
+from Backend.bungio.manifest import destiny_manifest
 from Backend.misc.cache import cache
 from Shared.networkingSchemas import BoolModel, DestinyAllMaterialsModel, NameModel, ValueModel
 from Shared.networkingSchemas.destiny import (
@@ -27,6 +28,7 @@ from Shared.networkingSchemas.destiny.account import DestinyCraftableModel
 @pytest.mark.asyncio
 async def test_destiny_name(client: AsyncClient, mocker: MockerFixture):
     mocker.patch("Backend.networking.http.NetworkBase._request", mock_request)
+    mocker.patch("bungio.http.client.HttpClient._request", mock_bungio_request)
 
     r = await client.get(f"/destiny/account/{dummy_discord_guild_id}/{dummy_discord_id}/name/")
     assert r.status_code == 200
@@ -41,6 +43,7 @@ async def test_destiny_name(client: AsyncClient, mocker: MockerFixture):
 @pytest.mark.asyncio
 async def test_has_collectible(client: AsyncClient, mocker: MockerFixture):
     mocker.patch("Backend.networking.http.NetworkBase._request", mock_request)
+    mocker.patch("bungio.http.client.HttpClient._request", mock_bungio_request)
 
     r = await client.get(
         f"/destiny/account/{dummy_discord_guild_id}/{dummy_discord_id}/collectible/{dummy_gotten_collectible_id}"
@@ -68,6 +71,7 @@ async def test_has_collectible(client: AsyncClient, mocker: MockerFixture):
 @pytest.mark.asyncio
 async def test_has_triumph(client: AsyncClient, mocker: MockerFixture):
     mocker.patch("Backend.networking.http.NetworkBase._request", mock_request)
+    mocker.patch("bungio.http.client.HttpClient._request", mock_bungio_request)
 
     r = await client.get(
         f"/destiny/account/{dummy_discord_guild_id}/{dummy_discord_id}/triumph/{dummy_gotten_record_id}"
@@ -98,6 +102,7 @@ async def test_has_triumph(client: AsyncClient, mocker: MockerFixture):
 @pytest.mark.asyncio
 async def test_metric(client: AsyncClient, mocker: MockerFixture):
     mocker.patch("Backend.networking.http.NetworkBase._request", mock_request)
+    mocker.patch("bungio.http.client.HttpClient._request", mock_bungio_request)
 
     r = await client.get(f"/destiny/account/{dummy_discord_guild_id}/{dummy_discord_id}/metric/{dummy_metric_id}")
     assert r.status_code == 200
@@ -108,6 +113,7 @@ async def test_metric(client: AsyncClient, mocker: MockerFixture):
 @pytest.mark.asyncio
 async def test_destiny_solos(client: AsyncClient, mocker: MockerFixture):
     mocker.patch("Backend.networking.http.NetworkBase._request", mock_request)
+    mocker.patch("bungio.http.client.HttpClient._request", mock_bungio_request)
 
     r = await client.get(f"/destiny/account/{dummy_discord_guild_id}/{dummy_discord_id}/solos")
     assert r.status_code == 200
@@ -126,6 +132,7 @@ async def test_destiny_solos(client: AsyncClient, mocker: MockerFixture):
 @pytest.mark.asyncio
 async def test_characters(client: AsyncClient, mocker: MockerFixture):
     mocker.patch("Backend.networking.http.NetworkBase._request", mock_request)
+    mocker.patch("bungio.http.client.HttpClient._request", mock_bungio_request)
 
     r = await client.get(f"/destiny/account/{dummy_discord_guild_id}/{dummy_discord_id}/characters")
     assert r.status_code == 200
@@ -137,6 +144,7 @@ async def test_characters(client: AsyncClient, mocker: MockerFixture):
 @pytest.mark.asyncio
 async def test_stat(client: AsyncClient, mocker: MockerFixture):
     mocker.patch("Backend.networking.http.NetworkBase._request", mock_request)
+    mocker.patch("bungio.http.client.HttpClient._request", mock_bungio_request)
 
     input_model = DestinyStatInputModel(stat_name="kills", stat_category="allPvE")
     r = await client.post(f"/destiny/account/{dummy_discord_guild_id}/{dummy_discord_id}/stat", json=input_model.dict())
@@ -154,6 +162,7 @@ async def test_stat(client: AsyncClient, mocker: MockerFixture):
 @pytest.mark.asyncio
 async def test_stat_characters(client: AsyncClient, mocker: MockerFixture):
     mocker.patch("Backend.networking.http.NetworkBase._request", mock_request)
+    mocker.patch("bungio.http.client.HttpClient._request", mock_bungio_request)
 
     input_model = DestinyStatInputModel(stat_name="kills", stat_category="allPvE")
     r = await client.post(
@@ -183,6 +192,7 @@ async def test_stat_characters(client: AsyncClient, mocker: MockerFixture):
 @pytest.mark.asyncio
 async def test_time(client: AsyncClient, mocker: MockerFixture):
     mocker.patch("Backend.networking.http.NetworkBase._request", mock_request)
+    mocker.patch("bungio.http.client.HttpClient._request", mock_bungio_request)
 
     input_model = DestinyTimeInputModel(
         start_time=datetime.datetime(year=2021, month=12, day=1, tzinfo=datetime.timezone.utc),
@@ -281,6 +291,7 @@ async def test_time(client: AsyncClient, mocker: MockerFixture):
 @pytest.mark.asyncio
 async def test_seasonal_challenges(client: AsyncClient, mocker: MockerFixture):
     mocker.patch("Backend.networking.http.NetworkBase._request", mock_request)
+    mocker.patch("bungio.http.client.HttpClient._request", mock_bungio_request)
 
     r = await client.get(f"/destiny/account/{dummy_discord_guild_id}/{dummy_discord_id}/seasonal_challenges")
     assert r.status_code == 200
@@ -290,12 +301,13 @@ async def test_seasonal_challenges(client: AsyncClient, mocker: MockerFixture):
     assert data.topics[0].seasonal_challenges[0].completion_percentage == 1.0
     assert data.topics[0].seasonal_challenges[0].name == "Master of All"
 
-    assert cache.seasonal_challenges_definition is not None
+    assert destiny_manifest._manifest_seasonal_challenges_definition is not None
 
 
 @pytest.mark.asyncio
 async def test_triumphs(client: AsyncClient, mocker: MockerFixture):
     mocker.patch("Backend.networking.http.NetworkBase._request", mock_request)
+    mocker.patch("bungio.http.client.HttpClient._request", mock_bungio_request)
 
     r = await client.get(f"/destiny/account/{dummy_discord_guild_id}/{dummy_discord_id}/triumphs")
     assert r.status_code == 200
@@ -308,6 +320,7 @@ async def test_triumphs(client: AsyncClient, mocker: MockerFixture):
 @pytest.mark.asyncio
 async def test_artifact_level(client: AsyncClient, mocker: MockerFixture):
     mocker.patch("Backend.networking.http.NetworkBase._request", mock_request)
+    mocker.patch("bungio.http.client.HttpClient._request", mock_bungio_request)
 
     r = await client.get(f"/destiny/account/{dummy_discord_guild_id}/{dummy_discord_id}/artifact")
     assert r.status_code == 200
@@ -318,6 +331,7 @@ async def test_artifact_level(client: AsyncClient, mocker: MockerFixture):
 @pytest.mark.asyncio
 async def test_season_pass_level(client: AsyncClient, mocker: MockerFixture):
     mocker.patch("Backend.networking.http.NetworkBase._request", mock_request)
+    mocker.patch("bungio.http.client.HttpClient._request", mock_bungio_request)
 
     r = await client.get(f"/destiny/account/{dummy_discord_guild_id}/{dummy_discord_id}/season_pass")
     assert r.status_code == 200
@@ -328,6 +342,7 @@ async def test_season_pass_level(client: AsyncClient, mocker: MockerFixture):
 @pytest.mark.asyncio
 async def test_get_material_amount(client: AsyncClient, mocker: MockerFixture):
     mocker.patch("Backend.networking.http.NetworkBase._request", mock_request)
+    mocker.patch("bungio.http.client.HttpClient._request", mock_bungio_request)
 
     r = await client.get(f"/destiny/account/{dummy_discord_guild_id}/{dummy_discord_id}/materials")
     assert r.status_code == 200
@@ -342,6 +357,7 @@ async def test_get_material_amount(client: AsyncClient, mocker: MockerFixture):
 @pytest.mark.asyncio
 async def test_get_consumable_amount(client: AsyncClient, mocker: MockerFixture):
     mocker.patch("Backend.networking.http.NetworkBase._request", mock_request)
+    mocker.patch("bungio.http.client.HttpClient._request", mock_bungio_request)
 
     r = await client.get(
         f"/destiny/account/{dummy_discord_guild_id}/{dummy_discord_id}/consumable/{dummy_consumable_id}"
@@ -354,6 +370,7 @@ async def test_get_consumable_amount(client: AsyncClient, mocker: MockerFixture)
 @pytest.mark.asyncio
 async def test_get_max_power(client: AsyncClient, mocker: MockerFixture):
     mocker.patch("Backend.networking.http.NetworkBase._request", mock_request)
+    mocker.patch("bungio.http.client.HttpClient._request", mock_bungio_request)
 
     r = await client.get(f"/destiny/account/{dummy_discord_guild_id}/{dummy_discord_id}/max_power")
     assert r.status_code == 200
@@ -364,6 +381,7 @@ async def test_get_max_power(client: AsyncClient, mocker: MockerFixture):
 @pytest.mark.asyncio
 async def test_get_vault_space(client: AsyncClient, mocker: MockerFixture):
     mocker.patch("Backend.networking.http.NetworkBase._request", mock_request)
+    mocker.patch("bungio.http.client.HttpClient._request", mock_bungio_request)
 
     r = await client.get(f"/destiny/account/{dummy_discord_guild_id}/{dummy_discord_id}/vault_space")
     assert r.status_code == 200
@@ -374,6 +392,7 @@ async def test_get_vault_space(client: AsyncClient, mocker: MockerFixture):
 @pytest.mark.asyncio
 async def test_get_bright_dust(client: AsyncClient, mocker: MockerFixture):
     mocker.patch("Backend.networking.http.NetworkBase._request", mock_request)
+    mocker.patch("bungio.http.client.HttpClient._request", mock_bungio_request)
 
     r = await client.get(f"/destiny/account/{dummy_discord_guild_id}/{dummy_discord_id}/bright_dust")
     assert r.status_code == 200
@@ -384,6 +403,7 @@ async def test_get_bright_dust(client: AsyncClient, mocker: MockerFixture):
 @pytest.mark.asyncio
 async def test_get_legendary_shards(client: AsyncClient, mocker: MockerFixture):
     mocker.patch("Backend.networking.http.NetworkBase._request", mock_request)
+    mocker.patch("bungio.http.client.HttpClient._request", mock_bungio_request)
 
     r = await client.get(f"/destiny/account/{dummy_discord_guild_id}/{dummy_discord_id}/shards")
     assert r.status_code == 200
@@ -394,6 +414,7 @@ async def test_get_legendary_shards(client: AsyncClient, mocker: MockerFixture):
 @pytest.mark.asyncio
 async def test_get_catalyst_completion(client: AsyncClient, mocker: MockerFixture):
     mocker.patch("Backend.networking.http.NetworkBase._request", mock_request)
+    mocker.patch("bungio.http.client.HttpClient._request", mock_bungio_request)
 
     r = await client.get(f"/destiny/account/{dummy_discord_guild_id}/{dummy_discord_id}/catalysts")
     assert r.status_code == 200
@@ -413,6 +434,7 @@ async def test_get_catalyst_completion(client: AsyncClient, mocker: MockerFixtur
 @pytest.mark.asyncio
 async def test_get_seal_completion(client: AsyncClient, mocker: MockerFixture):
     mocker.patch("Backend.networking.http.NetworkBase._request", mock_request)
+    mocker.patch("bungio.http.client.HttpClient._request", mock_bungio_request)
 
     r = await client.get(f"/destiny/account/{dummy_discord_guild_id}/{dummy_discord_id}/seals")
     assert r.status_code == 200
@@ -427,14 +449,15 @@ async def test_get_seal_completion(client: AsyncClient, mocker: MockerFixture):
     assert len(data.not_guilded) == 1
     assert data.not_guilded[0].name == "Not Gambit"
 
-    assert cache.seals != {}
+    assert destiny_manifest._manifest_seals != {}
 
 
 @pytest.mark.asyncio
 async def test_get_craftables(client: AsyncClient, mocker: MockerFixture):
     mocker.patch("Backend.networking.http.NetworkBase._request", mock_request)
+    mocker.patch("bungio.http.client.HttpClient._request", mock_bungio_request)
 
     r = await client.get(f"/destiny/account/{dummy_discord_guild_id}/{dummy_discord_id}/craftables")
     assert r.status_code == 200
     data = [DestinyCraftableModel.parse_obj(res) for res in r.json()]
-    assert len(data) == 0
+    assert len(data) == 1

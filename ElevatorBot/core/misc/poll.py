@@ -3,6 +3,7 @@ from typing import Optional
 
 from naff import ActionRow, Embed, Guild, GuildText, Member, Message, Select, SelectOption
 
+from ElevatorBot.discordEvents.base import ElevatorClient
 from ElevatorBot.discordEvents.customInteractions import ElevatorComponentContext, ElevatorInteractionContext
 from ElevatorBot.misc.discordShortcutFunctions import has_admin_permission
 from ElevatorBot.misc.formatting import embed_message, replace_progress_formatting
@@ -56,7 +57,7 @@ class Poll:
         self.backend.hidden = True
 
     @classmethod
-    async def from_pydantic_model(cls, client, data: PollSchema):
+    async def from_pydantic_model(cls, client: ElevatorClient, data: PollSchema):
         """Create the obj from the PollSchema data"""
 
         guild = await client.fetch_guild(data.guild_id)

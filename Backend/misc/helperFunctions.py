@@ -4,6 +4,8 @@ import dataclasses
 import datetime
 from typing import Any, Generator, Optional
 
+from bungio.models.mixins import DestinyUserMixin
+
 
 def get_datetime_from_bungie_entry(string: str) -> datetime.datetime:
     """Converts the bungie string to a utc datetime obj"""

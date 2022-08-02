@@ -2,6 +2,7 @@ import datetime
 from typing import Optional
 
 from anyio import to_thread
+from bungio.models import DamageType
 from naff import Embed, Member, OptionTypes, SlashCommandChoice, Timestamp, TimestampStyles, slash_command, slash_option
 
 from ElevatorBot.commandHelpers import autocomplete
@@ -23,7 +24,7 @@ from ElevatorBot.misc.formatting import capitalize_string, embed_message, get_em
 from ElevatorBot.misc.helperFunctions import get_emoji_by_name, parse_datetime_options
 from ElevatorBot.networking.destiny.weapons import DestinyWeapons
 from ElevatorBot.static.emojis import custom_emojis
-from Shared.enums.destiny import DestinyWeaponTypeEnum, UsableDestinyActivityModeTypeEnum, UsableDestinyDamageTypeEnum
+from Shared.enums.destiny import DestinyWeaponTypeEnum, UsableDestinyActivityModeTypeEnum
 from Shared.networkingSchemas.destiny import (
     DestinyActivityModel,
     DestinyTopWeaponModel,
@@ -182,7 +183,7 @@ def top_subprocess(
     if weapon_type:
         embed.description += f"\nWeapon Type: {getattr(custom_emojis, DestinyWeaponTypeEnum(weapon_type).name.lower())} {capitalize_string(DestinyWeaponTypeEnum(weapon_type).name)}"
     if damage_type:
-        embed.description += f"\nDamage Type: {getattr(custom_emojis, UsableDestinyDamageTypeEnum(damage_type).name.lower())} {capitalize_string(UsableDestinyDamageTypeEnum(damage_type).name)}"
+        embed.description += f"\nDamage Type: {getattr(custom_emojis, DamageType(damage_type).name.lower())} {capitalize_string(DamageType(damage_type).name)}"
 
     # set the footer
     footer = []

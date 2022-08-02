@@ -1,5 +1,5 @@
 import datetime
-from typing import Optional
+from typing import Literal, Optional
 
 from Shared.networkingSchemas.base import CustomBaseModel
 from Shared.networkingSchemas.basic import BoolModel
@@ -39,7 +39,7 @@ class DestinyTimesModel(CustomBaseModel):
 
 class DestinyStatInputModel(CustomBaseModel):
     stat_name: str
-    stat_category: str
+    stat_category: Literal["allTime", "allPvE", "allPvP"]
 
 
 class DestinyTimeInputModel(CustomBaseModel):
@@ -125,4 +125,3 @@ class DestinySealsModel(CustomBaseModel):
 
 class DestinyCraftableModel(CustomBaseModel):
     data: dict
-    pass
