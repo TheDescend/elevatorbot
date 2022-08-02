@@ -7,12 +7,14 @@ import unittest.mock
 from typing import Optional
 from urllib.parse import urlencode
 
-from bungio.models import AuthData
+from bungio.error import InvalidAuthentication
+from bungio.models import AuthData, DestinyRecordDefinition
 from dummyData.static import *
 from httpx import AsyncClient
 from orjson import orjson
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from Backend.bungio.client import get_bungio_client
 from Backend.core.destiny.activities import DestinyActivities
 from Backend.core.destiny.profile import DestinyProfile
 from Backend.core.errors import CustomException
@@ -20,7 +22,7 @@ from Backend.crud import crud_activities, crud_activities_fail_to_get, discord_u
 from Backend.database.models import DiscordUsers
 from Backend.misc.cache import cache
 from Backend.networking.schemas import WebResponse
-from Shared.functions.helperFunctions import get_now_with_tz, localize_datetime
+from Shared.functions.helperFunctions import get_min_with_tz, get_now_with_tz, localize_datetime
 from Shared.networkingSchemas.destiny.roles import (
     RequirementActivityModel,
     RequirementIntegerModel,
@@ -85,6 +87,9 @@ async def mock_elevator_post(self, *args, **kwargs):
     return True
 
 
+MANIFEST_FIRST_UPDATE_CALL = True
+
+
 async def mock_bungio_request(
     self,
     route: str,
@@ -98,6 +103,8 @@ async def mock_bungio_request(
     *args,
     **kwargs,
 ) -> dict:
+    global MANIFEST_FIRST_UPDATE_CALL
+
     if params is None:
         params = {}
     param_route = f"{route}?{urlencode(params)}"
@@ -107,7 +114,15 @@ async def mock_bungio_request(
 
         # capture the required route when this fails
         try:
-            return dummy_data[param_route]
+            data = dummy_data[param_route]
+
+            # first manifest call needs to return a different version
+            if MANIFEST_FIRST_UPDATE_CALL and param_route == "https://www.bungie.net/Platform/Destiny2/Manifest/?":
+                MANIFEST_FIRST_UPDATE_CALL = False
+                data = copy.deepcopy(data)
+                data["version"] = "first_call_version"
+
+            return data
         except KeyError as e:
             print("Tried to call this route, but it doesnt exist in the dummy data:")
             print(route)
@@ -146,8 +161,8 @@ async def insert_dummy_data(db: AsyncSession, client: AsyncClient):
         bungie_name="X#1234",
         token="abc",
         refresh_token="def",
-        token_expiry=localize_datetime(datetime.datetime.fromtimestamp(int(time.time()) + 999999999)),
-        refresh_token_expiry=localize_datetime(datetime.datetime.fromtimestamp(int(time.time()) + 999999999)),
+        token_expiry=get_now_with_tz() + datetime.timedelta(days=1000),
+        refresh_token_expiry=get_now_with_tz() + datetime.timedelta(days=1000),
         signup_date=get_now_with_tz(),
         signup_server_id=dummy_discord_guild_id,
     )
@@ -409,3 +424,6 @@ async def insert_dummy_data(db: AsyncSession, client: AsyncClient):
     assert len(cache.guild_roles[dummy_discord_guild_id]) == 2
     for role in cache.guild_roles[dummy_discord_guild_id]:
         assert role.role_id != 2
+
+    # fetch some manifest data to force an update
+    await get_bungio_client().manifest.fetch_all(manifest_class=DestinyRecordDefinition)

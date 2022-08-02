@@ -1,4 +1,12 @@
 {
+    "https://www.bungie.net/Platform/App/OAuth/token/?": {
+        "access_token":"token",
+        "token_type":"Bearer",
+        "expires_in":3600,
+        "refresh_token":"refresh",
+        "refresh_expires_in": 7776000,
+        "membership_id":"not interesting"
+    },
     "https://api.steampowered.com/ISteamUserStats/GetNumberOfCurrentPlayers/v1/?appid=1085660": {
         "response": {
             "player_count": "1337"

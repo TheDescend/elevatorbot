@@ -10,13 +10,12 @@ from Backend.database import acquire_db_session, is_test_mode, setup_engine
 from Shared.functions.readSettingsFile import get_setting
 
 
-# todo tests for those events
 class MyClient(Client):
     async def on_token_update(self, before: AuthData | None, after: AuthData) -> None:
         from Backend.crud.destiny.discordUsers import discord_users
 
         async with acquire_db_session() as db:
-            user = await discord_users.get_profile_from_discord_id(after.destiny_membership_id, db=db)
+            user = await discord_users.get_profile_from_discord_id(after.membership_id, db=db)
             await discord_users.update(
                 db=db,
                 to_update=user,
@@ -43,39 +42,30 @@ def get_bungio_client() -> MyClient:
     global _BUNGIO_CLIENT
 
     if not _BUNGIO_CLIENT:
-        if not is_test_mode():
-            _BUNGIO_CLIENT = MyClient(
-                bungie_client_id=get_setting("BUNGIE_APPLICATION_CLIENT_ID"),
-                bungie_client_secret=get_setting("BUNGIE_APPLICATION_CLIENT_SECRET"),
-                bungie_token=get_setting("BUNGIE_APPLICATION_API_KEY"),
-                logger=logging.getLogger("bungio"),
-                cache=RedisBackend(
-                    cache_name="backend",
-                    address=f"""redis://{os.environ.get("REDIS_HOST")}:{os.environ.get("REDIS_PORT")}""",
-                    allowed_methods=["GET"],
-                    expire_after=datetime.timedelta(minutes=5),
-                    urls_expire_after={
-                        "**/platform/app/oauth/token": 0,  # do not save token stuff
-                        "**/Destiny2/Stats/PostGameCarnageReport": 0,  # do not save pgcr. We save them anyway and don't look them up more than once
-                        "**/Destiny2/*/Profile/**components=": datetime.timedelta(minutes=30),  # profile call
-                        "**/Destiny2/*/Account/*/Stats": datetime.timedelta(minutes=60),  # stats
-                        "**/Destiny2/*/Account/*/Character/*/Stats/Activities": datetime.timedelta(
-                            minutes=5
-                        ),  # activity history
-                        "**/GroupV2/*/Members": datetime.timedelta(minutes=60),  # all clan member stuff
-                        "**/GroupV2/*/AdminsAndFounder": datetime.timedelta(minutes=60),  # all clan admin stuff
-                        "**/GroupV2": datetime.timedelta(days=1),  # all clan stuff
-                    },
-                ),
-                manifest_storage=setup_engine(),
-            )
-
-        else:
-            _BUNGIO_CLIENT = MyClient(
-                bungie_client_id="bungie_client_id",
-                bungie_client_secret="bungie_client_secret",
-                bungie_token="bungie_token",
-                manifest_storage=setup_engine(),
-            )
+        _BUNGIO_CLIENT = MyClient(
+            bungie_client_id=get_setting("BUNGIE_APPLICATION_CLIENT_ID"),
+            bungie_client_secret=get_setting("BUNGIE_APPLICATION_CLIENT_SECRET"),
+            bungie_token=get_setting("BUNGIE_APPLICATION_API_KEY"),
+            logger=logging.getLogger("bungio"),
+            cache=RedisBackend(
+                cache_name="backend",
+                address=f"""redis://{os.environ.get("REDIS_HOST")}:{os.environ.get("REDIS_PORT")}""",
+                allowed_methods=["GET"],
+                expire_after=datetime.timedelta(minutes=5),
+                urls_expire_after={
+                    "**/platform/app/oauth/token": 0,  # do not save token stuff
+                    "**/Destiny2/Stats/PostGameCarnageReport": 0,  # do not save pgcr. We save them anyway and don't look them up more than once
+                    "**/Destiny2/*/Profile/**components=": datetime.timedelta(minutes=30),  # profile call
+                    "**/Destiny2/*/Account/*/Stats": datetime.timedelta(minutes=60),  # stats
+                    "**/Destiny2/*/Account/*/Character/*/Stats/Activities": datetime.timedelta(
+                        minutes=5
+                    ),  # activity history
+                    "**/GroupV2/*/Members": datetime.timedelta(minutes=60),  # all clan member stuff
+                    "**/GroupV2/*/AdminsAndFounder": datetime.timedelta(minutes=60),  # all clan admin stuff
+                    "**/GroupV2": datetime.timedelta(days=1),  # all clan stuff
+                },
+            ),
+            manifest_storage=setup_engine(),
+        )
 
     return _BUNGIO_CLIENT

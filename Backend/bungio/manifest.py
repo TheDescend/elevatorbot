@@ -1,4 +1,5 @@
 import asyncio
+import copy
 from typing import Optional
 
 from bungio.models import (
@@ -66,7 +67,7 @@ class CRUDManifest:
     _manifest_interesting_solos: dict[str, list[DestinyActivityModel]] = {}  # Key: activity_category
 
     async def reset(self):
-        """Reset the selfs after a manifest update"""
+        """Reset the caches after a manifest update"""
 
         self._manifest_season_pass_definition = None  # noqa
         await destiny_manifest.get_current_season_pass()
@@ -327,7 +328,7 @@ class CRUDManifest:
                         reference_id=result.hash,
                         name=result.display_properties.name,
                         description=result.display_properties.description,
-                        sub_title=result.subtitle,
+                        sub_title=result.subtitle or None,
                         redacted=result.redacted,
                     )
         return self._manifest_lore
@@ -442,6 +443,7 @@ class CRUDManifest:
                         # special handling for grandmasters
                         if search_data == "grandmaster_nf":
                             gms = await self.get_grandmaster_nfs()
+                            gms = copy.deepcopy(gms)
 
                             # all gms is the first index there
                             data = gms[0]

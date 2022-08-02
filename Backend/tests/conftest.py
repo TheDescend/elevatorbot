@@ -3,16 +3,18 @@ import asyncio
 import pytest
 from dummyData.insert import insert_dummy_data
 from httpx import AsyncClient
+
+# need to override the event loop to not close
+from misc.test_bungio_events import TestingClient
 from sqlalchemy import text
 
-from Backend.bungio.client import get_bungio_client
+import Backend.bungio.client as bungie_client
 from Backend.database.base import *
 from Backend.database.models import create_tables
 from Backend.main import app
 from Backend.startup.initLogging import init_logging
 
 
-# need to override the event loop to not close
 @pytest.fixture(scope="session")
 def event_loop():
     loop = asyncio.new_event_loop()
@@ -34,7 +36,12 @@ def setup(event_loop):
     setup_engine(database_url=TESTING_DATABASE_URL)
 
     # create bungio client
-    get_bungio_client()
+    bungie_client._BUNGIO_CLIENT = TestingClient(
+        bungie_client_id="bungie_client_id",
+        bungie_client_secret="bungie_client_secret",
+        bungie_token="bungie_token",
+        manifest_storage=setup_engine(),
+    )
 
 
 # init the tables
