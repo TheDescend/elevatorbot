@@ -41,7 +41,7 @@ async def discord_registration_role(guild_id: int, discord_id: int):
     async with acquire_db_session() as db:
         await discord_users.add_registration_roles(db=db, discord_id=discord_id, guild_ids=[guild_id])
 
-        return EmptyResponseModel()
+    return EmptyResponseModel()
 
 
 @router.get("/destiny/{destiny_id}", response_model=DestinyProfileModel)  # has test
@@ -59,4 +59,5 @@ async def discord_delete(discord_id: int):
 
     async with acquire_db_session() as db:
         await discord_users.delete_profile(db, discord_id)
-        return EmptyResponseModel()
+
+    return EmptyResponseModel()

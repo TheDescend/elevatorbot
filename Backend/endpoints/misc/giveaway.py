@@ -26,7 +26,8 @@ async def create(guild_id: int, discord_id: int, giveaway_id: int):
 
     async with acquire_db_session() as db:
         await crud_giveaway.create(db=db, giveaway_id=giveaway_id, author_id=discord_id, guild_id=guild_id)
-        return EmptyResponseModel()
+
+    return EmptyResponseModel()
 
 
 @router.post("/insert", response_model=GiveawayModel)  # has test

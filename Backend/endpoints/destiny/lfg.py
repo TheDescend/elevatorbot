@@ -124,7 +124,7 @@ async def delete(guild_id: int, discord_id: int, lfg_id: int):
     async with acquire_db_session() as db:
         await lfg.delete(db=db, lfg_id=lfg_id, guild_id=guild_id, discord_id=discord_id)
 
-        return EmptyResponseModel()
+    return EmptyResponseModel()
 
 
 @router.delete("/delete/all", response_model=AllLfgDeleteOutputModel)  # has test

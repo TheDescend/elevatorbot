@@ -55,7 +55,8 @@ async def delete(guild_id: int, to_delete: PersistentMessageDeleteInput):
 
     async with acquire_db_session() as db:
         await persistent_messages.delete(db=db, guild_id=guild_id, to_delete=to_delete)
-        return EmptyResponseModel()
+
+    return EmptyResponseModel()
 
 
 @router.delete("/delete/all", response_model=EmptyResponseModel)  # has test
@@ -64,4 +65,5 @@ async def delete_all(guild_id: int):
 
     async with acquire_db_session() as db:
         await persistent_messages.delete_all(db=db, guild_id=guild_id)
-        return EmptyResponseModel()
+
+    return EmptyResponseModel()

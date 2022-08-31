@@ -1,6 +1,7 @@
 import asyncio
 
 import pytest
+import pytest_asyncio
 from dummyData.insert import insert_dummy_data
 from httpx import AsyncClient
 
@@ -45,7 +46,7 @@ def setup(event_loop):
 
 
 # init the tables
-@pytest.fixture(scope="session")
+@pytest_asyncio.fixture(scope="session")
 async def init_db_tables(setup):
     # drop all tables
     async with setup_engine().begin() as connection:
@@ -59,7 +60,7 @@ async def init_db_tables(setup):
 
 
 # we also want the db object
-@pytest.fixture(scope="session", autouse=True)
+@pytest_asyncio.fixture(scope="session", autouse=True)
 async def db(init_db_tables) -> AsyncSession:
     # first, insert the dummy data
     async with acquire_db_session() as session:
@@ -72,7 +73,7 @@ async def db(init_db_tables) -> AsyncSession:
 
 
 # make it so that every function can get the client by just specifying it as a param
-@pytest.fixture(scope="session")
+@pytest_asyncio.fixture(scope="session")
 async def client(db) -> AsyncClient:
-    async with AsyncClient(app=app, base_url="http://testserver", follow_redirects=True) as client:
-        yield client
+    async with AsyncClient(app=app, base_url="http://testserver", follow_redirects=True) as c:
+        yield c

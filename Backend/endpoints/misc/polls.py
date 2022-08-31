@@ -83,7 +83,8 @@ async def delete_all(guild_id: int):
 
     async with acquire_db_session() as db:
         await polls.delete_all(db=db, guild_id=guild_id)
-        return EmptyResponseModel()
+
+    return EmptyResponseModel()
 
 
 @router.delete("/{discord_id}/{poll_id}/delete", response_model=PollSchema)  # has test

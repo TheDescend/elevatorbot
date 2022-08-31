@@ -25,7 +25,8 @@ async def add_discord_server(guild_id: int):
 
     async with acquire_db_session() as db:
         await elevator_servers.insert(db, guild_id)
-        return EmptyResponseModel()
+
+    return EmptyResponseModel()
 
 
 @router.delete("/delete/{guild_id}", response_model=EmptyResponseModel)  # has test
@@ -34,4 +35,5 @@ async def delete_discord_server(guild_id: int):
 
     async with acquire_db_session() as db:
         await elevator_servers.delete(db, guild_id)
-        return EmptyResponseModel()
+
+    return EmptyResponseModel()

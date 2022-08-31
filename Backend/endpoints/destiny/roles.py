@@ -89,6 +89,8 @@ async def create_role(guild_id: int, role: RoleModel):
     async with acquire_db_session() as db:
         await crud_roles.create_role(db=db, role=role)
 
+    return EmptyResponseModel()
+
 
 @router.post("/update/{role_id}", response_model=EmptyResponseModel)  # has test
 async def update_role(guild_id: int, role_id: int, role: RoleModel):
@@ -96,6 +98,8 @@ async def update_role(guild_id: int, role_id: int, role: RoleModel):
 
     async with acquire_db_session() as db:
         await crud_roles.update_role(db=db, role=role, role_id=role_id)
+
+    return EmptyResponseModel()
 
 
 @router.delete("/delete/all", response_model=EmptyResponseModel)  # has test
@@ -105,6 +109,8 @@ async def delete_all(guild_id: int):
     async with acquire_db_session() as db:
         await crud_roles.delete_guild_roles(db=db, guild_id=guild_id)
 
+    return EmptyResponseModel()
+
 
 @router.delete("/delete/{role_id}", response_model=EmptyResponseModel)  # has test
 async def delete_role(guild_id: int, role_id: int):
@@ -112,3 +118,5 @@ async def delete_role(guild_id: int, role_id: int):
 
     async with acquire_db_session() as db:
         await crud_roles.delete_role(db=db, role_id=role_id)
+
+    return EmptyResponseModel()
