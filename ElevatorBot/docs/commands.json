@@ -30,7 +30,9 @@
                                     "Crown of Sorrows",
                                     "Garden of Salvation",
                                     "Deep Stone Crypt",
-                                    "Vault of Glass"
+                                    "Vault of Glass",
+                                    "Vow of the Disciple",
+                                    "King's Fall"
                                 ]
                             }
                         ]
@@ -486,7 +488,8 @@
                             "Forsaken",
                             "Shadowkeep",
                             "Beyond Light",
-                            "Witch Queen"
+                            "Witch Queen",
+                            "Lightfall"
                         ]
                     },
                     {
@@ -510,7 +513,11 @@
                             "Season of the Chosen",
                             "Season of the Splicer",
                             "Season of the Lost",
-                            "Witch Queen"
+                            "Witch Queen",
+                            "Season of the Haunted",
+                            "Season of Plunder",
+                            "Season of [REDACTED]",
+                            "Lightfall"
                         ]
                     },
                     {
@@ -731,7 +738,8 @@
                             "Forsaken",
                             "Shadowkeep",
                             "Beyond Light",
-                            "Witch Queen"
+                            "Witch Queen",
+                            "Lightfall"
                         ]
                     },
                     {
@@ -755,7 +763,11 @@
                             "Season of the Chosen",
                             "Season of the Splicer",
                             "Season of the Lost",
-                            "Witch Queen"
+                            "Witch Queen",
+                            "Season of the Haunted",
+                            "Season of Plunder",
+                            "Season of [REDACTED]",
+                            "Lightfall"
                         ]
                     },
                     {
@@ -1171,6 +1183,7 @@
                             "Arc",
                             "Thermal",
                             "Void",
+                            "Raid",
                             "Stasis"
                         ]
                     },
@@ -1195,7 +1208,8 @@
                             "Forsaken",
                             "Shadowkeep",
                             "Beyond Light",
-                            "Witch Queen"
+                            "Witch Queen",
+                            "Lightfall"
                         ]
                     },
                     {
@@ -1219,7 +1233,11 @@
                             "Season of the Chosen",
                             "Season of the Splicer",
                             "Season of the Lost",
-                            "Witch Queen"
+                            "Witch Queen",
+                            "Season of the Haunted",
+                            "Season of Plunder",
+                            "Season of [REDACTED]",
+                            "Lightfall"
                         ]
                     },
                     {
@@ -1321,6 +1339,7 @@
                             "Arc",
                             "Thermal",
                             "Void",
+                            "Raid",
                             "Stasis"
                         ]
                     },
@@ -1345,7 +1364,8 @@
                             "Forsaken",
                             "Shadowkeep",
                             "Beyond Light",
-                            "Witch Queen"
+                            "Witch Queen",
+                            "Lightfall"
                         ]
                     },
                     {
@@ -1369,7 +1389,11 @@
                             "Season of the Chosen",
                             "Season of the Splicer",
                             "Season of the Lost",
-                            "Witch Queen"
+                            "Witch Queen",
+                            "Season of the Haunted",
+                            "Season of Plunder",
+                            "Season of [REDACTED]",
+                            "Lightfall"
                         ]
                     },
                     {
@@ -1452,7 +1476,8 @@
                             "Forsaken",
                             "Shadowkeep",
                             "Beyond Light",
-                            "Witch Queen"
+                            "Witch Queen",
+                            "Lightfall"
                         ]
                     },
                     {
@@ -1476,7 +1501,11 @@
                             "Season of the Chosen",
                             "Season of the Splicer",
                             "Season of the Lost",
-                            "Witch Queen"
+                            "Witch Queen",
+                            "Season of the Haunted",
+                            "Season of Plunder",
+                            "Season of [REDACTED]",
+                            "Lightfall"
                         ]
                     },
                     {

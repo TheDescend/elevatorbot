@@ -5,7 +5,7 @@ from naff import Embed
 
 from ElevatorBot.discordEvents.customInteractions import ElevatorInteractionContext
 from ElevatorBot.misc.formatting import embed_message
-from ElevatorBot.networking.errorCodesAndResponses import error_codes_and_responses
+from ElevatorBot.networking.errorCodesAndResponses import get_error_codes_and_responses
 
 
 @dataclasses.dataclass()
@@ -36,8 +36,8 @@ class BackendResult:
             if not self.error:
                 self.__error_message = "Success"
 
-            if self.error in error_codes_and_responses:
-                self.__error_message = error_codes_and_responses[self.error]
+            if self.error in get_error_codes_and_responses():
+                self.__error_message = get_error_codes_and_responses()[self.error]
             else:
                 if self.message is not None:
                     self.__error_message = f"{self.error}: {self.message}"

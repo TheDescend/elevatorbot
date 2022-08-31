@@ -9,7 +9,6 @@ from rich.panel import Panel
 from rich.progress import Progress
 from rich.text import Text
 
-import ElevatorBot.networking.errorCodesAndResponses as error_codes
 from ElevatorBot.discordEvents.base import ElevatorClient
 from ElevatorBot.discordEvents.customInteractions import (
     ElevatorAutocompleteContext,
@@ -21,6 +20,7 @@ from ElevatorBot.discordEvents.customInteractions import (
 from ElevatorBot.misc.cache import descend_cache
 from ElevatorBot.misc.helperFunctions import check_is_guild, yield_files_in_folder
 from ElevatorBot.misc.status import update_discord_bot_status
+from ElevatorBot.networking.errorCodesAndResponses import get_error_codes_and_responses
 from ElevatorBot.startup.initAutocompleteOptions import load_autocomplete_options
 from ElevatorBot.startup.initBackgroundEvents import register_background_events
 from ElevatorBot.startup.initComponentCallbacks import add_component_callbacks
@@ -40,6 +40,10 @@ class Elevator(ElevatorClient):
     async def on_startup(self):
         """Gets triggered on startup"""
 
+        startup_progress.update(startup_task, advance=1)
+
+        self.logger_exceptions.debug("Loading error code responses...")
+        get_error_codes_and_responses(client=client)
         startup_progress.update(startup_task, advance=1)
 
         self.logger_exceptions.debug("Creating docs for commands...")
@@ -133,7 +137,7 @@ if __name__ == "__main__":
     # loading bar
     startup_progress = Progress()
     startup_progress.start()
-    startup_task = startup_progress.add_task("Starting Up...", total=15)
+    startup_task = startup_progress.add_task("Starting Up...", total=16)
 
     # config logging
     init_logging()
@@ -168,7 +172,6 @@ if __name__ == "__main__":
             highlighter=ColourHighlighter(name="NAFF", colour="red"),
         ),
     )
-    error_codes._client = client
 
     # install uvloop for faster asyncio (docker only)
     try:

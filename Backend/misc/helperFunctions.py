@@ -29,7 +29,7 @@ class DefaultDict:
             depth = depth[key]
         return depth
 
-    def items(self) -> Generator[tuple[str, DefaultDict]]:
+    def items(self) -> Generator[tuple[str, DefaultDict], None, None]:
         """Iterate over the items"""
 
         for key, value in self._dict.items():

@@ -157,7 +157,7 @@ async def startup():
     startup_progress.update(startup_task, advance=1)
 
     # Update the Destiny 2 manifest
-    default_logger.debug("Updating Destiny 2 Manifest...")
+    default_logger.debug("Updating and Caching Destiny 2 Manifest...")
     await destiny_manifest.reset()
     startup_progress.update(startup_task, advance=1)
 

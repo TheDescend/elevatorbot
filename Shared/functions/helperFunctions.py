@@ -22,7 +22,7 @@ def localize_datetime(obj: datetime.datetime) -> datetime.datetime:
     return obj.astimezone()
 
 
-def split_list(to_split: list, n: int) -> Generator[list]:
+def split_list(to_split: list, n: int) -> Generator[list, None, None]:
     """Yield successive n-sized chunks from list l"""
 
     for i in range(0, len(to_split), n):

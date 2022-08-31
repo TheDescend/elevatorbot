@@ -111,11 +111,12 @@ class CRUDManifest:
         async with get_all_weapons_lock:
             if not self._manifest_weapons:
                 results: list[DestinyInventoryItemDefinition] = await get_bungio_client().manifest.fetch_all(
-                    manifest_class=DestinyInventoryItemDefinition
+                    manifest_class=DestinyInventoryItemDefinition,
+                    filter=f"""CAST(data ->> 'itemType' AS INTEGER) = {DestinyItemType.WEAPON.value}""",
                 )
                 for result in results:
-                    if result.item_type == DestinyItemType.WEAPON:
-                        self._manifest_weapons[result.hash] = result
+                    self._manifest_weapons[result.hash] = result
+                    self._manifest_items[result.hash] = result
         return self._manifest_weapons
 
     async def get_weapon(self, weapon_id: int) -> DestinyInventoryItemDefinition:

@@ -8,7 +8,7 @@ from ElevatorBot.discordEvents.customInteractions import (
     ElevatorModalContext,
 )
 from ElevatorBot.misc.formatting import embed_message
-from ElevatorBot.networking.errorCodesAndResponses import error_codes_and_responses
+from ElevatorBot.networking.errorCodesAndResponses import get_error_codes_and_responses
 
 
 async def something_went_wrong(ctx: ElevatorInteractionContext, hidden: bool = False) -> bool:
@@ -36,7 +36,7 @@ async def respond_discord_member_unknown(
             ephemeral=hidden,
             embeds=embed_message(
                 "Error",
-                error_codes_and_responses["DiscordIdNotFound"].format(discord_member=discord_member),
+                get_error_codes_and_responses()["DiscordIdNotFound"].format(discord_member=discord_member),
             ),
         )
         return True
@@ -51,7 +51,7 @@ async def respond_destiny_id_unknown(ctx: ElevatorInteractionContext, destiny_id
             ephemeral=hidden,
             embeds=embed_message(
                 "Error",
-                error_codes_and_responses["DestinyIdNotFound"].format(destiny_id=destiny_id),
+                get_error_codes_and_responses()["DestinyIdNotFound"].format(destiny_id=destiny_id),
             ),
         )
         return True
