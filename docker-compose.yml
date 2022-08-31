@@ -2,7 +2,7 @@ version: "3.9"
 
 services:
   redis:
-    image: redis:6.2.6
+    image: redis:6.2.7
     command: ["redis-server", "--maxmemory", "1gb", "--maxmemory-policy", "allkeys-lru"]
     ports:
       - "${REDIS_PORT}:${REDIS_PORT}"
@@ -14,7 +14,7 @@ services:
       always
 
   postgres:
-    image: postgres:14.1
+    image: postgres:14.5
     ports:
       - "${POSTGRES_PORT}:${POSTGRES_PORT}"
     volumes:

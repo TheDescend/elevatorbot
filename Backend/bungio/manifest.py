@@ -69,6 +69,9 @@ class CRUDManifest:
     async def reset(self):
         """Reset the caches after a manifest update"""
 
+        self._manifest_weapons = {}
+        await destiny_manifest.get_all_weapons()
+
         self._manifest_season_pass_definition = None  # noqa
         await destiny_manifest.get_current_season_pass()
 
@@ -89,9 +92,6 @@ class CRUDManifest:
 
         self._manifest_lore = {}
         await destiny_manifest.get_all_lore()
-
-        self._manifest_weapons = {}
-        await destiny_manifest.get_all_weapons()
 
         self._manifest_catalysts = []
         await destiny_manifest.get_catalysts()
@@ -224,8 +224,8 @@ class CRUDManifest:
                     model = DestinyActivityModel(
                         name=activities[0].display_properties.name or "Unknown",
                         description=activities[0].display_properties.description,
-                        matchmade=activities[0].matchmaking.is_matchmade,
-                        max_players=activities[0].matchmaking.max_players,
+                        matchmade=activities[0].matchmaking.is_matchmade if activities[0].matchmaking else False,
+                        max_players=activities[0].matchmaking.max_players if activities[0].matchmaking else False,
                         activity_ids=[activity.hash for activity in activities],
                         mode=(await self.get_activity_mode(activities[0]))[0].value,
                         image_url=f"https://www.bungie.net/{activities[0].pgcr_image}"
@@ -410,8 +410,10 @@ class CRUDManifest:
                         "Shattered Throne": ["Shattered Throne", None],
                         "Pit of Heresy": ["Pit of Heresy", None],
                         "Prophecy": ["Prophecy", None],
-                        "Grasp of Avarice: Normal": ["Grasp of Avarice: Legend", None],
+                        "Grasp of Avarice: Normal": ["Grasp of Avarice: Normal", None],
                         "Grasp of Avarice: Master": ["Grasp of Avarice: Master", None],
+                        "Duality: Normal": ["Duality: Normal", None],
+                        "Duality: Master": ["Duality: Master", None],
                     },
                     "Raids": {
                         "Eater of Worlds": ["Eater of Worlds", None],
@@ -484,7 +486,7 @@ class CRUDManifest:
                         if data:
                             self._manifest_interesting_solos[category].append(data)
 
-            return self._manifest_interesting_solos
+        return self._manifest_interesting_solos
 
 
 destiny_manifest = CRUDManifest()

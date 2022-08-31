@@ -1,18 +1,7 @@
-import logging
-
-from naff import logger_name
-
-from Shared.functions.logging import ColourHighlighter, ElevatorLogger
+from Shared.functions.logging import ElevatorLogger
 
 
 def init_logging() -> None:
-    # Initialize lib loggers
-    ElevatorLogger.make_console_logger(
-        logger=logging.getLogger(logger_name),
-        level=logging.NOTSET,
-        highlighter=ColourHighlighter(name="NAFF", colour="red"),
-    )
-
     # Initialize formatter
     logger = ElevatorLogger("ElevatorBot")
 

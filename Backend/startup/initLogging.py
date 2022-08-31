@@ -26,6 +26,11 @@ def init_logging() -> None:
         highlighter=ColourHighlighter(name="sqlalchemy", colour="red"),
     )
 
+    # Bungio logger
+    logger = ElevatorLogger("BungIO")
+    logger.highlighter.colour = "blue"
+    logger.make_logger("bungio")
+
     # Initialize formatter
     logger = ElevatorLogger("Backend")
 
@@ -40,8 +45,6 @@ def init_logging() -> None:
     logger.make_logger("requestsExceptions")
 
     # Initialize logging for external api requests
-    logger.make_logger("bungio")
-
     logger.make_logger("elevatorApi")
     logger.make_logger("elevatorApiExceptions")
 

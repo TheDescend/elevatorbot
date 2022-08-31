@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import datetime
+from typing import Generator
 
 
 def get_now_with_tz() -> datetime.datetime:
@@ -21,7 +22,7 @@ def localize_datetime(obj: datetime.datetime) -> datetime.datetime:
     return obj.astimezone()
 
 
-def split_list(to_split: list, n: int):
+def split_list(to_split: list, n: int) -> Generator[list]:
     """Yield successive n-sized chunks from list l"""
 
     for i in range(0, len(to_split), n):

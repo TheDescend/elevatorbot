@@ -22,6 +22,7 @@ expansion_dates = [
     _Date("2019-10-01", "Shadowkeep"),
     _Date("2020-11-10", "Beyond Light"),
     _Date("2022-02-22", "Witch Queen"),
+    _Date("2023-02-28", "Lightfall"),
 ]
 
 season_dates = [
@@ -37,31 +38,36 @@ season_dates = [
     _Date("2021-05-11", "Season of the Splicer"),
     _Date("2021-08-24", "Season of the Lost"),
     _Date("2022-05-24", "Season of the Haunted"),
+    _Date("2022-08-23", "Season of Plunder"),
+    _Date("2022-12-06", "Season of [REDACTED]"),
 ]
 
 other_important_dates_part_1 = [
     _Date("2019-10-04", "GoS"),
     _Date("2020-01-14", "Corridors of Time"),
-    _Date("2020-06-06", "Almighty Live Event"),
+    _Date("2020-06-06", "Almighty Event"),
     _Date("2020-11-21", "DSC"),
-    _Date("2020-07-06", "Solstice of Heroes"),
+    _Date("2020-07-06", "Solstice"),
     _Date("2021-04-20", "Guardian Games"),
-    _Date("2021-10-12", "Festival of the Lost"),
+    _Date("2021-10-12", "Festival o.t. Lost"),
+    _Date("2022-07-19", "Solstice"),
 ]
 
 other_important_dates_part_2 = [
     _Date("2019-10-29", "PoH"),
     _Date("2020-02-04", "Empyrean Foundation"),
-    _Date("2020-08-11", "Solstice of Heroes"),
-    _Date("2020-10-12", "Festival of the Lost"),
+    _Date("2020-08-11", "Solstice"),
+    _Date("2020-10-12", "Festival o.t. Lost"),
     _Date("2021-05-22", "VoG"),
     _Date("2021-12-07", "30th Anniversary"),
+    _Date("2022-08-26", "KF"),
 ]
 
 other_important_dates_part_3 = [
     _Date("2020-04-21", "Guardian Games"),
     _Date("2020-07-07", "Moments of Triumph"),
     _Date("2022-03-05", "VotD"),
+    _Date("2022-10-18", "Festival o.t. Lost"),
 ]
 
 season_and_expansion_dates = sorted(expansion_dates + season_dates, key=lambda m: m.start)

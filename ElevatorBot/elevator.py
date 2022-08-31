@@ -133,17 +133,11 @@ if __name__ == "__main__":
     # loading bar
     startup_progress = Progress()
     startup_progress.start()
-    startup_task = startup_progress.add_task("Starting Up...", total=16)
+    startup_task = startup_progress.add_task("Starting Up...", total=15)
 
     # config logging
     init_logging()
     logger = logging.getLogger("generalExceptions")
-
-    if get_setting("ENABLE_DEBUG_MODE"):
-        logger.debug("Setting Up NAFF Logging...")
-        naff_log = logging.getLogger(logger_name)
-        naff_log.setLevel(logging.DEBUG)
-    startup_progress.update(startup_task, advance=1)
 
     # enable intents to allow certain events--
     # see https://discord.com/developers/docs/topics/gateway#gateway-intents
@@ -168,6 +162,11 @@ if __name__ == "__main__":
         component_context=ElevatorComponentContext,
         autocomplete_context=ElevatorAutocompleteContext,
         modal_context=ElevatorModalContext,
+        logger=ElevatorLogger.make_console_logger(
+            logger=logging.getLogger("naff"),
+            level=logging.DEBUG if get_setting("ENABLE_DEBUG_MODE") else logging.WARNING,
+            highlighter=ColourHighlighter(name="NAFF", colour="red"),
+        ),
     )
     error_codes._client = client
 
