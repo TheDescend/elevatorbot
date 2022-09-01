@@ -15,7 +15,7 @@ class MyClient(Client):
         from Backend.crud.destiny.discordUsers import discord_users
 
         async with acquire_db_session() as db:
-            user = await discord_users.get_profile_from_discord_id(after.membership_id, db=db)
+            user = await discord_users.get_profile_from_destiny_id(destiny_id=after.membership_id, db=db)
             await discord_users.update(
                 db=db,
                 to_update=user,
@@ -25,7 +25,7 @@ class MyClient(Client):
                 refresh_token_expiry=after.refresh_token_expiry,
             )
 
-        self.logger.debug(f"Updated token for {before.destiny_membership_id=}: {before.token=} -> {after.token=}")
+        self.logger.debug(f"Updated token for {before.membership_id=}: {before.token=} -> {after.token=}")
 
     async def on_manifest_update(self) -> None:
         from Backend.bungio.manifest import destiny_manifest

@@ -108,21 +108,6 @@ async def log_requests(request: Request, call_next):
         return response
 
 
-if get_setting("ENABLE_DEBUG_MODE"):
-
-    @app.middleware("http")
-    async def performance_counter(request: Request, call_next):
-        """Middleware which does performance testing"""
-
-        # calculate the time needed to handle the request
-        start_time = time.perf_counter()
-        response = await call_next(request)
-        process_time = time.perf_counter() - start_time
-        default_logger.debug(f"Performance Counter: `{request.url}` took `{process_time}s`")
-
-        return response
-
-
 # add routers
 default_logger.debug("Registering Endpoints...")
 for root, dirs, files in os.walk("Backend/endpoints"):
