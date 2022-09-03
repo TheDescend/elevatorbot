@@ -14,6 +14,7 @@ matplotlib==3.5.3
 orjson==3.8.0
 pandas==1.4.3
 passlib[bcrypt]==1.7.4
+prometheus_client==0.14.1
 psutil==5.9.1
 pydantic==1.10.0
 python-dateutil==2.8.2

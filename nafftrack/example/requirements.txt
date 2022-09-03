@@ -1,0 +1,4 @@
+git+https://github.com/artem30801/nafftrack.git
+naff==1.2.0
+prometheus-client==0.13.1
+uvicorn==0.17.5

@@ -137,7 +137,7 @@ if __name__ == "__main__":
     # loading bar
     startup_progress = Progress()
     startup_progress.start()
-    startup_task = startup_progress.add_task("Starting Up...", total=16)
+    startup_task = startup_progress.add_task("Starting Up...", total=17)
 
     # config logging
     init_logging()
@@ -205,6 +205,10 @@ if __name__ == "__main__":
             await ctx.send("Reload successful!")
 
     CustomDebugModule(bot=client)
+
+    # load the tracking extension
+    client.load_extension("nafftrack.nafftrack.extension")
+    startup_progress.update(startup_task, advance=1)
 
     logger.debug("Loading Discord Events...")
     register_discord_events(client)

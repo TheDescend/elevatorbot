@@ -1,7 +1,21 @@
-from Shared.functions.logging import ElevatorLogger
+import logging
+
+from Shared.functions.logging import ColourHighlighter, ElevatorLogger
 
 
 def init_logging() -> None:
+    # Initialize lib loggers
+    ElevatorLogger.make_console_logger(
+        logger=logging.getLogger("nafftrack"),
+        level=logging.NOTSET,
+        highlighter=ColourHighlighter(name="nafftrack", colour="green"),
+    )
+    ElevatorLogger.make_console_logger(
+        logger=logging.getLogger("uvicorn"),
+        level=logging.NOTSET,
+        highlighter=ColourHighlighter(name="uvicorn", colour="yellow"),
+    )
+
     # Initialize formatter
     logger = ElevatorLogger("ElevatorBot")
 

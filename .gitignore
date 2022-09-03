@@ -27,6 +27,8 @@ venv/
 /Database/
 /DatabaseBackups/
 /redis.conf/
+/Prometheus/
+/Grafana/
 
 # secret setting files
 **/secrets.*

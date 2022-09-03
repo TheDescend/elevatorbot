@@ -21,7 +21,7 @@ from version import __version__
 # Descend Only!
 # =============
 
-
+# todo swap completely to graphana
 class Metrics(BaseModule):
     @slash_command(
         name="metrics",
