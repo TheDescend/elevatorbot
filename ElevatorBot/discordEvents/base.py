@@ -1,7 +1,7 @@
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 
 from ElevatorBot.discordEvents.errorEvents import CustomErrorClient
-from nafftrack.nafftrack.client import StatsClient
+from ElevatorBot.prometheus.client import StatsClient
 
 
 class ElevatorClient(StatsClient, CustomErrorClient):

@@ -35,6 +35,13 @@ class Overview(BaseModule):
         clan_info = await clan.get_clan()
         embed.add_field(name="Linked Clan", value=f"`{clan_info.name}`" if clan_info else "Not Set-Up", inline=True)
 
+        obj = handy_dict.get("clan_role", None)
+        embed.add_field(
+            name="Clan Role",
+            value=f"<@&{obj.channel_id}>" if obj else "Not Set-Up",
+            inline=False,
+        )
+
         obj = handy_dict["clan_join_request"] if "clan_join_request" in handy_dict else None
         embed.add_field(
             name="Clan Join Button",
@@ -74,7 +81,7 @@ class Overview(BaseModule):
             inline=True,
         )
 
-        obj = handy_dict["registered_role"] if "registered_role" in handy_dict else None
+        obj = handy_dict.get("registered_role", None)
         embed.add_field(
             name="Registered Role",
             value=f"<@&{obj.channel_id}>" if obj else "Not Set-Up",
