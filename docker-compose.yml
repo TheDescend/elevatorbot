@@ -60,7 +60,7 @@ services:
     ports:
       - "9090:9090"
     volumes:
-      - ./prometheus.yml:/prometheus/prometheus.yml
+      - ./Stats/prometheus/prometheus.yml:/prometheus/prometheus.yml
       - ./Prometheus:/prometheus
     command:
       - '--config.file=/prometheus/prometheus.yml'
@@ -80,8 +80,8 @@ services:
       - "3030:3000"
     volumes:
       - ./Grafana:/grafana
-      - ./nafftrack/grafana/provisioning/:/grafana/provisioning/
-      - ./grafana.ini:/etc/grafana/grafana.ini
+      - ./Stats/grafana/provisioning/:/grafana/provisioning/
+      - ./Stats/grafana/grafana.ini:/etc/grafana/grafana.ini
     environment:
       - BACKEND_HOST
     restart:

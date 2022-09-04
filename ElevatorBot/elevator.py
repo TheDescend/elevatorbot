@@ -207,7 +207,7 @@ if __name__ == "__main__":
     CustomDebugModule(bot=client)
 
     # load the tracking extension
-    client.load_extension("nafftrack.nafftrack.extension")
+    client.load_extension("ElevatorBot.prometheus.extension")
     startup_progress.update(startup_task, advance=1)
 
     logger.debug("Loading Discord Events...")

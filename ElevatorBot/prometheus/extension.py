@@ -8,7 +8,7 @@ import naff
 import prometheus_client
 import uvicorn
 
-from nafftrack.nafftrack.stats import (
+from ElevatorBot.prometheus.stats import (
     bot_info,
     cache_gauge,
     cache_limits_hard,

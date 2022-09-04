@@ -21,7 +21,6 @@ COPY ./version.py /app/version.py
 COPY ./settings.toml /app/settings.toml
 COPY ./Shared /app/Shared
 COPY ./ElevatorBot /app/ElevatorBot
-COPY ./nafftrack /app/nafftrack
 
 # start elevator
 WORKDIR /app

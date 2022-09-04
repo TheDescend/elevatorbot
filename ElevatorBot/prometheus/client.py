@@ -3,7 +3,7 @@ from typing import Any
 import naff
 from naff import BaseCommand, Context, InteractionContext, PrefixedContext
 
-from nafftrack.nafftrack.stats import (
+from ElevatorBot.prometheus.stats import (
     interactions_registered,
     interactions_sync,
     slash_command_errors,
