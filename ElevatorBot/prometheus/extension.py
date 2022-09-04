@@ -1,4 +1,5 @@
 import asyncio
+import datetime
 import inspect
 import logging
 import socket
@@ -14,14 +15,24 @@ from ElevatorBot.prometheus.stats import (
     cache_limits_hard,
     cache_limits_soft,
     channels_gauge,
+    descend_voice_channel_activity,
+    elevator_version_info,
     guilds_gauge,
     latency_gauge,
     lib_info,
     members_gauge,
     messages_counter,
+    start_time_info,
 )
+from ElevatorBot.static.descendOnlyIds import descend_channels
+from Shared.functions.helperFunctions import get_now_with_tz
+from version import __version__
 
 logger = logging.getLogger("nafftrack")
+
+
+users_in_vs: dict[int, datetime.datetime] = {}
+vc_lock = asyncio.Lock()
 
 
 class StatsServer(uvicorn.Server):
@@ -91,11 +102,11 @@ class Stats(naff.Extension):
         loop = asyncio.get_running_loop()
         loop.create_task(self.server.serve())
 
-        lib_info.info(
-            {
-                "version": naff.const.__version__,
-            }
-        )
+        lib_info.info({"version": naff.const.__version__})
+
+        elevator_version_info.info({"version": __version__})
+
+        start_time_info.info({"datetime": f"{self.bot.start_time:%d.%m.%Y, %H:%M} UTC"})
 
         guilds_gauge.set(len(self.bot.user._guild_ids))
 
@@ -124,13 +135,33 @@ class Stats(naff.Extension):
     @naff.listen()
     async def on_message_create(self, event: naff.events.MessageCreate):
         if guild := event.message.guild:
-            counter = messages_counter.labels(guild_id=guild.id, guild_name=guild.name, dm=0)
+            counter = messages_counter.labels(
+                guild_id=guild.id, guild_name=guild.name, dm=0, user_id=event.message.author.id
+            )
         else:
-            counter = messages_counter.labels(guild_id=None, guild_name=None, dm=1)
+            counter = messages_counter.labels(guild_id=None, guild_name=None, dm=1, user_id=event.message.author.id)
 
         counter.inc()
 
-    # @tasks.Task.create(tasks.triggers.IntervalTrigger(seconds=interval))  # TODO wait for polls implementing it
+    @naff.listen()
+    async def on_voice_state_update(self, event: naff.events.VoiceStateUpdate):
+        if event.guild != descend_channels.guild:
+            return
+
+        async with vc_lock:
+            # user was in vc before
+            if event.before:
+                user_id = event.before.member.id
+                if user_id in users_in_vs:
+                    join_date = users_in_vs.pop(user_id)
+                    metric = descend_voice_channel_activity.labels(channel_id=event.before.channel.id, user_id=user_id)
+                    metric.observe((get_now_with_tz() - join_date).seconds)
+
+            # save user join time
+            if event.after:
+                user_id = event.after.member.id
+                users_in_vs[user_id] = get_now_with_tz()
+
     async def collect_stats(self):
         # Latency stats
         if latency := self.bot.ws.latency:

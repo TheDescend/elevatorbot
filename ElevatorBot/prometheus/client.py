@@ -4,12 +4,14 @@ import naff
 from naff import BaseCommand, Context, InteractionContext, PrefixedContext
 
 from ElevatorBot.prometheus.stats import (
-    interactions_registered,
+    interactions_registered_descend,
+    interactions_registered_global,
     interactions_sync,
     slash_command_errors,
     slash_commands_perf,
     slash_commands_running,
 )
+from Shared.functions.readSettingsFile import get_setting
 
 
 class StatsClient(naff.Client):
@@ -17,8 +19,8 @@ class StatsClient(naff.Client):
         with interactions_sync.time():
             await super().synchronise_interactions()
 
-        amount = len(self.application_commands)
-        interactions_registered.set(amount)
+        interactions_registered_global.set(len(self.interactions[0]))
+        interactions_registered_descend.set(len(self.interactions[get_setting("COMMAND_GUILD_SCOPE")[0]]))
 
     async def _run_slash_command(self, command: BaseCommand, ctx: Context) -> Any:
         if isinstance(ctx, InteractionContext) and ctx.target_id:
@@ -41,6 +43,7 @@ class StatsClient(naff.Client):
         else:
             guild_labels = dict(guild_id=None, guild_name=None, dm=1)
 
+        labels["user_id"] = ctx.author.id
         labels.update(guild_labels)
 
         perf = slash_commands_perf.labels(**labels)
@@ -70,6 +73,7 @@ class StatsClient(naff.Client):
             else:
                 guild_labels = dict(guild_id=None, guild_name=None, dm=1)
 
+            labels["user_id"] = ctx.author.id
             labels.update(guild_labels)
             count = slash_command_errors.labels(**labels)
             count.inc()
