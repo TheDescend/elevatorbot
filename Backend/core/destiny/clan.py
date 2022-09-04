@@ -7,9 +7,11 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from Backend.bungio.client import get_bungio_client
 from Backend.core.errors import CustomException
-from Backend.crud import destiny_clan_links, discord_users
+from Backend.crud import destiny_clan_links, discord_users, persistent_messages
+from Backend.database import acquire_db_session
 from Backend.database.models import DiscordUsers
-from Shared.functions.helperFunctions import localize_datetime
+from Shared.functions.helperFunctions import get_min_with_tz, get_now_with_tz, localize_datetime
+from Shared.functions.readSettingsFile import get_setting
 from Shared.networkingSchemas.destiny.clan import DestinyClanMemberModel, DestinyClanModel
 
 
@@ -20,6 +22,10 @@ class DestinyClan:
     db: AsyncSession
     guild_id: int
     user: Optional[DiscordUsers] = None
+
+    descend_clan_id: int = dataclasses.field(init=False, default=None)
+    descend_clan_members: dict[int, DestinyClanMemberModel] = dataclasses.field(init=False, default_factory=dict)
+    descend_clan_members_updated: datetime.datetime = dataclasses.field(init=False, default=get_min_with_tz())
 
     def __post_init__(self):
         # some shortcuts
@@ -79,6 +85,20 @@ class DestinyClan:
             )
 
         return members
+
+    async def get_descend_clan_members(self) -> dict[int, DestinyClanMemberModel]:
+        """Get all descend clan members"""
+
+        if self.descend_clan_id is None:
+            link = await destiny_clan_links.get_link(db=self.db, discord_guild_id=get_setting("DESCEND_GUILD_ID"))
+            self.descend_clan_id = link.destiny_clan_id
+
+        if self.descend_clan_members_updated + datetime.timedelta(hours=1) < get_now_with_tz():
+            members = await self.get_clan_members(clan_id=self.descend_clan_id)
+            self.descend_clan_members = {user.destiny_id: user for user in members}
+            self.descend_clan_members_updated = get_now_with_tz()
+
+        return self.descend_clan_members
 
     async def get_clan_members(
         self, clan_id: Optional[int] = None, use_cache: bool = True

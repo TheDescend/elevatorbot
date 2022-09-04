@@ -5,11 +5,14 @@ import time
 
 from bungio.error import BungieException
 from fastapi import Depends, FastAPI, Request
+from prometheus_client import CONTENT_TYPE_LATEST, REGISTRY, generate_latest
 from rich.console import Console
 from rich.panel import Panel
 from rich.progress import Progress
 from rich.text import Text
+from starlette.responses import Response
 
+from Backend.backgroundEvents import scheduler
 from Backend.bungio.client import get_bungio_client
 from Backend.bungio.manifest import destiny_manifest
 from Backend.core.errors import CustomException, handle_bungio_exception, handle_custom_exception
@@ -17,10 +20,16 @@ from Backend.crud import backend_user
 from Backend.database.base import acquire_db_session
 from Backend.database.models import BackendUser
 from Backend.dependencies import auth_get_user_with_read_perm, auth_get_user_with_write_perm
+from Backend.prometheus.collecting import collect_prometheus_stats
+from Backend.prometheus.stats import (
+    prom_endpoints_errors,
+    prom_endpoints_perf,
+    prom_endpoints_registered,
+    prom_endpoints_running,
+)
 from Backend.startup.initBackgroundEvents import register_background_events
 from Backend.startup.initLogging import init_logging
 from Shared.functions.logging import DESCEND_COLOUR
-from Shared.functions.readSettingsFile import get_setting
 from Shared.networkingSchemas.misc.auth import BackendUserModel
 
 # print ascii art
@@ -82,6 +91,15 @@ async def write_perm(user: BackendUser = Depends(auth_get_user_with_write_perm))
     return BackendUserModel.from_orm(user)
 
 
+# serve prometheus
+@app.get("/metrics")
+def metrics(request: Request):
+    resp = Response(content=generate_latest(REGISTRY))
+    resp.headers["Content-Type"] = CONTENT_TYPE_LATEST
+
+    return resp
+
+
 @app.middleware("http")
 async def log_requests(request: Request, call_next):
     """Middleware which logs every request"""
@@ -89,10 +107,24 @@ async def log_requests(request: Request, call_next):
     # calculate the time needed to handle the request
     start_time = time.time()
 
+    # prometheus logging
+    query_params = request.query_params
+    labels = {
+        "raw_route": request.base_url,
+        "real_route": request.url,
+        "guild_id": query_params.get("guild_id", None),
+        "user_id": query_params.get("discord_id", None),
+    }
+    perf = prom_endpoints_perf.labels(**labels)
+    running = prom_endpoints_running.labels(**labels)
+
     try:
-        response = await call_next(request)
+        with perf.time(), running.track_inprogress():
+            response = await call_next(request)
     except Exception as error:
         # log that
+        counter = prom_endpoints_errors.labels(**labels)
+        counter.inc()
         logger = logging.getLogger("requestsExceptions")
         logger.exception(f"`{request.method}` for `{request.url}`", exc_info=error)
 
@@ -151,6 +183,14 @@ async def startup():
     events_loaded = register_background_events()
     default_logger.debug(f"< {events_loaded} > Background Events Loaded")
     startup_progress.update(startup_task, advance=1)
+
+    # collect prometheus stats
+    scheduler.add_job(
+        func=collect_prometheus_stats,
+        trigger="interval",
+        seconds=60,
+    )
+    prom_endpoints_registered.set(len(app.router.routes))
 
     startup_progress.stop()
 

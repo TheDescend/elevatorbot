@@ -29,8 +29,11 @@ def register_background_events() -> int:
         job: Job = backgroundEvents.scheduler.get_job(scheduler_event.job_id)
 
         # cache the name
-        job_name = job.func.__self__.__class__.__name__
-        event_name_by_id[scheduler_event.job_id] = job_name
+        try:
+            job_name = job.func.__self__.__class__.__name__
+            event_name_by_id[scheduler_event.job_id] = job_name
+        except AttributeError:
+            event_name_by_id[scheduler_event.job_id] = job.func.__name__
 
         # log the execution
         logger = logging.getLogger("backgroundEvents")
@@ -56,13 +59,13 @@ def register_background_events() -> int:
     backgroundEvents.scheduler.add_listener(event_submitted, EVENT_JOB_SUBMITTED)
 
     def event_executed(scheduler_event: JobExecutionEvent):
-        logger = logging.getLogger("backgroundEvents")
-        logger.debug(f"Event with ID `{scheduler_event.job_id}` successfully run")
+        event_name = event_name_by_id[scheduler_event.job_id]
+        if event_name == "collect_prometheus_stats":
+            return
 
         # log the execution
-        logger.info(
-            f"Event `{event_name_by_id[scheduler_event.job_id]}` with ID `{scheduler_event.job_id}` successfully run"
-        )
+        logger = logging.getLogger("backgroundEvents")
+        logger.info(f"Event `{event_name}` with ID `{scheduler_event.job_id}` successfully run")
 
     backgroundEvents.scheduler.add_listener(event_executed, EVENT_JOB_EXECUTED)
 

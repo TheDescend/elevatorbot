@@ -4,9 +4,11 @@ import os
 
 from aiohttp_client_cache import RedisBackend
 from bungio import Client
+from bungio.http import HttpClient, Route
 from bungio.models import AuthData
 
 from Backend.database import acquire_db_session, is_test_mode, setup_engine
+from Backend.prometheus.stats import prom_bungie_errors, prom_bungie_perf, prom_bungie_running
 from Shared.functions.readSettingsFile import get_setting
 
 
@@ -32,6 +34,23 @@ class MyClient(Client):
 
         await destiny_manifest.reset()
         self.logger.debug(f"Destiny manifest was updated by bungie")
+
+
+class MyHttpClient(HttpClient):
+    async def request(self, route: Route) -> dict:
+        labels = {
+            "with_token": bool(route.auth),
+            "route": route.path,
+        }
+        perf = prom_bungie_perf.labels(**labels)
+        running = prom_bungie_running.labels(**labels)
+        try:
+            with perf.time(), running.track_inprogress():
+                return await super().request(route=route)
+        except Exception as error:
+            counter = prom_bungie_errors.labels(**labels)
+            counter.inc()
+            raise error
 
 
 # noinspection PyTypeChecker
@@ -66,6 +85,7 @@ def get_bungio_client() -> MyClient:
                 },
             ),
             manifest_storage=setup_engine(),
+            http_client_class=MyHttpClient,
         )
 
     return _BUNGIO_CLIENT
