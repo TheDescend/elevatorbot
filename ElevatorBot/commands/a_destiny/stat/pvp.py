@@ -15,7 +15,7 @@ class StatPvP(BaseModule):
         sub_cmd_description="Displays the specified stat for all PvP activities",
         dm_permission=False,
     )
-    @default_stat_option()
+    @default_stat_option(pvp=True)
     @default_class_option()
     @default_user_option()
     async def pvp(self, ctx: ElevatorInteractionContext, name: str, destiny_class: str = None, user: Member = None):

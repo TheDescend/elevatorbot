@@ -6,6 +6,7 @@ from naff.client.errors import Forbidden
 
 from ElevatorBot.core.destiny.lfg.lfgSystem import LfgMessage
 from ElevatorBot.core.destiny.roles import Roles
+from ElevatorBot.core.misc.persistentMessages import PersistentMessages
 from ElevatorBot.misc.discordShortcutFunctions import assign_roles_to_member
 from ElevatorBot.misc.formatting import embed_message
 from ElevatorBot.networking.destiny.clan import DestinyClan

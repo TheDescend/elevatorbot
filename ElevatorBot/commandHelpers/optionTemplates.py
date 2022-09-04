@@ -1,9 +1,10 @@
+import copy
 from typing import Any
 
 from bungio.models import DamageType
 from naff import OptionTypes, SlashCommandChoice, slash_option
 
-from ElevatorBot.core.destiny.stat import stat_translation
+import ElevatorBot.core.destiny.stat as stats
 from ElevatorBot.misc.formatting import capitalize_string
 from ElevatorBot.static.destinyDates import expansion_dates, season_and_expansion_dates
 from ElevatorBot.static.timezones import timezones_dict
@@ -103,7 +104,7 @@ def default_mode_option(description: str = "Restrict the game mode. Default: All
     return wrapper
 
 
-def default_stat_option() -> Any:
+def default_stat_option(pvp: bool = False) -> Any:
     """
     Decorator that replaces @slash_option()
 
@@ -111,12 +112,21 @@ def default_stat_option() -> Any:
     """
 
     def wrapper(func):
+        if pvp:
+            options = copy.deepcopy(stats.stat_translation)
+            options.pop("Activities Cleared")
+            options.pop("Public Events Completed")
+            options.pop("Heroic Public Events Completed")
+
+        else:
+            options = stats.stat_translation
+
         return slash_option(
             name="name",
             description="The name of the leaderboard you want to see",
             opt_type=OptionTypes.STRING,
             required=True,
-            choices=[SlashCommandChoice(name=name, value=name) for name in stat_translation],
+            choices=[SlashCommandChoice(name=name, value=name) for name in options],
         )(func)
 
     return wrapper
