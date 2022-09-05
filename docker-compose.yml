@@ -55,6 +55,7 @@ services:
 
   prometheus:
     image: prom/prometheus:latest
+    user: root
     expose:
       - 9090
     ports:
@@ -65,6 +66,7 @@ services:
     command:
       - '--config.file=/prometheus/prometheus.yml'
       - '--storage.tsdb.path=/prometheus'
+      - "--storage.tsdb.retention.time=60d"
       - '--web.console.libraries=/usr/share/prometheus/console_libraries'
       - '--web.console.templates=/usr/share/prometheus/consoles'
     restart:

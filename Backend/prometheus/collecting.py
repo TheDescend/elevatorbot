@@ -20,7 +20,7 @@ async def collect_prometheus_stats():
                 pass
 
     # registered users
-    query = select(func.count(DiscordUsers)).filter_by(token != None)
+    query = select(func.count()).select_from(DiscordUsers).filter(DiscordUsers.token.is_not(None))
     async with acquire_db_session() as db:
         result = await db.execute(query)
         result = result.scalar()

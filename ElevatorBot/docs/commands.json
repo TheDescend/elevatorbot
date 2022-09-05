@@ -425,9 +425,6 @@
                                     "Orbs of Power Dropped",
                                     "Orbs of Power Gathered",
                                     "Time Played (in seconds)",
-                                    "Activities Cleared",
-                                    "Public Events Completed",
-                                    "Heroic Public Events Completed",
                                     "Kills with: Super",
                                     "Kills with: Melee",
                                     "Kills with: Grenade",
@@ -1615,12 +1612,6 @@
                 "enabled_in_dm": false
             },
             {
-                "name": "metrics",
-                "description": "Shows interesting ElevatorBot metrics",
-                "default_required_permissions": "Administrator",
-                "enabled_in_dm": false
-            },
-            {
                 "name": "mute",
                 "description": "Mutes the specified user",
                 "default_required_permissions": "Administrator",
@@ -1997,6 +1988,20 @@
                         "description": "Links your own Destiny 2 clan with the discord server this was executed in",
                         "default_required_permissions": "Administrator",
                         "enabled_in_dm": false
+                    },
+                    {
+                        "name": "setup clan role",
+                        "description": "Designate the role that is given to people that are in the linked clan",
+                        "default_required_permissions": "Administrator",
+                        "enabled_in_dm": false,
+                        "options": [
+                            {
+                                "name": "role",
+                                "description": "The role to link",
+                                "required": true,
+                                "autocomplete": false
+                            }
+                        ]
                     },
                     {
                         "name": "setup clan unlink",

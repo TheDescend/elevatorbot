@@ -7,8 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from Backend.bungio.client import get_bungio_client
 from Backend.core.errors import CustomException
-from Backend.crud import destiny_clan_links, discord_users, persistent_messages
-from Backend.database import acquire_db_session
+from Backend.crud import destiny_clan_links, discord_users
 from Backend.database.models import DiscordUsers
 from Shared.functions.helperFunctions import get_min_with_tz, get_now_with_tz, localize_datetime
 from Shared.functions.readSettingsFile import get_setting
@@ -90,8 +89,11 @@ class DestinyClan:
         """Get all descend clan members"""
 
         if self.descend_clan_id is None:
-            link = await destiny_clan_links.get_link(db=self.db, discord_guild_id=get_setting("DESCEND_GUILD_ID"))
-            self.descend_clan_id = link.destiny_clan_id
+            try:
+                link = await destiny_clan_links.get_link(db=self.db, discord_guild_id=get_setting("DESCEND_GUILD_ID"))
+                self.descend_clan_id = link.destiny_clan_id
+            except CustomException:
+                return {}
 
         if self.descend_clan_members_updated + datetime.timedelta(hours=1) < get_now_with_tz():
             members = await self.get_clan_members(clan_id=self.descend_clan_id)

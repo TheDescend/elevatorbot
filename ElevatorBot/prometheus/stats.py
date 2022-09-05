@@ -25,7 +25,7 @@ cache_limits_hard = Gauge("naff_cache_hard_limits", "Hard limits on the caches",
 messages_counter = Counter(
     "naff_received_messages",
     "Amount of received messages",
-    labelnames=["guild_id", "guild_name", "dm", "user_id"],
+    labelnames=["guild_id", "guild_name", "channel_id", "channel_name", "dm", "user_id"],
 )
 
 guilds_gauge = Gauge("naff_guilds", "Amount of guilds this bot is in")
@@ -68,6 +68,6 @@ interactions_registered_descend = Gauge(
 descend_voice_channel_activity = Histogram(
     "naff_descend_voice_channel_activity",
     "How long users are in voice channels",
-    labelnames=["channel_id", "user_id"],
+    labelnames=["channel_id", "channel_name", "user_id"],
     buckets=BUCKETS,
 )

@@ -10,7 +10,7 @@ dateparser==1.1.1
 gtts==2.2.4
 ics==0.7.2
 matplotlib==3.5.3
-naff[voice]==1.9.0
+naff[voice]==1.10.0
 orjson==3.8.0
 pandas==1.4.3
 pillow==9.2.0

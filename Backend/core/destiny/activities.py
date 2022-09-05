@@ -11,6 +11,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from Backend.bungio.client import get_bungio_client
 from Backend.bungio.manifest import destiny_manifest
+from Backend.core.destiny.clan import DestinyClan
 from Backend.core.errors import CustomException
 from Backend.crud import crud_activities, crud_activities_fail_to_get, discord_users
 from Backend.database.base import acquire_db_session
@@ -95,7 +96,15 @@ class DestinyActivities:
         """Insert the missing pgcr"""
 
         async with update_missing_pgcr_lock:
-            for activity in await crud_activities_fail_to_get.get_all(db=self.db):
+            if not (missing := await crud_activities_fail_to_get.get_all(db=self.db)):
+                return
+
+            # get the destiny clan members for descend
+            async with acquire_db_session() as session:
+                clan = DestinyClan(db=session, guild_id=-1)
+                descend_clan_members = await clan.get_descend_clan_members()
+
+            for activity in missing:
                 # check if info is already in DB, delete and skip if so
                 result = await crud_activities.get(db=self.db, instance_id=activity.instance_id)
                 if result:
@@ -110,7 +119,9 @@ class DestinyActivities:
                     continue
 
                 # add info to DB
-                await crud_activities.insert(data=[(activity.instance_id, activity.period, pgcr)])
+                await crud_activities.insert(
+                    data=[(activity.instance_id, activity.period, pgcr)], descend_clan_members=descend_clan_members
+                )
 
                 # delete from to-do DB
                 await crud_activities_fail_to_get.delete(db=self.db, obj=activity)
@@ -217,11 +228,16 @@ class DestinyActivities:
                     tg.start_soon(lambda: handle(results=results, i=i, t=t))
 
             # insert information to DB
-            await crud_activities.insert(data=results)
+            await crud_activities.insert(data=results, descend_clan_members=descend_clan_members)
 
         # get the logger
         logger = logging.getLogger("updateActivityDb")
         logger_exceptions = logging.getLogger("updateActivityDbExceptions")
+
+        # get the destiny clan members for descend
+        async with acquire_db_session() as session:
+            clan = DestinyClan(db=session, guild_id=-1)
+            descend_clan_members = await clan.get_descend_clan_members()
 
         try:
             async with input_data_lock:

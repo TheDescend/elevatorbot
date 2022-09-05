@@ -7,12 +7,12 @@ from bungio.models.base import MISSING
 from sqlalchemy import distinct, func, not_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from Backend.core.destiny.clan import DestinyClan
 from Backend.core.errors import CustomException
 from Backend.crud.base import CRUDBase
 from Backend.database import acquire_db_session
 from Backend.database.models import Activities, ActivitiesFailToGet, ActivitiesUsers, ActivitiesUsersWeapons
 from Backend.prometheus.stats import prom_clan_activities
+from Shared.networkingSchemas import DestinyClanMemberModel
 from Shared.networkingSchemas.destiny.roles import TimePeriodModel
 
 fail_to_get_insert_lock = asyncio.Lock()
@@ -49,7 +49,11 @@ class CRUDActivities(CRUDBase):
 
         return await self._get_with_key(db=db, primary_key=instance_id)
 
-    async def insert(self, data: list[tuple[int, datetime.datetime, DestinyPostGameCarnageReportData]]):
+    async def insert(
+        self,
+        data: list[tuple[int, datetime.datetime, DestinyPostGameCarnageReportData]],
+        descend_clan_members: dict[int, DestinyClanMemberModel],
+    ):
         """Get the activity with the instance_id"""
 
         to_create = []
@@ -57,9 +61,6 @@ class CRUDActivities(CRUDBase):
             to_create.append(self._convert_to_model(instance_id=instance_id, activity_time=activity_time, pgcr=pgcr))
 
         async with acquire_db_session() as session:
-            clan = DestinyClan(db=session, guild_id=-1)
-            descend_clan_members = await clan.get_descend_clan_members()
-
             await self._insert_multi(db=session, to_create=to_create)
 
         # save the prometheus stats

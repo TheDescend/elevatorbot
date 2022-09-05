@@ -22,3 +22,13 @@ scrape_configs:
     scrape_interval: 5s
     static_configs:
       - targets: [ 'backend:8070' ]
+
+  - job_name: 'local_elevator'
+    scrape_interval: 5s
+    static_configs:
+      - targets: [ 'localhost:8877' ]
+
+  - job_name: 'local_backend'
+    scrape_interval: 5s
+    static_configs:
+      - targets: [ 'localhost:8070' ]

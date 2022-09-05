@@ -37,7 +37,9 @@ def register_background_events() -> int:
 
         # log the execution
         logger = logging.getLogger("backgroundEvents")
-        logger.info(f"Event `{job_name}` with ID `{scheduler_event.job_id}` has been added")
+        logger.info(
+            f"Event `{event_name_by_id[scheduler_event.job_id]}` with ID `{scheduler_event.job_id}` has been added"
+        )
 
     backgroundEvents.scheduler.add_listener(event_added, EVENT_JOB_ADDED)
 
@@ -51,6 +53,10 @@ def register_background_events() -> int:
     backgroundEvents.scheduler.add_listener(event_removed, EVENT_JOB_REMOVED)
 
     def event_submitted(scheduler_event: JobSubmissionEvent):
+        event_name = event_name_by_id[scheduler_event.job_id]
+        if event_name == "collect_prometheus_stats":
+            return
+
         logger = logging.getLogger("backgroundEvents")
         logger.debug(
             f"Running event `{event_name_by_id[scheduler_event.job_id]}` with ID `{scheduler_event.job_id}`..."

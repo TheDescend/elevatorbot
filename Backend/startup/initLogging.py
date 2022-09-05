@@ -1,6 +1,7 @@
 import logging
 
 from Shared.functions.logging import ColourHighlighter, ElevatorLogger
+from Shared.functions.readSettingsFile import get_setting
 
 
 def init_logging() -> None:
@@ -12,12 +13,12 @@ def init_logging() -> None:
     )
     ElevatorLogger.make_console_logger(
         logger=logging.getLogger("uvicorn"),
-        level=logging.NOTSET,
+        level=logging.WARNING if not get_setting("ENABLE_DEBUG_MODE") else logging.NOTSET,
         highlighter=ColourHighlighter(name="uvicorn", colour="yellow"),
     )
     ElevatorLogger.make_console_logger(
         logger=logging.getLogger("uvicorn.access"),
-        level=logging.NOTSET,
+        level=logging.WARNING if not get_setting("ENABLE_DEBUG_MODE") else logging.NOTSET,
         highlighter=ColourHighlighter(name="uvicorn", colour="yellow"),
     )
     ElevatorLogger.make_console_logger(

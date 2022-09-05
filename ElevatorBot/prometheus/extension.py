@@ -82,7 +82,7 @@ class StatsServer(uvicorn.Server):
 class Stats(naff.Extension):
     host = "0.0.0.0"
     port = 8877
-    interval = 5
+    interval = 15
 
     def __init__(self, bot):
         self.server: Optional[StatsServer] = None
@@ -136,16 +136,33 @@ class Stats(naff.Extension):
     async def on_message_create(self, event: naff.events.MessageCreate):
         if guild := event.message.guild:
             counter = messages_counter.labels(
-                guild_id=guild.id, guild_name=guild.name, dm=0, user_id=event.message.author.id
+                guild_id=guild.id,
+                guild_name=guild.name,
+                dm=0,
+                user_id=event.message.author.id,
+                channel_id=event.message.channel.id,
+                channel_name=event.message.channel.name,
             )
         else:
-            counter = messages_counter.labels(guild_id=None, guild_name=None, dm=1, user_id=event.message.author.id)
+            counter = messages_counter.labels(
+                guild_id=None,
+                guild_name=None,
+                channel_id=None,
+                channel_name=None,
+                dm=1,
+                user_id=event.message.author.id,
+            )
 
         counter.inc()
 
     @naff.listen()
     async def on_voice_state_update(self, event: naff.events.VoiceStateUpdate):
-        if event.guild != descend_channels.guild:
+        if event.after:
+            guild = event.after.guild
+        else:
+            guild = event.before.guild
+
+        if guild != descend_channels.guild:
             return
 
         async with vc_lock:
@@ -154,7 +171,9 @@ class Stats(naff.Extension):
                 user_id = event.before.member.id
                 if user_id in users_in_vs:
                     join_date = users_in_vs.pop(user_id)
-                    metric = descend_voice_channel_activity.labels(channel_id=event.before.channel.id, user_id=user_id)
+                    metric = descend_voice_channel_activity.labels(
+                        channel_id=event.before.channel.id, channel_name=event.before.channel.name, user_id=user_id
+                    )
                     metric.observe((get_now_with_tz() - join_date).seconds)
 
             # save user join time
