@@ -4,7 +4,7 @@ aioredis==1.3.1     # aiohttp_client_cache currently requires this version
 # aiohttp_client_cache[redis]==0.7.0
 anyio==3.6.1
 apscheduler==3.9.1
-bungio==0.6.0
+bungio==0.6.3
 cachetools==5.2.0
 dateparser==1.1.1
 gtts==2.2.4

@@ -3,7 +3,7 @@ import logging
 import os
 import time
 
-from bungio.error import BungieException
+import bungio.error as bungio_errors
 from fastapi import Depends, FastAPI, Request
 from prometheus_client import CONTENT_TYPE_LATEST, REGISTRY, generate_latest
 from rich.console import Console
@@ -130,7 +130,7 @@ async def log_requests(request: Request, call_next):
 
     else:
         # do not log health check spam
-        if "health_check" not in request.url.path:
+        if not any(forbidden in request.url.path for forbidden in ["health_check", "metrics"]):
             process_time = round(time.time() - start_time, 2)
 
             # log that
@@ -157,7 +157,12 @@ startup_progress.update(startup_task, advance=1)
 # add exception handlers
 default_logger.debug("Adding Exception Handlers...")
 app.add_exception_handler(CustomException, handle_custom_exception)
-app.add_exception_handler(BungieException, handle_bungio_exception)
+for exc_class in bungio_errors.__dict__.values():
+    try:
+        if issubclass(exc_class, bungio_errors.HttpException):
+            app.add_exception_handler(exc_class, handle_bungio_exception)
+    except TypeError:
+        pass
 startup_progress.update(startup_task, advance=1)
 
 
@@ -175,7 +180,7 @@ async def startup():
 
     # Update the Destiny 2 manifest
     default_logger.debug("Updating and Caching Destiny 2 Manifest...")
-    await destiny_manifest.reset()
+    # await destiny_manifest.reset()
     startup_progress.update(startup_task, advance=1)
 
     # register background events
@@ -193,6 +198,3 @@ async def startup():
     prom_endpoints_registered.set(len(app.router.routes))
 
     startup_progress.stop()
-
-
-# todo bungio exceptions need to issue 429 responses

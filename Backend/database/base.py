@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import logging
 import os
-from contextlib import asynccontextmanager
+from contextlib import aclosing, asynccontextmanager
 from typing import AsyncContextManager, Optional
 
 import orjson
@@ -86,7 +86,6 @@ def is_test_mode(set_test_mode: Optional[bool] = None) -> bool:
 @asynccontextmanager
 async def acquire_db_session() -> AsyncContextManager[AsyncSession]:
     """Get a database session"""
-
     db = get_async_sessionmaker()()
     logger = logging.getLogger("db")
 

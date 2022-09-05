@@ -6,7 +6,7 @@ alembic==1.8.1
 anyio==3.6.1
 apscheduler==3.9.1
 asyncpg==0.26.0
-bungio==0.6.0
+bungio==0.6.3
 fastapi==0.81.0
 feedparser==6.0.10
 ics==0.7.2

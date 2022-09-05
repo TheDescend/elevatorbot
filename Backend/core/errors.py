@@ -4,6 +4,7 @@ from bungio.error import (
     BungieDead,
     BungieException,
     BungIOException,
+    HttpException,
     InvalidAuthentication,
     NotFound,
     TimeoutException,
@@ -34,7 +35,7 @@ async def handle_custom_exception(request: Request, exception: CustomException):
     )
 
 
-async def handle_bungio_exception(request: Request, exception: BungieException):
+async def handle_bungio_exception(request: Request, exception: HttpException):
     content = {}
     if isinstance(exception, InvalidAuthentication):
         error = "NoToken"

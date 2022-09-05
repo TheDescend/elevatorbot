@@ -4,6 +4,7 @@ from aiohttp import web
 
 from ElevatorBot.webserver.routes.manifestUpdate import manifest_update
 from ElevatorBot.webserver.routes.messages import messages
+from ElevatorBot.webserver.routes.metrics import metrics
 from ElevatorBot.webserver.routes.registration import registration
 from ElevatorBot.webserver.routes.roles import roles
 from ElevatorBot.webserver.routes.statusUpdate import status_update
@@ -15,8 +16,9 @@ async def log_requests(request: web.Request, handler):
         response = await handler(request)
 
         # log the successful request
-        logger = logging.getLogger("webServer")
-        logger.info(f"`{response.status}`: `{request.path_qs}`")
+        if "metrics" not in request.path:
+            logger = logging.getLogger("webServer")
+            logger.info(f"`{response.status}`: `{request.path_qs}`")
 
         return response
 
@@ -41,6 +43,7 @@ async def run_webserver(client):
             web.post("/messages", messages),
             web.post("/manifest_update", manifest_update),
             web.post("/status_update", status_update),
+            web.get("/metrics", metrics),
         ]
     )
 

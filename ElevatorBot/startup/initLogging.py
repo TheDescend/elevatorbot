@@ -11,16 +11,6 @@ def init_logging() -> None:
         level=logging.NOTSET,
         highlighter=ColourHighlighter(name="nafftrack", colour="green"),
     )
-    ElevatorLogger.make_console_logger(
-        logger=logging.getLogger("uvicorn"),
-        level=logging.WARNING if not get_setting("ENABLE_DEBUG_MODE") else logging.NOTSET,
-        highlighter=ColourHighlighter(name="uvicorn", colour="yellow"),
-    )
-    ElevatorLogger.make_console_logger(
-        logger=logging.getLogger("uvicorn.access"),
-        level=logging.WARNING if not get_setting("ENABLE_DEBUG_MODE") else logging.NOTSET,
-        highlighter=ColourHighlighter(name="uvicorn", colour="yellow"),
-    )
 
     # Initialize formatter
     logger = ElevatorLogger("ElevatorBot")

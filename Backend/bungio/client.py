@@ -26,8 +26,10 @@ class MyClient(Client):
                 token_expiry=after.token_expiry,
                 refresh_token_expiry=after.refresh_token_expiry,
             )
-
-        self.logger.debug(f"Updated token for {before.membership_id=}: {before.token=} -> {after.token=}")
+        if before:
+            self.logger.debug(f"Updated token for {before.membership_id=}: {before.token=} -> {after.token=}")
+        else:
+            self.logger.debug(f"Inserted token for {after.membership_id=} -> {after.token=}")
 
     async def on_manifest_update(self) -> None:
         from Backend.bungio.manifest import destiny_manifest

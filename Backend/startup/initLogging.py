@@ -13,12 +13,12 @@ def init_logging() -> None:
     )
     ElevatorLogger.make_console_logger(
         logger=logging.getLogger("uvicorn"),
-        level=logging.WARNING if not get_setting("ENABLE_DEBUG_MODE") else logging.NOTSET,
+        level=logging.WARNING,
         highlighter=ColourHighlighter(name="uvicorn", colour="yellow"),
     )
     ElevatorLogger.make_console_logger(
         logger=logging.getLogger("uvicorn.access"),
-        level=logging.WARNING if not get_setting("ENABLE_DEBUG_MODE") else logging.NOTSET,
+        level=logging.WARNING,
         highlighter=ColourHighlighter(name="uvicorn", colour="yellow"),
     )
     ElevatorLogger.make_console_logger(

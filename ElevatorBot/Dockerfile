@@ -26,4 +26,3 @@ COPY ./ElevatorBot /app/ElevatorBot
 WORKDIR /app
 CMD ["python3.10", "ElevatorBot/elevator.py"]
 EXPOSE $ELEVATOR_PORT
-EXPOSE 8877
