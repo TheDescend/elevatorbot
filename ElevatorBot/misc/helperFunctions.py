@@ -6,7 +6,7 @@ from enum import Enum, EnumMeta
 from typing import Generator, Optional
 
 from dateutil.parser import ParserError, parse
-from naff import Context
+from naff import Context, CustomEmoji
 from naff.client.errors import HTTPException
 from naff.models.naff.checks import TYPE_CHECK_FUNCTION
 
@@ -185,11 +185,16 @@ def get_enum_by_name(enum_class: EnumMeta, key: str) -> Enum:
     return getattr(enum_class, "_".join(key.split(" ")).upper())
 
 
-def get_emoji_by_name(enum_class: EnumMeta, key: str) -> Enum:
+def get_emoji_by_name(enum_class: EnumMeta, key: str) -> CustomEmoji:
     """Gets the emoji of the enum"""
 
     enum = get_enum_by_name(enum_class=enum_class, key=key)
-    return getattr(custom_emojis, enum.name.lower())
+
+    # does it exist with the underscore?
+    if res := getattr(custom_emojis, enum.name.lower(), None):
+        return res
+    # try without the underscore (MACHINEGUN), else return a question mark
+    return getattr(custom_emojis, enum.name.lower().replace("_", ""), custom_emojis.question)
 
 
 def check_is_guild() -> TYPE_CHECK_FUNCTION:
