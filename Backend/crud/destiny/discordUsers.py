@@ -4,7 +4,7 @@ import urllib.parse
 from contextlib import AsyncExitStack
 from typing import Optional
 
-from bungio.models import AuthData
+from bungio.models import AuthData, BungieMembershipType, FireteamPlatform
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from Backend.core.errors import CustomException
@@ -14,7 +14,6 @@ from Backend.database.base import acquire_db_session
 from Backend.database.models import DiscordUsers
 from Backend.misc.cache import cache
 from Backend.networking.elevatorApi import ElevatorApi
-from Shared.enums.elevator import DestinySystemEnum
 from Shared.functions.helperFunctions import get_min_with_tz, get_now_with_tz
 from Shared.networkingSchemas.misc.auth import BungieTokenOutput
 
@@ -165,7 +164,7 @@ class CRUDDiscordUser(CRUDBase):
             BungieTokenOutput(
                 bungie_name=user.bungie_name,
                 user_should_set_up_cross_save=not auth.cross_save_setup,
-                system=DestinySystemEnum(user.system).name,
+                system=BungieMembershipType(user.system).name,
             ),
             user,
             discord_id,

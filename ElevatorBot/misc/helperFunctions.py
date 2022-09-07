@@ -15,6 +15,7 @@ from ElevatorBot.discordEvents.customInteractions import ElevatorComponentContex
 from ElevatorBot.misc.formatting import embed_message
 from ElevatorBot.networking.destiny.account import DestinyAccount
 from ElevatorBot.static.emojis import custom_emojis
+from Shared.enums.elevator import UnknownEnum
 from Shared.functions.helperFunctions import get_min_with_tz, get_now_with_tz
 from Shared.functions.readSettingsFile import get_setting
 
@@ -182,7 +183,12 @@ def yield_files_in_folder(folder: str, extension: str) -> Generator:
 def get_enum_by_name(enum_class: EnumMeta, key: str) -> Enum:
     """Gets the name of the enum"""
 
-    return getattr(enum_class, "_".join(key.split(" ")).upper())
+    # does it exist with the underscore?
+    if res := getattr(enum_class, "_".join(key.split(" ")).upper(), None):
+        return res
+
+    # try without the underscore (MACHINEGUN), else return a question mark
+    return getattr(enum_class, "_".join(key.split(" ")).upper().replace("_", ""), UnknownEnum.UNKNOWN)
 
 
 def get_emoji_by_name(enum_class: EnumMeta, key: str) -> CustomEmoji:
@@ -190,11 +196,7 @@ def get_emoji_by_name(enum_class: EnumMeta, key: str) -> CustomEmoji:
 
     enum = get_enum_by_name(enum_class=enum_class, key=key)
 
-    # does it exist with the underscore?
-    if res := getattr(custom_emojis, enum.name.lower(), None):
-        return res
-    # try without the underscore (MACHINEGUN), else return a question mark
-    return getattr(custom_emojis, enum.name.lower().replace("_", ""), custom_emojis.question)
+    return getattr(custom_emojis, enum.name.lower(), custom_emojis.question)
 
 
 def check_is_guild() -> TYPE_CHECK_FUNCTION:
