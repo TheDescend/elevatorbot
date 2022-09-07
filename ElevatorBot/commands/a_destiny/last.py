@@ -76,7 +76,7 @@ class Last(BaseModule):
             )
 
             player_data = [
-                f"**{getattr(custom_emojis, player.character_class.lower())} {player.bungie_name if not discord_user else discord_user.mention}**",
+                f"**{getattr(custom_emojis, player.character_class.lower(), custom_emojis.question)} {player.bungie_name if not discord_user else discord_user.mention}**",
                 f"{custom_emojis.light_level} {player.light_level}",
                 "⁣",
                 f"K: **{player.kills}**, D: **{player.deaths}**, A: **{player.assists}**",

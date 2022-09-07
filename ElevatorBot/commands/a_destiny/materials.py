@@ -27,7 +27,7 @@ class DestinyMaterials(BaseModule):
                 name=name.capitalize(),
                 value="\n".join(
                     [
-                        f"""{getattr(custom_emojis, "_".join(item.name.split(" ")).lower().replace("(", "").replace(")", ""))} [{item.name}](https://www.light.gg/db/items/{item.reference_id})\n{custom_emojis.enter} **{int(item.value):,}**"""
+                        f"""{getattr(custom_emojis, "_".join(item.name.split(" ")).lower().replace("(", "").replace(")", ""), custom_emojis.question)} [{item.name}](https://www.light.gg/db/items/{item.reference_id})\n{custom_emojis.enter} **{int(item.value):,}**"""
                         for item in data
                     ]
                 ),

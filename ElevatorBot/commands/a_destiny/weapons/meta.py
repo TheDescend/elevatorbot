@@ -215,9 +215,9 @@ def meta_subprocess(
         f"Date: {Timestamp.fromdatetime(start_time).format(style=TimestampStyles.ShortDateTime)} - {Timestamp.fromdatetime(end_time).format(style=TimestampStyles.ShortDateTime)}",
     )
     if weapon_type:
-        embed.description += f"\nWeapon Type: {getattr(custom_emojis, DestinyWeaponTypeEnum(weapon_type).name.lower())} {capitalize_string(DestinyWeaponTypeEnum(weapon_type).name)}"
+        embed.description += f"\nWeapon Type: {getattr(custom_emojis, DestinyWeaponTypeEnum(weapon_type).name.lower(), custom_emojis.question)} {capitalize_string(DestinyWeaponTypeEnum(weapon_type).name)}"
     if damage_type:
-        embed.description += f"\nDamage Type: {getattr(custom_emojis, DamageType(damage_type).name.lower())} {capitalize_string(DamageType(damage_type).name)}"
+        embed.description += f"\nDamage Type: {getattr(custom_emojis, DamageType(damage_type).name.lower(), custom_emojis.question)} {capitalize_string(DamageType(damage_type).name)}"
 
     # set the footer
     footer = []
