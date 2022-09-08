@@ -13,12 +13,14 @@ from naff import (
     ActionRow,
     Button,
     ButtonStyles,
+    Colour,
     Embed,
     File,
     Guild,
     GuildCategory,
     GuildText,
     GuildVoice,
+    MaterialColors,
     Member,
     Message,
     OverwriteTypes,
@@ -671,10 +673,15 @@ class LfgMessage:
     async def __return_embed(self) -> Embed:
         """Return the formatted embed"""
 
+        # set the colour
+        if len(self.joined_ids) >= self.max_joined_members:
+            colour = MaterialColors.GREEN
+        else:
+            colour = MaterialColors.RED
+
+        # create the embed
         author = await self.guild.fetch_member(self.author_id)
-        embed = embed_message(
-            footer=f"Creator: {author.display_name if author else self.author_id}",
-        )
+        embed = embed_message(footer=f"Creator: {author.display_name if author else self.author_id}", colour=colour)
         if author:
             embed.footer.icon_url = author.display_avatar.url
 

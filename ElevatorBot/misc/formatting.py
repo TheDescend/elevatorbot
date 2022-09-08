@@ -12,6 +12,7 @@ def embed_message(
     footer: Optional[str] = None,
     member: Optional[Member | User] = None,
     guild: Optional[Guild] = None,
+    colour: Colour = Colour.from_hex("#71b093"),
 ) -> Embed:
     """Takes title description and footer and returns an Embed"""
 
@@ -20,9 +21,9 @@ def embed_message(
     ), "Need to input either title or description or footer"
 
     if not member or guild:
-        embed = Embed(title=title, description=description, color=Colour.from_hex("#71b093"))
+        embed = Embed(title=title, description=description, color=colour)
     else:
-        embed = Embed(description=description, color=Colour.from_hex("#71b093"))
+        embed = Embed(description=description, color=colour)
         if member:
             if isinstance(member, Member):
                 embed.set_author(name=f"{member.display_name}'s {title}", icon_url=member.display_avatar.url)
