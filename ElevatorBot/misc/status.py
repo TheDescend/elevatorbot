@@ -20,15 +20,10 @@ async def update_discord_bot_status(client: "Elevator"):
     status_messages = [
         f"Version: ElevatorBot@{__version__}",
         "Type `/` to see available commands",
-        f"""Click on {client.get_command_by_name("register").mention()} to register your Destiny 2 account""",
-        f"""If you encounter a bug, please use {client.get_command_by_name("bug").mention()}""",
-        "Also visit my website: `elevatorbot.ch`",
         "↓ Psst! Did you know this person stinks",
-        "To invite me to your own server, click on my profile",
         "@Feedy's has managed to find errors in three of my statuses so far and all he got was this 🍪",
         "Now using Descend™ green",
-        "Join the Descend discord: `discord.gg/descend`",
-        "I love debugging parallel asynchronous functions!!!",
+        "Join the Descend discord: https://discord.gg/descend",
     ]
 
     for element in itertools.cycle(status_messages):
