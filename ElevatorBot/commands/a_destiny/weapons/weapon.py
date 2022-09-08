@@ -1,4 +1,4 @@
-from bungio.models import DamageType, DestinyAmmunitionType
+from bungio.models import DamageType, DestinyAmmunitionType, DestinyItemSubType
 from naff import Member, Timestamp, TimestampStyles, slash_command
 
 from ElevatorBot.commandHelpers import autocomplete
@@ -18,7 +18,7 @@ from ElevatorBot.misc.formatting import capitalize_string, embed_message
 from ElevatorBot.misc.helperFunctions import get_emoji_by_name, parse_datetime_options
 from ElevatorBot.networking.destiny.weapons import DestinyWeapons
 from ElevatorBot.static.emojis import custom_emojis
-from Shared.enums.destiny import DestinyWeaponTypeEnum, UsableDestinyActivityModeTypeEnum
+from Shared.enums.destiny import UsableDestinyActivityModeTypeEnum
 from Shared.networkingSchemas.destiny import DestinyWeaponStatsInputModel
 
 
@@ -89,7 +89,7 @@ class WeaponsWeapon(BaseModule):
         # format them nicely
         description = [
             f"Weapon: [{weapon.name}](https://www.light.gg/db/items/{weapon.reference_ids[0]})",
-            f"Weapon Type: {get_emoji_by_name(DestinyWeaponTypeEnum, weapon.weapon_type)} {weapon.weapon_type}",
+            f"Weapon Type: {get_emoji_by_name(DestinyItemSubType, weapon.weapon_type)} {weapon.weapon_type}",
             f"Damage Type: {get_emoji_by_name(DamageType, weapon.damage_type)} {weapon.damage_type}",
             f"Ammo Type: {get_emoji_by_name(DestinyAmmunitionType, weapon.ammo_type)} {weapon.ammo_type}",
             "⁣",

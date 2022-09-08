@@ -2,7 +2,7 @@ import dataclasses
 from typing import Optional
 
 from anyio import create_task_group
-from bungio.models import DamageType, DestinyActivityModeType, DestinyAmmunitionType
+from bungio.models import DamageType, DestinyActivityModeType, DestinyAmmunitionType, DestinyItemSubType
 from naff import Member, TimestampStyles
 
 from ElevatorBot.commandHelpers import autocomplete
@@ -171,7 +171,7 @@ class RankCommandHandler:
             description.extend(
                 [
                     f"Weapon: [{weapon.name}](https://www.light.gg/db/items/{weapon.reference_ids[0]})",
-                    f"Weapon Type: {get_emoji_by_name(DestinyWeaponTypeEnum, weapon.weapon_type)} {weapon.weapon_type}",
+                    f"Weapon Type: {get_emoji_by_name(DestinyItemSubType, weapon.weapon_type)} {weapon.weapon_type}",
                     f"Damage Type: {get_emoji_by_name(DamageType, weapon.damage_type)} {weapon.damage_type}",
                     f"Ammo Type: {get_emoji_by_name(DestinyAmmunitionType, weapon.ammo_type)} {weapon.ammo_type}",
                     "⁣",

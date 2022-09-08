@@ -188,7 +188,11 @@ def get_enum_by_name(enum_class: EnumMeta, key: str) -> Enum:
         return res
 
     # try without the underscore (MACHINEGUN), else return a question mark
-    return getattr(enum_class, "_".join(key.split(" ")).upper().replace("_", ""), UnknownEnum.UNKNOWN)
+    if res := getattr(enum_class, "_".join(key.split(" ")).upper().replace("_", ""), None):
+        return res
+
+    logging.getLogger("generalExceptions").warning(f"get_enum_by_name(): Could not find {key=} in {enum_class=}")
+    return UnknownEnum.UNKNOWN
 
 
 def get_emoji_by_name(enum_class: EnumMeta, key: str) -> CustomEmoji:

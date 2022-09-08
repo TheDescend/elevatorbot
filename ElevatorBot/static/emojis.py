@@ -25,7 +25,7 @@ class __ElevatorEmojis:
 
         self.auto_rifle: CustomEmoji | int = 906180170778546226
         self.shotgun: CustomEmoji | int = 906180170971484220
-        self.machine_gun: CustomEmoji | int = 906180170833100820
+        self.machinegun: CustomEmoji | int = 906180170833100820
         self.hand_cannon: CustomEmoji | int = 906180170979881000
         self.rocket_launcher: CustomEmoji | int = 906180170799521812
         self.fusion_rifle: CustomEmoji | int = 906180170929565777
@@ -34,7 +34,7 @@ class __ElevatorEmojis:
         self.scout_rifle: CustomEmoji | int = 906180170858250261
         self.sidearm: CustomEmoji | int = 906180170833096774
         self.sword: CustomEmoji | int = 906180170929565776
-        self.linear_fusion_rifle: CustomEmoji | int = 906180170807906365
+        self.fusion_rifle_line: CustomEmoji | int = 906180170807906365
         self.grenade_launcher: CustomEmoji | int = 906180170405249025
         self.submachine_gun: CustomEmoji | int = 906180170799521815
         self.trace_rifle: CustomEmoji | int = 912989912251367444
