@@ -5,7 +5,7 @@ import logging
 from typing import Optional
 
 from anyio import create_task_group, to_thread
-from bungio.error import BungieDead, BungIOException
+from bungio.error import BungieDead, BungIOException, TimeoutException
 from bungio.models import DestinyActivityModeType, DestinyPostGameCarnageReportData
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -298,7 +298,7 @@ class DestinyActivities:
 
             except BungIOException as e:
                 # catch when bungie is down and ignore it
-                if isinstance(e, BungieDead):
+                if isinstance(e, (BungieDead, TimeoutException)):
                     return
                 raise e
 

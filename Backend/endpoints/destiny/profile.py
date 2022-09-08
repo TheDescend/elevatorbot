@@ -26,8 +26,8 @@ async def discord_has_token(discord_id: int):
 
     async with acquire_db_session() as db:
         profile = await discord_users.get_profile_from_discord_id(discord_id, db=db)
-        if not profile:
-            return DestinyHasTokenModel(token=False, value=None)
+    if (not profile) and (not profile.token):
+        return DestinyHasTokenModel(token=False, value=None)
 
     # get a working token
     await profile.auth.refresh()

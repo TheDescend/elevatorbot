@@ -45,10 +45,8 @@ async def handle_bungio_exception(request: Request, exception: HttpException):
         error = "BungieBadRequest"
     elif isinstance(exception, AuthenticationTooSlow):
         error = "BungieUnauthorized"
-    elif isinstance(exception, BungieDead):
+    elif isinstance(exception, (BungieDead, TimeoutException)):
         error = "BungieDed"
-    elif isinstance(exception, TimeoutException):
-        error = "ProgrammingError"
     else:
         error = exception.error
         content["message"] = exception.message

@@ -234,7 +234,7 @@ class UserRoles:
 
                 # loop through the collectibles
                 for collectible in role.requirement_require_collectibles:
-                    result = await self.user.has_collectible(collectible.bungie_id)
+                    result = await self.user.has_collectible(collectible.bungie_id, fresh_db=True)
 
                     if not result:
                         if not collectible.inverse:
@@ -258,7 +258,7 @@ class UserRoles:
 
                 # loop through the records
                 for record in role.requirement_require_records:
-                    result = await self.user.has_triumph(triumph_hash=record.bungie_id)
+                    result = await self.user.has_triumph(triumph_hash=record.bungie_id, fresh_db=True)
 
                     if not result:
                         if not record.inverse:

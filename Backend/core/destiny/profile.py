@@ -2,6 +2,7 @@ import asyncio
 import copy
 import dataclasses
 import datetime
+from contextlib import AsyncExitStack
 from typing import Literal, Optional
 
 from anyio import to_thread
@@ -27,6 +28,7 @@ from Backend.core.errors import CustomException
 from Backend.crud import crud_activities, discord_users
 from Backend.crud.destiny.collectibles import collectibles
 from Backend.crud.destiny.records import records
+from Backend.database import acquire_db_session
 from Backend.database.models import Collectibles, DiscordUsers, Records
 from Backend.misc.cache import cache
 from Shared.enums.destiny import DestinyInventoryBucketEnum, DestinyPresentationNodeWeaponSlotEnum
@@ -284,7 +286,9 @@ class DestinyProfile:
             lifetime_score=triumphs_data["lifetime_score"],
         )
 
-    async def has_triumph(self, triumph_hash: str | int, send_details: bool = False) -> BoolModelRecord:
+    async def has_triumph(
+        self, triumph_hash: str | int, send_details: bool = False, fresh_db: bool = False
+    ) -> BoolModelRecord:
         """Returns if the triumph is gotten"""
 
         triumph_hash = int(triumph_hash)
@@ -301,55 +305,61 @@ class DestinyProfile:
                 ):
                     return BoolModelRecord(bool=False)
 
-                # sync the cache with the db
-                results = await records.gotten_records(db=self.db, destiny_id=self.destiny_id)
-                if results and len(results) != len(cache.triumphs[self.destiny_id]):
-                    # only caching already got records
-                    for record in results:
-                        cache.triumphs[self.destiny_id].add(record.record_id)
-                    if triumph_hash in cache.triumphs[self.destiny_id]:
-                        return BoolModelRecord(bool=True)
-
-                # alright, the user doesn't have the triumph, at least not in the db. So let's update the db entries
-                triumphs_data = await self.get_triumphs()
-                to_insert = []
-                sought_triumph = {}
-
-                # loop through all triumphs and add them / update them in the db
-                for triumph_id, triumph_info in triumphs_data.items():
-                    try:
-                        triumph_id = int(triumph_id)
-                    except ValueError:
-                        # this is the "active_score", ... fields
-                        continue
-
-                    if triumph_id in cache.triumphs[self.destiny_id]:
-                        continue
-
-                    # calculate if the triumph is gotten and save the triumph we are looking for
-                    status = True
-                    if not triumph_info.objectives:
-                        status &= DestinyRecordState.OBJECTIVE_NOT_COMPLETED not in triumph_info.state
-
+                async with AsyncExitStack() as async_onexit_calls:
+                    if fresh_db:
+                        db = await async_onexit_calls.enter_async_context(acquire_db_session())
                     else:
-                        for part in triumph_info.objectives:
-                            status &= part.complete
+                        db = self.db
 
-                    # is this the triumph we are looking for?
-                    if triumph_id == triumph_hash:
-                        sought_triumph = triumph_info
+                    # sync the cache with the db
+                    results = await records.gotten_records(db=db, destiny_id=self.destiny_id)
+                    if results and len(results) != len(cache.triumphs[self.destiny_id]):
+                        # only caching already got records
+                        for record in results:
+                            cache.triumphs[self.destiny_id].add(record.record_id)
+                        if triumph_hash in cache.triumphs[self.destiny_id]:
+                            return BoolModelRecord(bool=True)
 
-                    # don't really need to insert not-gained triumphs
-                    if status:
-                        cache.triumphs[self.destiny_id].add(triumph_id)
-                        to_insert.append(Records(destiny_id=self.destiny_id, record_id=triumph_id))
+                    # alright, the user doesn't have the triumph, at least not in the db. So let's update the db entries
+                    triumphs_data = await self.get_triumphs()
+                    to_insert = []
+                    sought_triumph = {}
 
-                # mass insert the missing entries
-                if to_insert:
-                    await records.insert_records(db=self.db, objs=to_insert)
+                    # loop through all triumphs and add them / update them in the db
+                    for triumph_id, triumph_info in triumphs_data.items():
+                        try:
+                            triumph_id = int(triumph_id)
+                        except ValueError:
+                            # this is the "active_score", ... fields
+                            continue
 
-                # save the update time
-                await discord_users.update(db=self.db, to_update=self.user, triumphs_last_updated=get_now_with_tz())
+                        if triumph_id in cache.triumphs[self.destiny_id]:
+                            continue
+
+                        # calculate if the triumph is gotten and save the triumph we are looking for
+                        status = True
+                        if not triumph_info.objectives:
+                            status &= DestinyRecordState.OBJECTIVE_NOT_COMPLETED not in triumph_info.state
+
+                        else:
+                            for part in triumph_info.objectives:
+                                status &= part.complete
+
+                        # is this the triumph we are looking for?
+                        if triumph_id == triumph_hash:
+                            sought_triumph = triumph_info
+
+                        # don't really need to insert not-gained triumphs
+                        if status:
+                            cache.triumphs[self.destiny_id].add(triumph_id)
+                            to_insert.append(Records(destiny_id=self.destiny_id, record_id=triumph_id))
+
+                    # mass insert the missing entries
+                    if to_insert:
+                        await records.insert_records(db=db, objs=to_insert)
+
+                    # save the update time
+                    await discord_users.update(db=db, to_update=self.user, triumphs_last_updated=get_now_with_tz())
 
         # now check again if its completed
         if triumph_hash in cache.triumphs[self.destiny_id]:
@@ -363,7 +373,7 @@ class DestinyProfile:
                     result.objectives.append(BoolModelObjective(objective_id=part.objective_hash, bool=part.complete))
         return result
 
-    async def has_collectible(self, collectible_hash: str | int) -> bool:
+    async def has_collectible(self, collectible_hash: str | int, fresh_db: bool = False) -> bool:
         """Returns if the collectible is gotten"""
 
         collectible_hash = int(collectible_hash)
@@ -378,36 +388,42 @@ class DestinyProfile:
                 if self.user.collectibles_last_updated + datetime.timedelta(minutes=10) > get_now_with_tz():
                     return False
 
-                # sync the cache with the db
-                results = await collectibles.gotten_collectibles(db=self.db, destiny_id=self.destiny_id)
-                if results and len(results) != len(cache.collectibles[self.destiny_id]):
-                    # only caching already got collectibles
-                    for collectible in results:
-                        cache.collectibles[self.destiny_id].add(collectible.collectible_id)
-                    if collectible_hash in cache.collectibles[self.destiny_id]:
-                        return True
+                async with AsyncExitStack() as async_onexit_calls:
+                    if fresh_db:
+                        db = await async_onexit_calls.enter_async_context(acquire_db_session())
+                    else:
+                        db = self.db
 
-                # as with the triumphs, we need to update our local collectible data now
-                collectibles_data = await self.get_collectibles()
-                to_insert = []
+                    # sync the cache with the db
+                    results = await collectibles.gotten_collectibles(db=db, destiny_id=self.destiny_id)
+                    if results and len(results) != len(cache.collectibles[self.destiny_id]):
+                        # only caching already got collectibles
+                        for collectible in results:
+                            cache.collectibles[self.destiny_id].add(collectible.collectible_id)
+                        if collectible_hash in cache.collectibles[self.destiny_id]:
+                            return True
 
-                # loop through the collectibles
-                for collectible_id, collectible_info in collectibles_data.items():
-                    # if its in cache, its also in the db
-                    if collectible_id in cache.collectibles[self.destiny_id]:
-                        continue
+                    # as with the triumphs, we need to update our local collectible data now
+                    collectibles_data = await self.get_collectibles()
+                    to_insert = []
 
-                    # don't really need to insert not-owned collectibles
-                    if DestinyCollectibleState.NOT_ACQUIRED not in collectible_info.state:
-                        cache.collectibles[self.destiny_id].add(collectible_id)
-                        to_insert.append(Collectibles(destiny_id=self.destiny_id, collectible_id=collectible_id))
+                    # loop through the collectibles
+                    for collectible_id, collectible_info in collectibles_data.items():
+                        # if its in cache, its also in the db
+                        if collectible_id in cache.collectibles[self.destiny_id]:
+                            continue
 
-                # mass insert the missing entries
-                if to_insert:
-                    await collectibles.insert_collectibles(db=self.db, objs=to_insert)
+                        # don't really need to insert not-owned collectibles
+                        if DestinyCollectibleState.NOT_ACQUIRED not in collectible_info.state:
+                            cache.collectibles[self.destiny_id].add(collectible_id)
+                            to_insert.append(Collectibles(destiny_id=self.destiny_id, collectible_id=collectible_id))
 
-                # save the update time
-                await discord_users.update(db=self.db, to_update=self.user, collectibles_last_updated=get_now_with_tz())
+                    # mass insert the missing entries
+                    if to_insert:
+                        await collectibles.insert_collectibles(db=db, objs=to_insert)
+
+                    # save the update time
+                    await discord_users.update(db=db, to_update=self.user, collectibles_last_updated=get_now_with_tz())
 
         # now check again if its owned
         return collectible_hash in cache.collectibles[self.destiny_id]
