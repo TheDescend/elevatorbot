@@ -24,7 +24,7 @@ from ElevatorBot.misc.formatting import capitalize_string, embed_message, get_em
 from ElevatorBot.misc.helperFunctions import get_emoji_by_name, parse_datetime_options
 from ElevatorBot.networking.destiny.weapons import DestinyWeapons
 from ElevatorBot.static.emojis import custom_emojis
-from Shared.enums.destiny import UsableDestinyActivityModeTypeEnum
+from Shared.enums.destiny import DestinyWeaponTypeEnum, UsableDestinyActivityModeTypeEnum
 from Shared.networkingSchemas.destiny import (
     DestinyActivityModel,
     DestinyTopWeaponModel,
