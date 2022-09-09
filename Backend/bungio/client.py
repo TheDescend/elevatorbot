@@ -4,6 +4,7 @@ import os
 
 from aiohttp_client_cache import RedisBackend
 from bungio import Client
+from bungio.error import InvalidAuthentication
 from bungio.http import HttpClient, Route
 from bungio.models import AuthData
 
@@ -50,6 +51,16 @@ class MyHttpClient(HttpClient):
             with perf.time(), running.track_inprogress():
                 return await super().request(route=route)
         except Exception as error:
+            # if it errors because of the auth, try without the token once
+            if isinstance(error, InvalidAuthentication) and route.method == "GET":
+                route.auth = None
+                try:
+                    with perf.time(), running.track_inprogress():
+                        return await super().request(route=route)
+                except Exception as error:
+                    pass
+
+            # if that did not work, raise the error
             counter = prom_bungie_errors.labels(**labels)
             counter.inc()
             raise error
