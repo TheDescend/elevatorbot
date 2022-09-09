@@ -180,7 +180,7 @@ async def startup():
 
     # Update the Destiny 2 manifest
     default_logger.debug("Updating and Caching Destiny 2 Manifest...")
-    # await destiny_manifest.reset()
+    await destiny_manifest.reset()
     startup_progress.update(startup_task, advance=1)
 
     # register background events

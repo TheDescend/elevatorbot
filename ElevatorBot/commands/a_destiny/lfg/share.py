@@ -5,6 +5,7 @@ from naff import (
     GuildText,
     Member,
     OptionTypes,
+    Permissions,
     Timestamp,
     TimestampStyles,
     slash_command,
@@ -38,6 +39,12 @@ class LfgShare(BaseModule):
     )
     async def share(self, ctx: ElevatorInteractionContext, lfg_id: int, channel: GuildText = None):
         channel = channel or ctx.channel
+
+        # check if author has perms for that channel
+        member_perms = channel.permissions_for(ctx.author)
+        if Permissions.SEND_MESSAGES not in member_perms:
+            await ctx.send(embed_message("Error", "You do not have permissions to use that channel"))
+            return
 
         # get the message obj
         lfg_message = await LfgMessage.from_lfg_id(ctx=ctx, lfg_id=lfg_id, client=ctx.bot, guild=ctx.guild)

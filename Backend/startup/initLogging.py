@@ -30,7 +30,7 @@ def init_logging() -> None:
     # Bungio logger
     logger = ElevatorLogger("BungIO")
     logger.highlighter.colour = "blue"
-    logger.make_logger("bungio", level=logging.INFO)
+    logger.make_logger("bungio")
 
     # Initialize formatter
     logger = ElevatorLogger("Backend")

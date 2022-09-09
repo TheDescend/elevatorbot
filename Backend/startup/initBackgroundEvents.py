@@ -76,9 +76,13 @@ def register_background_events() -> int:
     backgroundEvents.scheduler.add_listener(event_executed, EVENT_JOB_EXECUTED)
 
     def event_missed(scheduler_event: JobExecutionEvent):
+        event_name = event_name_by_id[scheduler_event.job_id]
+        if event_name == "collect_prometheus_stats":
+            return
+
         # log the execution
         logger = logging.getLogger("backgroundEventsExceptions")
-        logger.warning(f"Event `{event_name_by_id[scheduler_event.job_id]}` with ID `{scheduler_event.job_id}` missed")
+        logger.warning(f"Event `{event_name}` with ID `{scheduler_event.job_id}` missed")
 
     backgroundEvents.scheduler.add_listener(event_missed, EVENT_JOB_MISSED)
 
