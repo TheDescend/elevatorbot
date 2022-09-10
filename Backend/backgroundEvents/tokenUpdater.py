@@ -7,6 +7,7 @@ from Backend.crud import discord_users
 from Backend.database.base import acquire_db_session
 
 
+# todo make sure its not needed anymore and then delete (updated in activity updater)
 class TokenUpdater(BaseEvent):
     """Every week, this updates user tokens, so they don't have to re-register so much"""
 

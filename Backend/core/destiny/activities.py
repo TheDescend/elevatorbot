@@ -5,7 +5,7 @@ import logging
 from typing import Optional
 
 from anyio import create_task_group, to_thread
-from bungio.error import BungieDead, BungIOException, TimeoutException
+from bungio.error import BungieDead, BungIOException, InvalidAuthentication, TimeoutException
 from bungio.models import DestinyActivityModeType, DestinyPostGameCarnageReportData
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -256,6 +256,12 @@ class DestinyActivities:
                 entry_time = self.user.activities_last_updated
 
             logger.info(f"Starting activity DB update for destinyID `{self.destiny_id}`")
+
+            # make sure auth is not lost beyond repair
+            try:
+                await self.user.auth.refresh()
+            except InvalidAuthentication:
+                pass
 
             # loop through all activities
             try:
