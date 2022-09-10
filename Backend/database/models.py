@@ -177,19 +177,27 @@ class DiscordUsers(Base):
     collectibles_last_updated = Column(DateTime(timezone=True), nullable=False, default=get_min_with_tz())
     triumphs_last_updated = Column(DateTime(timezone=True), nullable=False, default=get_min_with_tz())
 
+    _auth: AuthData = None
+
     @property
-    def auth(self) -> Optional[AuthData]:
-        if not self.token:
-            return None
-        return AuthData(
-            token=self.token,
-            token_expiry=self.token_expiry,
-            refresh_token=self.refresh_token,
-            refresh_token_expiry=self.refresh_token_expiry,
-            membership_type=self.system,
-            membership_id=self.destiny_id,
-            bungie_name=self.bungie_name,
-        )
+    def auth(self) -> AuthData:
+        from Backend.misc.cache import cache
+
+        if self._auth is None:
+            if self.discord_id not in cache.discord_users_auth:
+                cache.discord_users_auth[self.discord_id] = AuthData(
+                    token=self.token,
+                    token_expiry=self.token_expiry,
+                    refresh_token=self.refresh_token,
+                    refresh_token_expiry=self.refresh_token_expiry,
+                    membership_type=self.system,
+                    membership_id=self.destiny_id,
+                    bungie_name=self.bungie_name,
+                )
+
+            self._auth = cache.discord_users_auth[self.discord_id]
+
+        return self._auth
 
     @property
     def bungio_user(self) -> DestinyUser:

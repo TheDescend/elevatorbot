@@ -180,6 +180,18 @@ class CRUDDiscordUser(CRUDBase):
             # update the cache in-place
             to_update.update_from_class(updated)
 
+        # make sure the auth info is properly updated if the token updated
+        if "token" in update_kwargs:
+            if cached := cache.discord_users_auth.get(to_update.discord_id, None):
+                # update the cache
+                cached.token = update_kwargs["token"]
+                if "refresh_token" in update_kwargs:
+                    cached.refresh_token = update_kwargs["refresh_token"]
+                if "token_expiry" in update_kwargs:
+                    cached.token_expiry = update_kwargs["token_expiry"]
+                if "refresh_token_expiry" in update_kwargs:
+                    cached.refresh_token_expiry = update_kwargs["refresh_token_expiry"]
+
         return to_update
 
     async def invalidate_token(self, db: AsyncSession, user: DiscordUsers):

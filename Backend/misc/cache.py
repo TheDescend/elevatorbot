@@ -2,6 +2,8 @@ import dataclasses
 import datetime
 from typing import Optional
 
+from bungio.models import AuthData
+
 from Backend.database.models import DiscordUsers, PersistentMessage, Roles
 
 
@@ -16,6 +18,9 @@ class Cache:
     discord_users: dict[int, DiscordUsers] = dataclasses.field(init=False, default_factory=dict)
     # Key: destiny_id
     discord_users_by_destiny_id: dict[int, DiscordUsers] = dataclasses.field(init=False, default_factory=dict)
+
+    # User Auth Objects - Key: discord_id
+    discord_users_auth: dict[int, AuthData] = dataclasses.field(init=False, default_factory=dict)
 
     # Role Objects - Key: role_id
     roles: dict[int, Roles] = dataclasses.field(init=False, default_factory=dict)
