@@ -121,7 +121,7 @@ class ElevatorLogger:
     @staticmethod
     def make_console_logger(
         logger: logging.Logger, highlighter: Optional[Highlighter] = None, level: int = logging.DEBUG
-    ):
+    ) -> logging.Logger:
         logger.propagate = False
         console_handler = RichHandler(
             **RICH_LOGGING_PARAMS,
@@ -130,6 +130,8 @@ class ElevatorLogger:
         )
         logger.handlers = []
         logger.addHandler(console_handler)
+
+        return logger
 
     def make_logger(self, log_name: str, only_console: bool = False, level: Optional[int] = None):
         logger = logging.getLogger(log_name)

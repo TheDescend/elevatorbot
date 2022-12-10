@@ -48,12 +48,12 @@ class BubbleWrap(BaseModule):
             await message.edit(components=components)
         else:
             # find the pressed button and disable it
-            j, i = component.context.custom_id.split("|")
+            j, i = component.ctx.custom_id.split("|")
             obj = components[int(j)].components[int(i)]
             obj.disabled = True
             obj.label = "pop"
 
-            await component.context.edit_origin(components=components)
+            await component.ctx.edit_origin(components=components)
 
             # wait again
             await self.wait_for_pops(components=components, message=message)

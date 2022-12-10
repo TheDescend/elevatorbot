@@ -1,7 +1,7 @@
 import dataclasses
 from typing import Optional
 
-from naff import ActionRow, Embed, Guild, GuildText, Member, Message, Select, SelectOption
+from naff import ActionRow, Embed, Guild, GuildText, Member, Message, SelectOption, StringSelectMenu
 
 from ElevatorBot.discordEvents.base import ElevatorClient
 from ElevatorBot.discordEvents.customInteractions import ElevatorComponentContext, ElevatorInteractionContext
@@ -35,7 +35,7 @@ class Poll:
         self.select = (
             [
                 ActionRow(
-                    Select(
+                    StringSelectMenu(
                         options=[
                             SelectOption(
                                 label=choice.name,

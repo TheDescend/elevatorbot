@@ -21,6 +21,7 @@ class DestinyActivityModel(CustomBaseModel):
     max_players: int
     activity_ids: list[int]
     mode: Optional[int] = None
+    modes: list[int] = []
     image_url: Optional[str] = None
 
     def __hash__(self) -> int:

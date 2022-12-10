@@ -82,6 +82,7 @@ class LfgCreate(BaseModule):
                 ),
             ],
         )
+
         await ctx.send_modal(modal=modal)
 
         # wait 5 minutes for them to fill it out

@@ -199,7 +199,7 @@ class Calculator:
 
     # checks that the button press author is the same as the message command invoker and that the message matches
     def check_author_and_message(self, component: Component):
-        return (component.context.author == self.ctx.author) and (self.message == component.context.message)
+        return (component.ctx.author == self.ctx.author) and (self.message == component.ctx.message)
 
     # wait for button press look
     async def wait_for_button_press(self):
@@ -215,7 +215,7 @@ class Calculator:
             await self.send_message(timeout=True)
             return
         else:
-            button_ctx: ElevatorComponentContext = component.context  # noqa
+            button_ctx: ElevatorComponentContext = component.ctx  # noqa
             text = button_ctx.custom_id
 
             if text not in [

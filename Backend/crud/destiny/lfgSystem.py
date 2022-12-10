@@ -25,7 +25,7 @@ class CRUDLfgMessages(CRUDBase):
             cache_key = f"{guild_id}|lfg_channel"
 
             # populate cache
-            if cache_key not in cache.persistent_messages:
+            if not cache.persistent_messages.get(cache_key, None):
                 try:
                     await persistent_messages.get(db=db, guild_id=guild_id, message_name="lfg_channel")
                 except CustomException as e:

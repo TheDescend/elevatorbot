@@ -27,7 +27,9 @@ class RegisteredRoleCache:
     """This saves registered data (for each guild) in the cache"""
 
     guild_to_role: dict[int, Role] = dataclasses.field(init=False, default_factory=dict)
-    registered_users: TTLCache = TTLCache(ttl=3600, maxsize=10000)
+    registered_users: TTLCache = dataclasses.field(
+        init=False, default_factory=lambda: TTLCache(ttl=3600, maxsize=10000)
+    )
 
     async def get(self, guild: Guild) -> Optional[Role]:
         """Get the role for a guild"""

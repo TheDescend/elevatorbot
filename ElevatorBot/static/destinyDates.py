@@ -39,7 +39,7 @@ season_dates = [
     _Date("2021-08-24", "Season of the Lost"),
     _Date("2022-05-24", "Season of the Haunted"),
     _Date("2022-08-23", "Season of Plunder"),
-    _Date("2022-12-06", "Season of [REDACTED]"),
+    _Date("2022-12-06", "Season of the Seraph"),
 ]
 
 other_important_dates_part_1 = [

@@ -63,7 +63,8 @@ class BaseModule(RegisteredModule):
                     "Registration Required",
                     f"""You are not worthy ... yet\nPlease {ctx.client.get_command_by_name("register").mention()} with me, then you can use my commands""",
                     "Note: Registration is only valid for a year, so you might need to re-register now",
-                )
+                ),
+                ephemeral=True,
             )
 
             # check if user has the registration role

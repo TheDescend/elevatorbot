@@ -110,7 +110,7 @@ class Website(BaseModule):
                 ),
             ),
         ]
-        await ctx.send(content="⁣", components=components)
+        await ctx.send(components=components)
 
 
 def setup(client):

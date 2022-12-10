@@ -143,7 +143,7 @@ async def log_error(
         msg += f" - NAFF Errors:\n{naff_errors}"
     logger.exception(msg, exc_info=error)
 
-    if not ctx.responded:
+    if ctx and not ctx.responded:
         await ctx.send(
             embeds=embed_message(
                 "Error",

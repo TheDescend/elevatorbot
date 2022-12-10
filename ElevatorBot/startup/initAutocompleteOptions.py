@@ -55,6 +55,7 @@ async def load_autocomplete_options():
                 max_players=6,
                 activity_ids=raids,
                 mode=DestinyActivityModeType.RAID.value,
+                modes=[DestinyActivityModeType.RAID.value],
             )
         }
     )
@@ -69,6 +70,7 @@ async def load_autocomplete_options():
                 max_players=3,
                 activity_ids=dungeons,
                 mode=DestinyActivityModeType.DUNGEON.value,
+                modes=[DestinyActivityModeType.DUNGEON.value],
             )
         }
     )

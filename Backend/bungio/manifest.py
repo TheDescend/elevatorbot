@@ -190,7 +190,10 @@ class CRUDManifest:
         # sometimes bungie is not including some fields which is very annoying
         # luckily we can get the info from somewhere else
         if activity.direct_activity_mode_type is not MISSING and activity.activity_mode_types is not MISSING:
-            return DestinyActivityModeType(activity.direct_activity_mode_type), activity.activity_mode_types
+            try:
+                return DestinyActivityModeType(activity.direct_activity_mode_type), activity.activity_mode_types
+            except ValueError:
+                pass
 
         # fill out the data with the activityTypeHash field which is the key to *some* mode definitions
         result: DestinyActivityModeDefinition = await get_bungio_client().manifest.fetch(
@@ -222,13 +225,15 @@ class CRUDManifest:
                 # format them correctly
                 result = {}
                 for activities in data.values():
+                    mode, modes = await self.get_activity_mode(activities[0])
                     model = DestinyActivityModel(
                         name=activities[0].display_properties.name or "Unknown",
                         description=activities[0].display_properties.description,
                         matchmade=activities[0].matchmaking.is_matchmade if activities[0].matchmaking else False,
                         max_players=activities[0].matchmaking.max_players if activities[0].matchmaking else False,
                         activity_ids=[activity.hash for activity in activities],
-                        mode=(await self.get_activity_mode(activities[0]))[0].value,
+                        mode=mode.value,
+                        modes=[m.value for m in modes],
                         image_url=f"https://www.bungie.net/{activities[0].pgcr_image}"
                         if activities[0].pgcr_image
                         else None,
@@ -289,8 +294,9 @@ class CRUDManifest:
 
                 seals = []
                 for node in presentation_nodes:
-                    if DestinyPresentationNodesEnum.SEALS.value in node.parent_node_hashes:
-                        seals.append(node)
+                    if node.parent_node_hashes:
+                        if DestinyPresentationNodesEnum.SEALS.value in node.parent_node_hashes:
+                            seals.append(node)
 
                 # now loop through all the seals and get the record infos
                 for seal in seals:
@@ -372,12 +378,15 @@ class CRUDManifest:
                     matchmade=False,
                     max_players=3,
                     activity_ids=[],
+                    mode=DestinyActivityModeType.SCORED_NIGHTFALL.value,
+                    modes=[DestinyActivityModeType.SCORED_NIGHTFALL.value],
                 )
 
                 # format them correctly
                 result = []
                 for activities in gms.values():
                     reference_ids = [activity.hash for activity in activities]
+                    mode, modes = await self.get_activity_mode(activities[0])
                     all_grandmaster.activity_ids.extend(reference_ids)
                     result.append(
                         DestinyActivityModel(
@@ -386,7 +395,8 @@ class CRUDManifest:
                             matchmade=activities[0].matchmaking.is_matchmade,
                             max_players=activities[0].matchmaking.max_players,
                             activity_ids=reference_ids,
-                            mode=activities[0].direct_activity_mode_type,
+                            mode=mode.value,
+                            modes=[m.value for m in modes],
                             image_url=f"https://www.bungie.net/{activities[0].pgcr_image}"
                             if activities[0].pgcr_image
                             else None,
@@ -466,13 +476,15 @@ class CRUDManifest:
                             data = None
                             for activity in db_result:
                                 if not data:
+                                    mode, modes = await self.get_activity_mode(activity)
                                     data = DestinyActivityModel(
                                         name=activity_name,
                                         description=activity.display_properties.description,
                                         matchmade=activity.matchmaking.is_matchmade,
                                         max_players=activity.matchmaking.max_players,
                                         activity_ids=[activity.hash],
-                                        mode=(await self.get_activity_mode(activity))[0].value,
+                                        mode=mode.value,
+                                        modes=[m.value for m in modes],
                                         image_url=f"https://www.bungie.net/{activity.pgcr_image}"
                                         if activity.pgcr_image
                                         else None,

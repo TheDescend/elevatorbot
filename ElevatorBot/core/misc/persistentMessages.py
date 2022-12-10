@@ -19,7 +19,7 @@ class PersistentMessages(BackendPersistentMessages):
 
         if result:
             channel = await self.guild.fetch_channel(result.channel_id)
-            message = await channel.fetch_message(result.message_id) if channel else None
+            message = await channel.fetch_message(result.message_id) if channel and result.message_id else None
 
             return channel, message
 

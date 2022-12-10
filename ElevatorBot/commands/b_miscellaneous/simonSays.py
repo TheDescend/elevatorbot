@@ -76,23 +76,23 @@ class SimonSays(BaseModule):
                 component = await ctx.bot.wait_for_component(
                     components=self.components,
                     timeout=60,
-                    check=lambda c: c.context.author == ctx.author,
+                    check=lambda c: c.ctx.author == ctx.author,
                 )
             except asyncio.TimeoutError:
                 embed.description = f"Timed out!\n⁣\nScore: **{len(sequence) - 1}**"
                 await message.edit(components=[], embeds=embed)
                 return
             else:
-                chosen = component.context.custom_id.split("_")[1]
+                chosen = component.ctx.custom_id.split("_")[1]
                 if chosen == entry:
                     embed.description = placeholder.format(got=i + 1, to_get=len(sequence))
-                    await component.context.edit_origin(embeds=embed)
+                    await component.ctx.edit_origin(embeds=embed)
 
                 else:
                     embed.description = (
                         f"Wrong! Correct would have been `{entry.capitalize()}`\n⁣\nScore: **{len(sequence) - 1}**"
                     )
-                    await component.context.edit_origin(components=[], embeds=embed)
+                    await component.ctx.edit_origin(components=[], embeds=embed)
                     return
 
         # user has input all symbols correctly

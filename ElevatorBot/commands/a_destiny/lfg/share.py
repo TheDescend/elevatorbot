@@ -57,7 +57,7 @@ class LfgShare(BaseModule):
         message = await channel.send(
             embeds=embed_message(
                 f"Sharing LFG Event",
-                f"Activity: **{lfg_message.activity}**\nJoined: **{len(lfg_message.joined_ids)}/{lfg_message.max_joined_members}**\nStarting: {timestamp.format(style=TimestampStyles.ShortDateTime)} - {timestamp.format(style=TimestampStyles.RelativeTime)}",
+                f"Activity: **{lfg_message.activity}**\nStarting: {timestamp.format(style=TimestampStyles.ShortDateTime)} - {timestamp.format(style=TimestampStyles.RelativeTime)}\nDescription: ```{lfg_message.description}```",
             ),
             components=Button(
                 style=ButtonStyles.URL,

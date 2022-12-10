@@ -1,6 +1,15 @@
 from typing import Optional
 
-from naff import ActionRow, ChannelTypes, GuildChannel, OptionTypes, Select, SelectOption, slash_command, slash_option
+from naff import (
+    ActionRow,
+    ChannelTypes,
+    GuildChannel,
+    OptionTypes,
+    SelectOption,
+    StringSelectMenu,
+    slash_command,
+    slash_option,
+)
 
 from ElevatorBot.commandHelpers.permissionTemplates import restrict_default_permission
 from ElevatorBot.commandHelpers.subCommandTemplates import descend_setup_sub_command
@@ -88,7 +97,7 @@ class MiscellaneousRoles(BaseModule):
         message_name = "other_game_roles"
         components = [
             ActionRow(
-                Select(
+                StringSelectMenu(
                     custom_id=message_name,
                     options=[
                         SelectOption(

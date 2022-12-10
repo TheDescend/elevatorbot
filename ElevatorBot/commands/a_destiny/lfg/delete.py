@@ -30,7 +30,7 @@ class LfgDelete(BaseModule):
             if not await has_admin_permission(ctx=ctx, member=ctx.author):
                 return
 
-        await lfg_message.delete()
+        await lfg_message.delete(hard=True)
         await ctx.send(
             ephemeral=True,
             embeds=embed_message("Success", f"The LFG event with the id `{lfg_id}` has been deleted"),

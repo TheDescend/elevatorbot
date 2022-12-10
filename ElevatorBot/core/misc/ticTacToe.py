@@ -132,15 +132,15 @@ class TicTacToeGame:
     def check_author_and_message(self, component: Component):
         # versus mode
         if self.versus:
-            check = self.message.id == component.context.message.id
+            check = self.message.id == component.ctx.message.id
             if self.player_turn:
-                check = check and (component.context.author == self.player_turn)
+                check = check and (component.ctx.author == self.player_turn)
             elif self.player1:
-                check = check and (component.context.author != self.player1)
+                check = check and (component.ctx.author != self.player1)
 
         # ai mode
         else:
-            check = (component.context.author == self.ctx.author) and (self.message.id == component.context.message.id)
+            check = (component.ctx.author == self.ctx.author) and (self.message.id == component.ctx.message.id)
 
         return check
 
@@ -206,7 +206,7 @@ class TicTacToeGame:
             await self.send_message(timeout=True, disable_buttons=True)
             return
         else:
-            button_ctx: ElevatorComponentContext = component.context  # noqa
+            button_ctx: ElevatorComponentContext = component.ctx  # noqa
 
             # make sure the players are set
             if self.versus:

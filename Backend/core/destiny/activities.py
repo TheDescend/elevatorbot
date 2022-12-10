@@ -6,6 +6,7 @@ from typing import Optional
 
 from anyio import create_task_group, to_thread
 from bungio.error import BungieDead, BungIOException, InvalidAuthentication, TimeoutException
+from bungio.http import RateLimiter
 from bungio.models import DestinyActivityModeType, DestinyPostGameCarnageReportData
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -200,7 +201,11 @@ class DestinyActivities:
 
             try:
                 async with pgcr_getter_semaphore:
-                    pgcr = await get_bungio_client().api.get_post_game_carnage_report(i)
+                    # make get pgcrs at a lower rate to free space for other requests
+                    # prevents complete blockage
+                    await bungio_client.api.activity_updater_ratelimiter.wait_for_token()
+
+                    pgcr = await bungio_client.api.get_post_game_carnage_report(i)
                     results.append((i, t, pgcr))
 
             except Exception as e:
@@ -233,6 +238,8 @@ class DestinyActivities:
         # get the logger
         logger = logging.getLogger("updateActivityDb")
         logger_exceptions = logging.getLogger("updateActivityDbExceptions")
+
+        bungio_client = get_bungio_client()
 
         # get the destiny clan members for descend
         async with acquire_db_session() as session:

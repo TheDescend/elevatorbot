@@ -1,4 +1,4 @@
-FROM python:3.10.3
+FROM python:3.11
 
 # we want stdout
 ENV PYTHONDONTWRITEBYTECODE=1
@@ -8,10 +8,10 @@ ENV PYTHONUNBUFFERED=1
 ENV PYTHONPATH="${PYTHONPATH}:/app"
 
 # install the requirements
-RUN pip3.10 install uvloop
-RUN pip3.10 install psycopg2
+RUN pip3.11 install uvloop
+RUN pip3.11 install psycopg2
 COPY ./Backend/requirements.txt /app/Backend/requirements.txt
-RUN pip3.10 install -r /app/Backend/requirements.txt
+RUN pip3.11 install -r /app/Backend/requirements.txt
 
 # copy over the required files
 COPY ./settings.toml /app/settings.toml

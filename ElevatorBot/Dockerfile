@@ -1,4 +1,4 @@
-FROM python:3.10.3
+FROM python:3.11
 
 # we want stdout
 ENV PYTHONDONTWRITEBYTECODE=1
@@ -12,9 +12,9 @@ RUN apt-get -y update
 RUN apt-get -y install ffmpeg
 
 # install the requirements
-RUN pip3.10 install uvloop
+RUN pip3.11 install uvloop
 COPY ./ElevatorBot/requirements.txt /app/ElevatorBot/requirements.txt
-RUN pip3.10 install -r /app/ElevatorBot/requirements.txt
+RUN pip3.11 install -r /app/ElevatorBot/requirements.txt
 
 # copy over the required files
 COPY ./version.py /app/version.py
@@ -24,5 +24,5 @@ COPY ./ElevatorBot /app/ElevatorBot
 
 # start elevator
 WORKDIR /app
-CMD ["python3.10", "ElevatorBot/elevator.py"]
+CMD ["python3.11", "ElevatorBot/elevator.py"]
 EXPOSE $ELEVATOR_PORT

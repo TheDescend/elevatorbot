@@ -1,6 +1,6 @@
 import asyncio
 
-from naff import ActionRow, Member, Message, Select, SelectOption, slash_command
+from naff import ActionRow, Member, Message, SelectOption, StringSelectMenu, slash_command
 from naff.api.events import Component
 
 from ElevatorBot.commandHelpers.optionTemplates import default_user_option
@@ -32,7 +32,7 @@ class SeasonalChallenges(BaseModule):
         # create select components
         select = [
             ActionRow(
-                Select(
+                StringSelectMenu(
                     options=[
                         SelectOption(
                             emoji="📅",
@@ -96,7 +96,7 @@ class SeasonalChallenges(BaseModule):
 
         # wait 60s for selection
         def check(component_check: Component):
-            return component_check.context.author == author
+            return component_check.ctx.author == author
 
         try:
             component: Component = await self.client.wait_for_component(components=select, timeout=60, check=check)
@@ -105,7 +105,7 @@ class SeasonalChallenges(BaseModule):
             return
         else:
             # noinspection PyTypeChecker
-            select_ctx: ElevatorComponentContext = component.context
+            select_ctx: ElevatorComponentContext = component.ctx
             new_week = select_ctx.values[0]
 
             # recursively call this function

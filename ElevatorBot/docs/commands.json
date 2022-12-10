@@ -533,7 +533,7 @@
                             "Witch Queen",
                             "Season of the Haunted",
                             "Season of Plunder",
-                            "Season of [REDACTED]",
+                            "Season of the Seraph",
                             "Lightfall"
                         ]
                     },
@@ -783,7 +783,7 @@
                             "Witch Queen",
                             "Season of the Haunted",
                             "Season of Plunder",
-                            "Season of [REDACTED]",
+                            "Season of the Seraph",
                             "Lightfall"
                         ]
                     },
@@ -1253,7 +1253,7 @@
                             "Witch Queen",
                             "Season of the Haunted",
                             "Season of Plunder",
-                            "Season of [REDACTED]",
+                            "Season of the Seraph",
                             "Lightfall"
                         ]
                     },
@@ -1409,7 +1409,7 @@
                             "Witch Queen",
                             "Season of the Haunted",
                             "Season of Plunder",
-                            "Season of [REDACTED]",
+                            "Season of the Seraph",
                             "Lightfall"
                         ]
                     },
@@ -1521,7 +1521,7 @@
                             "Witch Queen",
                             "Season of the Haunted",
                             "Season of Plunder",
-                            "Season of [REDACTED]",
+                            "Season of the Seraph",
                             "Lightfall"
                         ]
                     },
@@ -2051,13 +2051,13 @@
                     },
                     {
                         "name": "setup lfg channel",
-                        "description": "Designate a channel where my LFG events get posted",
+                        "description": "Designate a forum channel where my LFG events get posted",
                         "default_required_permissions": "Administrator",
                         "enabled_in_dm": false,
                         "options": [
                             {
                                 "name": "channel",
-                                "description": "The text channel where the message should be displayed",
+                                "description": "The category under which the forum channel for the events should be created",
                                 "required": true,
                                 "autocomplete": false
                             }

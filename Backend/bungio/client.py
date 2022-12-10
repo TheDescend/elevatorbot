@@ -5,7 +5,7 @@ import os
 from aiohttp_client_cache import RedisBackend
 from bungio import Client
 from bungio.error import InvalidAuthentication
-from bungio.http import HttpClient, Route
+from bungio.http import HttpClient, RateLimiter, Route
 from bungio.models import AuthData
 
 from Backend.database import acquire_db_session, is_test_mode, setup_engine
@@ -70,6 +70,12 @@ class MyHttpClient(HttpClient):
 _BUNGIO_CLIENT: MyClient = None
 
 
+# do some monkey patching to add a ratelimiter for this route
+async def get_activity_history(self, *args, **kwargs):
+    await self.activity_updater_ratelimiter.wait_for_token()
+    await self._get_activity_history(*args, **kwargs)
+
+
 def get_bungio_client() -> MyClient:
     global _BUNGIO_CLIENT
 
@@ -100,5 +106,8 @@ def get_bungio_client() -> MyClient:
             manifest_storage=setup_engine(),
             http_client_class=MyHttpClient,
         )
+        _BUNGIO_CLIENT.api._get_activity_history = _BUNGIO_CLIENT.api.get_activity_history
+        _BUNGIO_CLIENT.api._get_activity_history = get_activity_history
+        _BUNGIO_CLIENT.api.activity_updater_ratelimiter = RateLimiter(max_tokens=230)
 
     return _BUNGIO_CLIENT

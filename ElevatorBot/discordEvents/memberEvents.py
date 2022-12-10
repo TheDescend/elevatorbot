@@ -97,7 +97,7 @@ async def on_member_remove(event: MemberRemove):
                     await message.edit(components=[])
                     return
                 else:
-                    button_ctx = component.context
+                    button_ctx = component.ctx
 
                     if button_ctx.custom_id == "clan_kick_yes":
                         # kick the user from the clan

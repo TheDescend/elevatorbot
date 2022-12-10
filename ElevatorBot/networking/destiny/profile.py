@@ -71,17 +71,22 @@ class DestinyProfile(BaseBackendConnection):
             return True
         try:
             # check their status with the backend
-            result = await self.has_token()
+            result = await self.from_discord_member()
+
+            # todo change back to look up tokens maybe. Need to fix the tokens getting deleted reugalraly tho
+            # result = await self.has_token()
         except BackendException as e:
             if e.error in ["NoToken", "DiscordIdNotFound"]:
                 return False
             else:
                 raise e
 
-        if result.token:
+        registered = (not hasattr(result, "token")) or result.token
+
+        if registered:
             registered_role_cache.registered_users[self.discord_member.id] = True
 
-        return result.token
+        return registered
 
     async def has_token(self) -> DestinyHasTokenModel:
         """Does the user have a working token"""

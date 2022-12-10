@@ -43,7 +43,7 @@ async def paginate(
 
     # wait for a button press for 60s
     def check(component_check: Component):
-        return component_check.context.author == ctx.author
+        return component_check.ctx.author == ctx.author
 
     try:
         component = await ctx.bot.wait_for_component(
@@ -64,8 +64,8 @@ async def paginate(
         await callback(
             ctx=ctx,
             member=member,
-            key=component.context.custom_id.split("|")[2],
-            button_ctx=component.context,
+            key=component.ctx.custom_id.split("|")[2],
+            button_ctx=component.ctx,
             message=message,
             data=callback_data,
         )

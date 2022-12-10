@@ -138,7 +138,7 @@ async def on_thread_update(event: ThreadUpdate):
 async def on_thread_delete(event: ThreadDelete):
     """Triggers when a thread gets deleted"""
 
-    if event.thread.guild == descend_channels.guild:
+    if not isinstance(event.thread, str) and event.thread.guild == descend_channels.guild:
         # remove the reply thread cache data
         if event.thread.id in reply_cache.thread_to_user:
             user_id = reply_cache.thread_to_user[event.thread.id]

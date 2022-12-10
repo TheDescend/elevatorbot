@@ -145,12 +145,13 @@ if __name__ == "__main__":
 
     # enable intents to allow certain events--
     # see https://discord.com/developers/docs/topics/gateway#gateway-intents
-    intents = Intents.new(
-        guilds=True,
-        guild_members=True,
-        guild_messages=True,
-        guild_voice_states=True,
-        direct_messages=True,
+    intents = (
+        Intents.GUILDS
+        | Intents.GUILD_MEMBERS
+        | Intents.GUILD_MESSAGES
+        | Intents.GUILD_MESSAGE_CONTENT
+        | Intents.GUILD_VOICE_STATES
+        | Intents.DIRECT_MESSAGES
     )
 
     # actually get the bot obj
@@ -166,6 +167,7 @@ if __name__ == "__main__":
         component_context=ElevatorComponentContext,
         autocomplete_context=ElevatorAutocompleteContext,
         modal_context=ElevatorModalContext,
+        delay_until_ready=True,
         logger=ElevatorLogger.make_console_logger(
             logger=logging.getLogger("naff"),
             level=logging.DEBUG if get_setting("ENABLE_DEBUG_MODE") else logging.WARNING,
@@ -206,8 +208,9 @@ if __name__ == "__main__":
 
     CustomDebugModule(bot=client)
 
-    # load the tracking extension
+    # load the extensions
     client.load_extension("ElevatorBot.prometheus.extension")
+    client.load_extension("ElevatorBot.discordEvents.errorEvents")
     startup_progress.update(startup_task, advance=1)
 
     logger.debug("Loading Discord Events...")

@@ -12,6 +12,7 @@ async def messages(request: web.Request):
         "message": Optional[str],
         "embed_title": Optional[str],
         "embed_description": Optional[str],
+        "embed_image_url": Optional[str],
 
         "guilds": [
             {
@@ -26,7 +27,7 @@ async def messages(request: web.Request):
     """
 
     client = request.app["client"]
-    parameters = await request.json()
+    parameters: dict = await request.json()
 
     guilds_with_errors = []
 
@@ -38,9 +39,12 @@ async def messages(request: web.Request):
             continue
 
         embed = None
-        if parameters["embed_title"]:
-            embed = embed_message(parameters["embed_title"], parameters["embed_description"])
-        await channel.send(content=parameters["message"], embeds=embed)
+        if title := parameters.get("embed_title"):
+            embed = embed_message(title, parameters.get("embed_description"))
+            if image_url := parameters.get("embed_image_url"):
+                embed.set_image(url=image_url)
+
+        await channel.send(content=parameters.get("message"), embeds=embed)
 
     return (
         web.json_response({"success": True})

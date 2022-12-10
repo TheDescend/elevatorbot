@@ -8,9 +8,11 @@ import logging
 from typing import Optional
 
 from apscheduler.jobstores.base import JobLookupError
+from bungio.models import DestinyActivityModeType
 from ics import Calendar, Event
 from naff import (
     ActionRow,
+    AutoArchiveDuration,
     Button,
     ButtonStyles,
     Colour,
@@ -18,6 +20,8 @@ from naff import (
     File,
     Guild,
     GuildCategory,
+    GuildForum,
+    GuildPublicThread,
     GuildText,
     GuildVoice,
     MaterialColors,
@@ -26,13 +30,16 @@ from naff import (
     OverwriteTypes,
     PermissionOverwrite,
     Permissions,
+    ThreadTag,
     Timestamp,
     TimestampStyles,
 )
 from naff.client.errors import Forbidden, NotFound
+from naff.models.discord.channel import GuildForumPost
 
 from ElevatorBot.commandHelpers import autocomplete
 from ElevatorBot.core.destiny.lfg.scheduledEvents import delete_lfg_scheduled_events
+from ElevatorBot.core.misc.persistentMessages import PersistentMessages
 from ElevatorBot.discordEvents.base import ElevatorClient
 from ElevatorBot.discordEvents.customInteractions import (
     ElevatorComponentContext,
@@ -68,7 +75,8 @@ class LfgMessage:
     start_time: datetime.datetime
     max_joined_members: int
 
-    channel: Optional[GuildText] = None
+    channel: Optional[GuildForum] = None
+    post: Optional[GuildForumPost] = None
     message: Optional[Message] = None
     creation_time: Optional[datetime.datetime] = None
     joined_ids: list[int] = dataclasses.field(default_factory=list)
@@ -123,7 +131,10 @@ class LfgMessage:
                 raise ValueError
 
         # fill class info
-        channel: GuildText = await client.fetch_channel(model.channel_id)
+        channel: GuildForum = await client.fetch_channel(model.channel_id)
+        if not isinstance(channel, GuildForum):
+            return
+
         start_time: datetime.datetime = model.start_time
 
         # delete if in the past
@@ -132,10 +143,11 @@ class LfgMessage:
             return
 
         # make sure the message exists
-        message = await channel.fetch_message(model.message_id) if model.message_id else None
-        if not message:
+        post = await channel.fetch_post(model.message_id) if model.message_id else None
+        if not post:
             await backend.delete(discord_member_id=model.author_id, lfg_id=model.id)
             return
+        message = post.initial_post
 
         lfg_message = cls(
             backend=backend,
@@ -143,6 +155,7 @@ class LfgMessage:
             id=model.id,
             guild=guild,
             channel=channel,
+            post=post,
             author_id=model.author_id,
             activity=model.activity,
             description=model.description,
@@ -183,6 +196,7 @@ class LfgMessage:
 
         # error if that fails
         if not lfg_message:
+            msg_id = ctx.message.id
             await ctx.message.delete()
             await ctx.send(
                 embed=embed_message(
@@ -191,6 +205,14 @@ class LfgMessage:
                 ),
                 ephemeral=True,
             )
+
+            # delete the post
+            await asyncio.sleep(10)
+            connection = PersistentMessages(ctx=None, guild=ctx.guild, message_name="lfg_channel")
+            channel, _ = await connection.get_channel_and_message()
+            post = await channel.fetch_post(msg_id)
+            await post.delete()
+
             raise BackendException
 
         return lfg_message
@@ -328,15 +350,53 @@ class LfgMessage:
             return True
         return False
 
+    def get_tags(self) -> list[ThreadTag]:
+        """Get the correct tags for this post"""
+
+        activity = autocomplete.activities[self.activity.lower()]
+
+        # activity type
+        tags = []
+        if DestinyActivityModeType.RAID.value in activity.modes:
+            tags.append(self.channel.get_tag("Raid"))
+            tags.append(self.channel.get_tag("PvE"))
+        elif DestinyActivityModeType.DUNGEON.value in activity.modes:
+            tags.append(self.channel.get_tag("Dungeon"))
+            tags.append(self.channel.get_tag("PvE"))
+        elif DestinyActivityModeType.ALL_PV_E.value in activity.modes:
+            tags.append(self.channel.get_tag("PvE"))
+        elif DestinyActivityModeType.ALL_PV_P.value in activity.modes:
+            tags.append(self.channel.get_tag("PvP"))
+        else:
+            tags.append(self.channel.get_tag("Other"))
+
+        # fullness
+        if len(self.joined_ids) >= self.max_joined_members:
+            tags.append(self.channel.get_tag("Full!"))
+        else:
+            tags.append(self.channel.get_tag("Searching..."))
+
+        return tags
+
     async def send(
         self, ctx: ElevatorComponentContext | ElevatorInteractionContext | None = None, force_sort: bool = False
     ):
         """Send / edit the message in the channel"""
 
-        embed = await self.__return_embed()
+        embed, content = await self.__return_embed()
+        tags = self.get_tags()
 
         if not self.message:
-            self.message = await self.channel.send(embed=embed, components=self.__buttons)
+            self.post = await self.channel.create_post(
+                name=self.activity,
+                content=content,
+                embed=embed,
+                components=self.__buttons,
+                applied_tags=tags,
+                auto_archive_duration=AutoArchiveDuration.ONE_WEEK,
+            )
+            self.message = self.post.initial_post
+
             self.creation_time = get_now_with_tz()
             force_sort = True
 
@@ -346,15 +406,33 @@ class LfgMessage:
                     embeds=embed_message(
                         "Success",
                         f"I've created the event (ID: `{self.id}`) \nClick [here]({self.message.jump_url}) to view the event",
-                    )
+                    ),
+                    ephemeral=True,
                 )
 
         else:
             # acknowledge the button press
             if ctx:
-                await ctx.edit_origin(embeds=embed, components=self.__buttons)
+                await ctx.edit_origin(content=content, embeds=embed, components=self.__buttons)
             else:
-                await self.message.edit(embeds=embed, components=self.__buttons)
+                await self.message.edit(content=content, embeds=embed, components=self.__buttons)
+
+            # make sure title and tags are still valid
+            edit_payload = {}
+            if self.post.name != self.activity.replace(":", ""):
+                edit_payload["name"] = self.activity
+
+            edit_tags = False
+            for tag in tags:
+                if tag not in self.post.applied_tags:
+                    edit_tags = True
+                    break
+
+            if edit_tags:
+                edit_payload["applied_tags"] = tags
+
+            if edit_payload:
+                await self.post.edit(**edit_payload)
 
         # update the database entry
         await self.__dump_to_db()
@@ -371,15 +449,20 @@ class LfgMessage:
                 if force_sort:
                     await self.__sort_lfg_messages()
 
-    async def delete(self, delete_command_user_id: Optional[int] = None):
-        """Removes the message and also the database entries"""
+    async def delete(self, wait_for_seconds: int = 0, hard: bool = False):
+        """Archives the post and also deletes the database entries"""
 
-        if not delete_command_user_id:
-            delete_command_user_id = self.author_id
+        # archive message (or delete for /lfg delete)
+        if self.post:
+            if not hard:
+                await self.post.edit(applied_tags=[self.channel.get_tag("Archived")])
+                await self.post.archive(reason="LFG event has happened")
+            else:
+                await self.post.delete(reason="/lfg delete")
 
-        # delete message
-        if self.message:
-            await self.message.delete()
+        # wait for the required time
+        if wait_for_seconds:
+            await asyncio.sleep(wait_for_seconds)
 
         # try to delete voice channel, if that is currently empty
         if self.voice_channel and not self.voice_channel.members:
@@ -525,16 +608,19 @@ class LfgMessage:
             except Forbidden:
                 pass
 
-        # edit the channel message
+        # send that message in the post
         self.started = True
-        await self.message.edit(embeds=embed, components=[])
+        await self.message.edit(components=[])
+        await self.post.send(embeds=embed)
         await self.__dump_to_db()
 
         # wait time to start + 10 min
-        await asyncio.sleep((self.start_time - get_now_with_tz()).seconds + 60 * 10)
+        wait_for = (self.start_time - get_now_with_tz()).seconds + 60 * 10
 
-        # delete the post
-        await self.delete()
+        # delete the post (this waits too)
+        await self.delete(wait_for_seconds=wait_for)
+
+        await asyncio.sleep(wait_for)
 
         # delete the voice channel if empty
         if self.voice_channel and not self.voice_channel.voice_members:
@@ -552,18 +638,15 @@ class LfgMessage:
             if len(events) <= 1:
                 return
 
-            # get two lists:
-            # a list with the current message objs (sorted by asc creation date)
-            # a list with the LfgMessage objs
-            sorted_messages_by_creation_time = []
+            # get a list with the LfgMessage objs
             lfg_messages = []
             for event in events:
                 # ignore started messages
                 if event.started:
                     continue
 
-                message = await self.channel.fetch_message(event.message_id)
-                sorted_messages_by_creation_time.append(message)
+                post = await self.channel.fetch_post(event.message_id)
+                message = post.initial_post
                 lfg_messages.append(
                     LfgMessage(
                         backend=self.backend,
@@ -571,6 +654,7 @@ class LfgMessage:
                         id=event.id,
                         guild=self.guild,
                         channel=self.channel,
+                        post=post,
                         author_id=event.author_id,
                         activity=event.activity,
                         description=event.description,
@@ -591,15 +675,14 @@ class LfgMessage:
                 )
 
             # sort the LfgMessages by their start_time
-            # latest at the bottom
+            # furthest in the future at the top
             sorted_lfg_messages = sorted(lfg_messages, reverse=True)
 
-            # update the messages with their new message obj
-            for message, lfg_message in zip(sorted_messages_by_creation_time, sorted_lfg_messages):
-                # only send if the message changed
-                if lfg_message != message:
-                    lfg_message.message = message
-                    await lfg_message.send()
+            # put a message in the post and then delete it instantly to bump the post
+            # since the nearest post will be bumped last, it will be at the top
+            for lfg_message in sorted_lfg_messages:
+                bump_msg = await lfg_message.post.send("Sorting...")
+                await bump_msg.delete()
 
     async def __get_joined_members_display_names(self) -> list[str]:
         """Get the mention strings of the joined members"""
@@ -670,7 +753,7 @@ class LfgMessage:
 
         return file_message.attachments[0].url
 
-    async def __return_embed(self) -> Embed:
+    async def __return_embed(self) -> tuple[Embed, str]:
         """Return the formatted embed"""
 
         # set the colour
@@ -685,26 +768,30 @@ class LfgMessage:
         if author:
             embed.footer.icon_url = author.display_avatar.url
 
+        # set image
+        image_url = autocomplete.activities[self.activity.lower()].image_url
+        if image_url:
+            embed.set_thumbnail(image_url)
+
         # add the fields with the data
         embed.add_field(
             name="Activity",
             value=self.activity,
             inline=True,
         )
-        image_url = autocomplete.activities[self.activity.lower()].image_url
-        if image_url:
-            embed.set_thumbnail(image_url)
 
         if isinstance(self.start_time, datetime.datetime):
+            start_time = f"{Timestamp.fromdatetime(self.start_time).format(style=TimestampStyles.ShortDateTime)}"
             embed.add_field(
                 name="Start Time",
-                value=f"{Timestamp.fromdatetime(self.start_time).format(style=TimestampStyles.ShortDateTime)}\n[Add To Calendar]({await self.__get_ics_url()})",
+                value=f"{start_time}\n[Add To Calendar]({await self.__get_ics_url()})",
                 inline=True,
             )
         else:
+            start_time = "__As Soon As Full__"
             embed.add_field(
                 name="Start Time",
-                value="__As Soon As Full__",
+                value=start_time,
                 inline=True,
             )
         embed.add_field(
@@ -717,15 +804,15 @@ class LfgMessage:
             value=self.description,
             inline=False,
         )
-
+        fullness_bar = replace_progress_formatting(
+            completion_status=make_progress_bar_text(
+                percentage=len(self.joined_ids) / self.max_joined_members if self.max_joined_members != 0 else 0,
+                bar_length=8,
+            )
+        )
         embed.add_field(
             name="⁣",
-            value=replace_progress_formatting(
-                completion_status=make_progress_bar_text(
-                    percentage=len(self.joined_ids) / self.max_joined_members if self.max_joined_members != 0 else 0,
-                    bar_length=8,
-                )
-            ),
+            value=fullness_bar,
             inline=False,
         )
         embed.add_field(
@@ -740,7 +827,7 @@ class LfgMessage:
                 inline=True,
             )
 
-        return embed
+        return embed, f"{fullness_bar}\n{start_time}"
 
     async def __dump_to_db(self):
         """Update the database entry"""

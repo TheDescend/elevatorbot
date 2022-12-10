@@ -1,7 +1,5 @@
-import aiohttp
-import feedparser
-
 from Backend.backgroundEvents.base import BaseEvent
+from Backend.bungio.client import get_bungio_client
 from Backend.core.errors import CustomException
 from Backend.crud import persistent_messages, rss_feed
 from Backend.database.base import acquire_db_session
@@ -16,21 +14,14 @@ class RssFeedChecker(BaseEvent):
         super().__init__(scheduler_type="interval", interval_minutes=interval_minutes)
 
     async def run(self):
-        # use aiohttp to make the request instead of feedparsers request usage
-        async with aiohttp.ClientSession() as session:
-            async with session.get("https://www.bungie.net/en/rss/News") as resp:
-                if resp.status == 200:
-                    text = await resp.text()
-                else:
-                    return
+        bungio_client = get_bungio_client()
+        news = await bungio_client.api.rss_news_articles(page_token="0", includebody=False)
 
         async with acquire_db_session() as db:
-            feed = feedparser.parse(text)
-
             # loop through the articles and check if they have been published
             to_publish = []
-            for item in feed["entries"]:
-                if not await rss_feed.get(db=db, item_id=item["id"]):
+            for item in news.news_articles:
+                if not await rss_feed.get(db=db, item_id=item.unique_identifier):
                     to_publish.append(item)
                 else:
                     # dont need to re-check all of them every time
@@ -52,9 +43,9 @@ class RssFeedChecker(BaseEvent):
                     elevator_api = ElevatorApi()
                     for item in to_publish:
                         data = {
-                            "message": bungie_url(item["link"]),
-                            "embed_title": None,
-                            "embed_description": None,
+                            "embed_title": item.title,
+                            "embed_description": f"[{item.description}]({bungie_url(item.link)})",
+                            "embed_image_url": item.image_path,
                             "guilds": subscribed_data,
                         }
 
@@ -73,7 +64,7 @@ class RssFeedChecker(BaseEvent):
                                     )
 
                         # save item in DB
-                        await rss_feed.insert(db=db, item_id=item["id"])
+                        await rss_feed.insert(db=db, item_id=item.unique_identifier)
                 except CustomException:
                     pass
 
