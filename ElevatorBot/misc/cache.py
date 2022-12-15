@@ -102,9 +102,9 @@ class DescendCache:
         """Cache the message where the status updates are"""
 
         persistent_messages = PersistentMessages(ctx=None, guild=descend_channels.guild, message_name="status")
-        result = await persistent_messages.get()
-        if not result:
-            # when we have not set a message yet
+        try:
+            result = await persistent_messages.get()
+        except:
             return
 
         channel = await descend_channels.guild.fetch_channel(result.channel_id)
