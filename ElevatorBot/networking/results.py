@@ -36,8 +36,10 @@ class BackendResult:
             if not self.error:
                 self.__error_message = "Success"
 
-            if self.error in get_error_codes_and_responses():
-                self.__error_message = get_error_codes_and_responses()[self.error]
+            if msg := get_error_codes_and_responses().get(self.error):
+                self.__error_message = msg
+            elif msg := get_error_codes_and_responses().get(f"Bungie{self.error}"):
+                self.__error_message = msg
             else:
                 if self.message is not None:
                     self.__error_message = f"{self.error}: {self.message}"
