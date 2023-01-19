@@ -11,6 +11,10 @@ class __ElevatorEmojis:
     """To add an emoji add it to the class variables"""
 
     def __init__(self):
+        # !!!
+        # Either the moji id must be correct, or the emoji name on discord must be the same as in the class here
+        # !!!
+        
         # DESCEND [BL]
 
         self.kinetic: CustomEmoji | int = 906180170875031562
@@ -131,14 +135,17 @@ class __ElevatorEmojis:
                 # no access to descend servers
                 continue
 
-        # loop through found emojis
-        for emoji in emojis:
-            # loop through all class attributes
-            # this is inefficient but dynamic and only called once
-            for attr, value in self.__dict__.items():
-                if isinstance(value, int):
-                    if emoji.id == value:
-                        setattr(self, attr, emoji)
+        # loop through all class attributes
+        # this is inefficient but dynamic and only called once
+        for attr, value in self.__dict__.items():
+            if isinstance(value, int):
+                found_emoji = "🙃"
+                # loop through found emojis
+                for emoji in emojis:
+                    if (emoji.id == value) or (emoji.name.lower() == attr.lower()):
+                        found_emoji = emoji
+                        break
+                setattr(self, attr, found_emoji)
 
 
 custom_emojis: __ElevatorEmojis = __ElevatorEmojis()
