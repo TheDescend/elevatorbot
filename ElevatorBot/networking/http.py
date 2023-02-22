@@ -184,6 +184,7 @@ class BaseBackendConnection:
 
             # format the result to be the pydantic model
             result = await response.json(loads=orjson.loads)
+            error_message = None
 
         else:
             success = False
