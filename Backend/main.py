@@ -30,6 +30,7 @@ from Backend.prometheus.stats import (
 from Backend.startup.initBackgroundEvents import register_background_events
 from Backend.startup.initLogging import init_logging
 from Shared.functions.logging import DESCEND_COLOUR
+from Shared.functions.readSettingsFile import get_setting
 from Shared.networkingSchemas.misc.auth import BackendUserModel
 
 # print ascii art
@@ -180,7 +181,7 @@ async def startup():
 
     # Update the Destiny 2 manifest
     default_logger.debug("Updating and Caching Destiny 2 Manifest...")
-    await destiny_manifest.reset()
+    await destiny_manifest.reset(soft=get_setting("ENABLE_DEBUG_MODE"))
     startup_progress.update(startup_task, advance=1)
 
     # register background events

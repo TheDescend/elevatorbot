@@ -4,7 +4,7 @@ from Backend.core.destiny.activities import DestinyActivities
 from Backend.core.destiny.profile import DestinyProfile
 from Backend.crud import discord_users
 from Backend.database import acquire_db_session
-from Shared.networkingSchemas import BoolModel, DestinyAllMaterialsModel, NameModel, ValueModel
+from Shared.networkingSchemas import BoolModel, DestinyAllMaterialsModel, EmptyResponseModel, NameModel, ValueModel
 from Shared.networkingSchemas.destiny import (
     BoolModelRecord,
     DestinyCatalystsModel,
@@ -24,6 +24,18 @@ router = APIRouter(
     prefix="/destiny/account/{guild_id}/{discord_id}",
     tags=["destiny", "account"],
 )
+
+
+@router.post("/{character_id}/set_transmog", response_model=EmptyResponseModel)  # todo test
+async def set_transmog(guild_id: int, discord_id: int, character_id: int):
+    """Sets the transmog and the shader off all items to the one currently equiped"""
+
+    async with acquire_db_session() as db:
+        user = await discord_users.get_profile_from_discord_id(discord_id, db=db)
+        profile = DestinyProfile(db=db, user=user)
+
+        await profile.set_transmog(character_id=character_id)
+        return EmptyResponseModel()
 
 
 @router.get("/name", response_model=NameModel)  # has test

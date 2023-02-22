@@ -14,6 +14,7 @@ from bungio.models import (
     DestinyPresentationNodeDefinition,
     DestinyRecordDefinition,
     DestinySeasonPassDefinition,
+    DestinySocketTypeDefinition,
 )
 
 from Backend.bungio.client import get_bungio_client
@@ -39,6 +40,7 @@ get_catalyst_lock = asyncio.Lock()
 get_item_lock = asyncio.Lock()
 get_all_weapons_lock = asyncio.Lock()
 get_seals_lock = asyncio.Lock()
+get_sockets_lock = asyncio.Lock()
 
 
 class CRUDManifest:
@@ -56,6 +58,9 @@ class CRUDManifest:
     # DestinyLoreModel
     _manifest_lore: dict[int, DestinyLoreModel] = {}
 
+    # DestinySocketTypeDefinition
+    _manifest_sockets: dict[int, DestinySocketTypeDefinition] = {}
+
     # DestinyRecordDefinition
     _manifest_triumphs: dict[int, DestinyRecordDefinition] = {}
     _manifest_seals: dict[DestinyPresentationNodeDefinition, list[DestinyRecordDefinition]] = {}
@@ -66,44 +71,58 @@ class CRUDManifest:
     _manifest_grandmasters: list[DestinyActivityModel] = []
     _manifest_interesting_solos: dict[str, list[DestinyActivityModel]] = {}  # Key: activity_category
 
-    async def reset(self):
+    async def reset(self, soft: bool = False):
         """Reset the caches after a manifest update"""
 
         self._manifest_weapons = {}
-        await destiny_manifest.get_all_weapons()
+        if not soft:
+            await destiny_manifest.get_all_weapons()
+
+        self._manifest_sockets = {}
+        if not soft:
+            await destiny_manifest.get_all_sockets()
 
         self._manifest_season_pass_definition = None  # noqa
         await destiny_manifest.get_current_season_pass()
 
         self._manifest_seasonal_challenges_definition = None  # noqa
-        await self.get_seasonal_challenges_definition()
+        if not soft:
+            await self.get_seasonal_challenges_definition()
 
         self._manifest_items = {}
         # per item, so not populated here
 
         self._manifest_collectibles = {}
-        await destiny_manifest.get_all_collectibles()
+        if not soft:
+            await destiny_manifest.get_all_collectibles()
 
         self._manifest_triumphs = {}
-        await destiny_manifest.get_all_triumphs()
+        if not soft:
+            await destiny_manifest.get_all_triumphs()
 
         self._manifest_seals = {}
-        await destiny_manifest.get_seals()
+        if not soft:
+            await destiny_manifest.get_seals()
 
         self._manifest_lore = {}
-        await destiny_manifest.get_all_lore()
+        if not soft:
+            await destiny_manifest.get_all_lore()
 
         self._manifest_catalysts = []
-        await destiny_manifest.get_catalysts()
+        if not soft:
+            await destiny_manifest.get_catalysts()
 
         self._manifest_activities = {}
-        await destiny_manifest.get_all_activities()
+        if not soft:
+            await destiny_manifest.get_all_activities()
 
         self._manifest_grandmasters = []
-        await destiny_manifest.get_grandmaster_nfs()
+        if not soft:
+            await destiny_manifest.get_grandmaster_nfs()
 
         self._manifest_interesting_solos = {}
-        await destiny_manifest.get_challenging_solo_activities()
+        if not soft:
+            await destiny_manifest.get_challenging_solo_activities()
 
     async def get_all_weapons(self) -> dict[int, DestinyInventoryItemDefinition]:
         """Return all weapons"""
@@ -118,6 +137,18 @@ class CRUDManifest:
                     self._manifest_weapons[result.hash] = result
                     self._manifest_items[result.hash] = result
         return self._manifest_weapons
+
+    async def get_all_sockets(self) -> dict[int, DestinySocketTypeDefinition]:
+        """Return all sockets"""
+
+        async with get_sockets_lock:
+            if not self._manifest_sockets:
+                results: list[DestinySocketTypeDefinition] = await get_bungio_client().manifest.fetch_all(
+                    manifest_class=DestinySocketTypeDefinition
+                )
+                for result in results:
+                    self._manifest_sockets[result.hash] = result
+        return self._manifest_sockets
 
     async def get_weapon(self, weapon_id: int) -> DestinyInventoryItemDefinition:
         """Gets weapon"""

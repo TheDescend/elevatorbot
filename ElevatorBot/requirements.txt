@@ -3,7 +3,7 @@ aiohttp_client_cache[redis]==0.7.3
 anyio==3.6.2
 apscheduler==3.9.1
 attrs~=22.1.0
-bungio==0.7.0
+bungio==0.7.3
 cachetools==5.2.0
 dateparser==1.1.4
 gtts==2.3.0

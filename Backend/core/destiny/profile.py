@@ -7,22 +7,31 @@ from typing import Literal, Optional
 
 from anyio import to_thread
 from bungio.models import (
+    MISSING,
+    DestinyCharacter,
     DestinyClass,
     DestinyCollectibleComponent,
     DestinyCollectibleState,
     DestinyCraftableComponent,
     DestinyHistoricalStatsAccountResult,
+    DestinyInsertPlugsActionRequest,
+    DestinyInsertPlugsFreeActionRequest,
+    DestinyInsertPlugsRequestEntry,
+    DestinyInventoryItemDefinition,
     DestinyItemComponent,
     DestinyMetricComponent,
     DestinyProfileResponse,
     DestinyRecordComponent,
     DestinyRecordState,
+    DestinySocketArrayType,
     DestinyStatsGroupType,
     GroupsForMemberFilter,
     GroupType,
+    ItemState,
 )
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from Backend.bungio.client import get_bungio_client
 from Backend.bungio.manifest import destiny_manifest
 from Backend.core.errors import CustomException
 from Backend.crud import crud_activities, discord_users
@@ -80,6 +89,111 @@ class DestinyProfile:
         self.discord_id = self.user.discord_id
         self.destiny_id = self.user.destiny_id
         self.system = self.user.system
+
+    async def set_transmog(self, character_id: int):
+        """Sets the transmog and the shader off all items to the one currently equiped"""
+
+        def get_socket_indexes(
+            definition: DestinyInventoryItemDefinition, transmog_socket_hash: int
+        ) -> tuple[int, int]:
+            shader_index, transmog_index = -1, -1
+            for i, socket in enumerate(definition.sockets.socket_entries):
+                if socket.socket_type_hash == shader_socket_hash:
+                    shader_index = i
+                if socket.socket_type_hash == transmog_socket_hash:
+                    transmog_index = i
+            return shader_index, transmog_index
+
+        char_ids = await self.get_character_ids()
+        if character_id not in char_ids:
+            raise CustomException("CharacterIdNotFound")
+        bungio_client = get_bungio_client()
+        bungio_user = self.user.bungio_user
+        auth_data = self.user.auth
+
+        shader_socket_hash = 2321980680
+
+        # get all the items and instances
+        items = await self.get_character_items(character_id)
+        sockets = self._profile.item_components.sockets.data
+        character = self._profile.characters.data[character_id]
+
+        # get all the correct sockets
+        all_sockets = await destiny_manifest.get_all_sockets()
+        correct_sockets = {"helmet": None, "gauntlets": None, "chest": None, "leg": None, "class": None}
+        for socket in all_sockets.values():
+            # <SocketCategory "ARMOR COSMETICS">
+            if socket.socket_category_hash == 1926152773:
+                # categoryIdentifier:"armor_skins_empty"
+                if socket.plug_whitelist[0].category_identifier == "armor_skins_empty":
+                    for plug in socket.plug_whitelist:
+                        if plug.category_identifier.startswith(f"armor_skins_{character.class_type.name.lower()}"):
+                            if plug.category_identifier.endswith("head"):
+                                correct_sockets["helmet"] = socket
+                            elif plug.category_identifier.endswith("arms"):
+                                correct_sockets["gauntlets"] = socket
+                            elif plug.category_identifier.endswith("chest"):
+                                correct_sockets["chest"] = socket
+                            elif plug.category_identifier.endswith("legs"):
+                                correct_sockets["leg"] = socket
+                            elif plug.category_identifier.endswith("class"):
+                                correct_sockets["class"] = socket
+                            break
+
+        for slot_name, data in items.items():
+            equipped = data["equipped"][0]
+            equipped_definition = await destiny_manifest.get_item(item_id=equipped.item_hash)
+
+            # skip non legendaries
+            if equipped_definition.inventory.tier_type_name != "Legendary":
+                continue
+
+            equipped_sockets = sockets[equipped.item_instance_id].sockets
+            shader_index, transmog_index = get_socket_indexes(
+                equipped_definition, transmog_socket_hash=correct_sockets[slot_name].hash
+            )
+
+            equipped_shader = equipped_sockets[shader_index].plug_hash
+            equipped_transmog = equipped_sockets[transmog_index].plug_hash
+
+            inventory = data["inventory"]
+
+            for item in inventory:
+                item_definition = await destiny_manifest.get_item(item_id=item.item_hash)
+
+                # skip non legendaries
+                if item_definition.inventory.tier_type_name != "Legendary":
+                    continue
+
+                item_sockets = sockets[item.item_instance_id].sockets
+                shader_index, transmog_index = get_socket_indexes(
+                    item_definition, transmog_socket_hash=correct_sockets[slot_name].hash
+                )
+                if shader_index == -1 or transmog_index == -1:
+                    continue
+
+                data = DestinyInsertPlugsFreeActionRequest(
+                    character_id=character_id,
+                    item_id=item.item_instance_id,
+                    membership_type=bungio_user.membership_type,
+                    plug=DestinyInsertPlugsRequestEntry(
+                        plug_item_hash=equipped_shader,
+                        socket_array_type=DestinySocketArrayType.DEFAULT,
+                        socket_index=shader_index,
+                    ),
+                )
+
+                # shader
+                if item_sockets[shader_index].plug_hash != equipped_shader:
+                    await bungio_client.api.insert_socket_plug_free(data=data, auth=auth_data)
+                # transmog
+                if (
+                    item_sockets[transmog_index].plug_hash != equipped_transmog
+                    and item_definition.hash != equipped_transmog
+                ):
+                    data.plug.plug_item_hash = equipped_transmog
+                    data.plug.socket_index = transmog_index
+                    await bungio_client.api.insert_socket_plug_free(data=data, auth=auth_data)
 
     async def get_clan(self) -> DestinyClanModel:
         """Return the user's clan"""
@@ -715,6 +829,83 @@ class DestinyProfile:
             character_class=character_class,
         )
 
+    async def get_character_items(
+        self, character_id: int
+    ) -> dict[
+        Literal["helmet", "gauntlets", "chest", "leg", "class"],
+        dict[Literal["equipped", "inventory"], list[DestinyItemComponent]],
+    ]:
+        """Get all items that belong to a character"""
+
+        items: dict[
+            Literal["helmet", "gauntlet", "chest", "leg", "class"],
+            dict[Literal["equipped", "inventory"], list[DestinyItemComponent]],
+        ] = {
+            "helmet": {"equipped": [], "inventory": []},
+            "gauntlets": {"equipped": [], "inventory": []},
+            "chest": {"equipped": [], "inventory": []},
+            "leg": {"equipped": [], "inventory": []},
+            "class": {"equipped": [], "inventory": []},
+        }
+
+        result = await self.__get_profile(force=True)
+        character = result.characters.data[character_id]
+
+        # get character equipped
+        for item in result.character_equipment.data[character_id].items:
+            try:
+                bucket_name = DestinyInventoryBucketEnum(item.bucket_hash).name.lower()
+            except ValueError:
+                continue
+            if bucket_name in items:
+                try:
+                    items[bucket_name]["equipped"].append(item)
+                except KeyError:
+                    continue
+
+        # get stuff from inventories
+        to_check = [
+            DestinyInventoryBucketEnum.HELMET,
+            DestinyInventoryBucketEnum.GAUNTLETS,
+            DestinyInventoryBucketEnum.CHEST,
+            DestinyInventoryBucketEnum.LEG,
+            DestinyInventoryBucketEnum.CLASS,
+        ]
+        for item in result.character_inventories.data[character_id].items:
+            try:
+                bucket = DestinyInventoryBucketEnum(item.bucket_hash)
+            except ValueError:
+                continue
+            if bucket in to_check:
+                item_definition = await destiny_manifest.get_item(item_id=item.item_hash)
+                if item_definition.class_type == character.class_type:
+                    bucket_name = bucket.name.lower()
+                    try:
+                        items[bucket_name]["inventory"].append(item)
+                    except KeyError:
+                        continue
+
+        # get stuff in vault
+        for item in result.profile_inventory.data.items:
+            try:
+                bucket = DestinyInventoryBucketEnum(item.bucket_hash)
+            except ValueError:
+                continue
+            if bucket == DestinyInventoryBucketEnum.VAULT and item.item_instance_id:
+                item_definition = await destiny_manifest.get_item(item_id=item.item_hash)
+                if item_definition.class_type == character.class_type:
+                    try:
+                        bucket = DestinyInventoryBucketEnum(item_definition.inventory.bucket_type_hash)
+                    except ValueError:
+                        continue
+                    bucket_name = bucket.name.lower()
+                    try:
+                        items[bucket_name]["inventory"].append(item)
+                    except KeyError:
+                        continue
+
+        return items
+
     async def __get_inventory_bucket(
         self, *buckets: DestinyInventoryBucketEnum
     ) -> dict[
@@ -859,12 +1050,12 @@ class DestinyProfile:
 
         return items
 
-    async def __get_profile(self) -> DestinyProfileResponse:
+    async def __get_profile(self, force: bool = False) -> DestinyProfileResponse:
         """
         Return info from the profile call
         https://bungie-net.github.io/multi/schema_Destiny-DestinyComponentType.html#schema_Destiny-DestinyComponentType
         """
-        if not self._profile:
+        if not self._profile or force:
             # just calling nearly all of them. Don't need all quite yet, but who knows what the future will bring
             components = [
                 100,
@@ -898,7 +1089,12 @@ class DestinyProfile:
                 1300,
             ]
 
-            self._profile = await self.user.bungio_user.get_profile(components=components, auth=self.user.auth)
+            call = self.user.bungio_user.get_profile(components=components, auth=self.user.auth)
+            if force:
+                async with get_bungio_client().http.session.disabled():
+                    self._profile = await call
+            else:
+                self._profile = await call
 
             # get bungie name
             bungie_name = self._profile.profile.data.user_info.full_bungie_name

@@ -1,6 +1,7 @@
 import dataclasses
-from typing import Optional
+from typing import Callable, Coroutine, Optional
 
+import bungio.error
 from naff import Embed
 
 from ElevatorBot.discordEvents.customInteractions import ElevatorInteractionContext
@@ -41,10 +42,9 @@ class BackendResult:
             elif msg := get_error_codes_and_responses().get(f"Bungie{self.error}"):
                 self.__error_message = msg
             else:
-                if self.message is not None:
-                    self.__error_message = f"{self.error}: {self.message}"
-                else:
-                    self.__error_message = "Something went wrong"
+                if self.message is None:
+                    self.message = "Something went wrong"
+                self.__error_message = f"`{self.error}`: {self.message}"
 
         return self.__error_message
 
@@ -56,7 +56,7 @@ class BackendResult:
 
     async def send_error_message(
         self,
-        ctx: ElevatorInteractionContext,
+        function: Callable[..., Coroutine],
         hidden: bool = False,
         **format_kwargs,
     ):
@@ -68,4 +68,7 @@ class BackendResult:
 
         # do not send "NoToken" errors since they are handled elsewhere
         if self.error != "NoToken":
-            await ctx.send(ephemeral=hidden, embeds=self.embed)
+            try:
+                await function(ephemeral=hidden, embeds=self.embed, components=[])
+            except TypeError:
+                await function(embeds=self.embed, components=[])

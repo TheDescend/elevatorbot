@@ -9,6 +9,7 @@ base_route = f"""http://{os.environ.get("BACKEND_HOST")}:{os.environ.get("BACKEN
 # account
 destiny_account_route = base_route + "destiny/account/{guild_id}/{discord_id}/"
 destiny_account_name_route = destiny_account_route + "name/"  # GET
+destiny_account_transmog_route = destiny_account_route + "{character_id}/set_transmog/"  # POST
 destiny_account_solos_route = destiny_account_route + "solos/"  # GET
 destiny_account_characters_route = destiny_account_route + "characters/"  # GET
 destiny_account_stat_route = destiny_account_route + "stat/"  # POST

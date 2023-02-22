@@ -6,6 +6,12 @@
                 "description": "Starts the Day One raid completion announcer",
                 "default_required_permissions": "Administrator",
                 "enabled_in_dm": false
+            },
+            {
+                "name": "transmog",
+                "description": "Changes all legendary armour to the currently equipped shader and transmog",
+                "default_required_permissions": null,
+                "enabled_in_dm": false
             }
         ],
         "Available Globally": [
@@ -2057,7 +2063,7 @@
                         "options": [
                             {
                                 "name": "channel",
-                                "description": "The category under which the forum channel for the events should be created",
+                                "description": "The forum channel where the events should be created",
                                 "required": true,
                                 "autocomplete": false
                             }

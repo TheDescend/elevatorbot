@@ -11,7 +11,7 @@ import aiohttp_client_cache
 import orjson
 from aiohttp import ClientTimeout
 from bungio.http import RateLimiter
-from naff import Member
+from naff import Member, Message
 
 from ElevatorBot.discordEvents.customInteractions import ElevatorComponentContext, ElevatorInteractionContext
 from ElevatorBot.networking.errors import BackendException
@@ -57,6 +57,7 @@ class BaseBackendConnection:
 
     # used to send error messages
     ctx: Optional[ElevatorInteractionContext | ElevatorComponentContext]
+    edit_message: Optional[Message] = dataclasses.field(default=None, init=False)
 
     # get logger
     logger: logging.Logger = dataclasses.field(
@@ -125,7 +126,10 @@ class BaseBackendConnection:
         if self.ctx:
             if self.ctx.responded:
                 raise RuntimeError("The context was already responded")
-            await result.send_error_message(ctx=self.ctx, hidden=self.hidden)
+            await result.send_error_message(function=self.ctx.send, hidden=self.hidden)
+        elif self.edit_message:
+            await result.send_error_message(function=self.edit_message.edit)
+
         raise BackendException(result.error)
 
     async def _backend_request(
@@ -184,11 +188,11 @@ class BaseBackendConnection:
         else:
             success = False
             result = None
-            error = await self.__backend_handle_errors(response)
+            error, error_message = await self.__backend_handle_errors(response)
 
-        return BackendResult(result=result, success=success, error=error)
+        return BackendResult(result=result, success=success, error=error, message=error_message)
 
-    async def __backend_handle_errors(self, response: aiohttp.ClientResponse) -> Optional[str]:
+    async def __backend_handle_errors(self, response: aiohttp.ClientResponse) -> tuple[Optional[str], Optional[str]]:
         """Handles potential errors. Returns None if the error should not be returned to the user and str, str if something should be returned to the user"""
 
         match response.status:
@@ -196,16 +200,16 @@ class BaseBackendConnection:
                 # this means the errors isn't really an error, and we want to return info to the user
                 self.logger.info(f"{response.status}: `{response.method}` - `{response.url}`")
                 error_json = await response.json(loads=orjson.loads)
-                return error_json["error"]
+                return error_json["error"], error_json.get("message", None)
 
             case 500:
                 # internal server error
                 self.logger_exceptions.error(f"{response.status}: `{response.method}` - `{response.url}`")
-                return "ProgrammingError"
+                return "ProgrammingError", None
 
             case _:
                 # if we don't know anything, just log it with the error
                 self.logger_exceptions.error(
                     f"{response.status}: `{response.method}` - `{response.url}`\n{await response.json(loads=orjson.loads)}"
                 )
-                return None
+                return None, None

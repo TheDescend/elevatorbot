@@ -25,6 +25,7 @@ from ElevatorBot.networking.routes import (
     destiny_account_stat_characters_route,
     destiny_account_stat_route,
     destiny_account_time_route,
+    destiny_account_transmog_route,
     destiny_account_triumph_route,
     destiny_account_triumph_score_route,
     destiny_account_vault_space_route,
@@ -50,6 +51,16 @@ from Shared.networkingSchemas.destiny import (
 class DestinyAccount(BaseBackendConnection):
 
     discord_guild: Guild
+
+    async def set_transmog(self, character_id: int):
+        """Change the transmogs"""
+
+        await self._backend_request(
+            method="POST",
+            route=destiny_account_transmog_route.format(
+                guild_id=self.discord_guild.id, discord_id=self.discord_member.id, character_id=character_id
+            ),
+        )
 
     async def get_destiny_name(self) -> NameModel:
         """Return the destiny name"""
