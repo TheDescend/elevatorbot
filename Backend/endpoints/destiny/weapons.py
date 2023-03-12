@@ -31,23 +31,24 @@ async def get_all():
     # loop through the weapons and format them
     format_helper = {}
     for weapon in weapons.values():
-        if weapon.display_properties.name not in format_helper:
-            format_helper.update(
-                {
-                    weapon.display_properties.name: DestinyWeaponModel(
-                        name=weapon.display_properties.name,
-                        description=weapon.display_properties.description,
-                        flavor_text=weapon.flavor_text,
-                        weapon_type=weapon.item_sub_type.display_name,
-                        weapon_slot=DestinyWeaponSlotEnum(weapon.inventory.bucket_type_hash).display_name,
-                        damage_type=weapon.default_damage_type.display_name,
-                        ammo_type=weapon.equipping_block.ammo_type.display_name,
-                        reference_ids=[weapon.hash],
-                    )
-                }
-            )
-        else:
-            format_helper[weapon.display_properties.name].reference_ids.append(weapon.hash)
+        if not weapon.redacted:
+            if weapon.display_properties.name not in format_helper:
+                format_helper.update(
+                    {
+                        weapon.display_properties.name: DestinyWeaponModel(
+                            name=weapon.display_properties.name,
+                            description=weapon.display_properties.description,
+                            flavor_text=weapon.flavor_text,
+                            weapon_type=weapon.item_sub_type.display_name,
+                            weapon_slot=DestinyWeaponSlotEnum(weapon.inventory.bucket_type_hash).display_name,
+                            damage_type=weapon.default_damage_type.display_name,
+                            ammo_type=weapon.equipping_block.ammo_type.display_name,
+                            reference_ids=[weapon.hash],
+                        )
+                    }
+                )
+            else:
+                format_helper[weapon.display_properties.name].reference_ids.append(weapon.hash)
 
     return DestinyWeaponsModel(weapons=list(format_helper.values()))
 
