@@ -66,8 +66,8 @@ services:
     command:
       - '--config.file=/prometheus/prometheus.yml'
       - '--storage.tsdb.path=/prometheus'
-      - '--storage.tsdb.retention.size=10GB'
-      - "--storage.tsdb.retention.time=60d"
+      - '--storage.tsdb.retention.size=5GB'
+      - "--storage.tsdb.retention.time=30d"
       - '--web.console.libraries=/usr/share/prometheus/console_libraries'
       - '--web.console.templates=/usr/share/prometheus/consoles'
     restart:
