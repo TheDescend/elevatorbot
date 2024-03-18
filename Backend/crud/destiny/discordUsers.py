@@ -85,7 +85,11 @@ class CRUDDiscordUser(CRUDBase):
 
         # split the state
         (discord_id, guild_id, channel_id) = state.split(":")
-        discord_id, guild_id, channel_id, = (
+        (
+            discord_id,
+            guild_id,
+            channel_id,
+        ) = (
             int(discord_id),
             int(guild_id),
             int(channel_id),
