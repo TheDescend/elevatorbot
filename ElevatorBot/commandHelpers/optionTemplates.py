@@ -173,9 +173,11 @@ def default_expansion_option(
             choices=[
                 SlashCommandChoice(
                     name=expansion.name,
-                    value=f"{expansion.name}|{int(expansion.start.timestamp())}|{int(expansion_dates[(expansion_dates.index(expansion) + 1)].start.timestamp())}"
-                    if expansion_dates.index(expansion) + 1 < len(expansion_dates)
-                    else f"{expansion.name}|{int(expansion.start.timestamp())}|9999999999",
+                    value=(
+                        f"{expansion.name}|{int(expansion.start.timestamp())}|{int(expansion_dates[(expansion_dates.index(expansion) + 1)].start.timestamp())}"
+                        if expansion_dates.index(expansion) + 1 < len(expansion_dates)
+                        else f"{expansion.name}|{int(expansion.start.timestamp())}|9999999999"
+                    ),
                 )
                 for expansion in expansion_dates
             ],
@@ -205,9 +207,11 @@ def default_season_option(
             choices=[
                 SlashCommandChoice(
                     name=season.name,
-                    value=f"{season.name}|{int(season.start.timestamp())}|{int(season_and_expansion_dates[(season_and_expansion_dates.index(season) + 1)].start.timestamp())}"
-                    if season_and_expansion_dates.index(season) + 1 < len(season_and_expansion_dates)
-                    else f"{season.name}|{int(season.start.timestamp())}|9999999999",
+                    value=(
+                        f"{season.name}|{int(season.start.timestamp())}|{int(season_and_expansion_dates[(season_and_expansion_dates.index(season) + 1)].start.timestamp())}"
+                        if season_and_expansion_dates.index(season) + 1 < len(season_and_expansion_dates)
+                        else f"{season.name}|{int(season.start.timestamp())}|9999999999"
+                    ),
                 )
                 for season in season_and_expansion_dates
             ],
