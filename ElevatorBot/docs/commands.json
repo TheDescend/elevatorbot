@@ -1207,7 +1207,8 @@
                             "Thermal",
                             "Void",
                             "Raid",
-                            "Stasis"
+                            "Stasis",
+                            "Strand"
                         ]
                     },
                     {
@@ -1363,7 +1364,8 @@
                             "Thermal",
                             "Void",
                             "Raid",
-                            "Stasis"
+                            "Stasis",
+                            "Strand"
                         ]
                     },
                     {

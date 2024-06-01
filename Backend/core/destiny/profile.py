@@ -161,15 +161,11 @@ class DestinyProfile:
             for item in inventory:
                 item_definition = await destiny_manifest.get_item(item_id=item.item_hash)
 
-                # skip non legendaries
-                if item_definition.inventory.tier_type_name != "Legendary":
-                    continue
-
                 item_sockets = sockets[item.item_instance_id].sockets
                 shader_index, transmog_index = get_socket_indexes(
                     item_definition, transmog_socket_hash=correct_sockets[slot_name].hash
                 )
-                if shader_index == -1 or transmog_index == -1:
+                if shader_index == -1:
                     continue
 
                 data = DestinyInsertPlugsFreeActionRequest(
@@ -186,14 +182,16 @@ class DestinyProfile:
                 # shader
                 if item_sockets[shader_index].plug_hash != equipped_shader:
                     await bungio_client.api.insert_socket_plug_free(data=data, auth=auth_data)
-                # transmog
-                if (
-                    item_sockets[transmog_index].plug_hash != equipped_transmog
-                    and item_definition.hash != equipped_transmog
-                ):
-                    data.plug.plug_item_hash = equipped_transmog
-                    data.plug.socket_index = transmog_index
-                    await bungio_client.api.insert_socket_plug_free(data=data, auth=auth_data)
+
+                # transmog - skip non legendaries
+                if item_definition.inventory.tier_type_name == "Legendary" and transmog_index != -1:
+                    if (
+                        item_sockets[transmog_index].plug_hash != equipped_transmog
+                        and item_definition.hash != equipped_transmog
+                    ):
+                        data.plug.plug_item_hash = equipped_transmog
+                        data.plug.socket_index = transmog_index
+                        await bungio_client.api.insert_socket_plug_free(data=data, auth=auth_data)
 
     async def get_clan(self) -> DestinyClanModel:
         """Return the user's clan"""
