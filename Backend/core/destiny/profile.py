@@ -827,9 +827,7 @@ class DestinyProfile:
             character_class=character_class,
         )
 
-    async def get_character_items(
-        self, character_id: int
-    ) -> dict[
+    async def get_character_items(self, character_id: int) -> dict[
         Literal["helmet", "gauntlets", "chest", "leg", "class"],
         dict[Literal["equipped", "inventory"], list[DestinyItemComponent]],
     ]:
@@ -904,9 +902,7 @@ class DestinyProfile:
 
         return items
 
-    async def __get_inventory_bucket(
-        self, *buckets: DestinyInventoryBucketEnum
-    ) -> dict[
+    async def __get_inventory_bucket(self, *buckets: DestinyInventoryBucketEnum) -> dict[
         DestinyInventoryBucketEnum,
         dict[int, dict[Literal["item", "power_level", "quantity"], DestinyItemComponent | int]],
     ]:
@@ -988,9 +984,9 @@ class DestinyProfile:
                     result_dict[char_id][bucket].update({item.item_instance_id: {"item": item}})
                     if include_item_level:
                         try:
-                            result_dict[char_id][bucket][item.item_instance_id][
-                                "power_level"
-                            ] = result.item_components.instances.data[item.item_instance_id].primary_stat.value
+                            result_dict[char_id][bucket][item.item_instance_id]["power_level"] = (
+                                result.item_components.instances.data[item.item_instance_id].primary_stat.value
+                            )
                         except KeyError:
                             pass
                     break
