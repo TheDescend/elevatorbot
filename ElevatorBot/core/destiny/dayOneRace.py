@@ -55,7 +55,9 @@ class DayOneRace:
     cutoff_time: datetime.datetime = datetime.datetime(2021, 5, 23, 17, 0, tzinfo=datetime.timezone.utc)
 
     # cosmetic data for the raid
-    image_url: str = "https://static.wikia.nocookie.net/destinypedia/images/6/62/Vault.jpg/revision/latest/scale-to-width-down/1000?cb=20150330170833"
+    image_url: str = (
+        "https://static.wikia.nocookie.net/destinypedia/images/6/62/Vault.jpg/revision/latest/scale-to-width-down/1000?cb=20150330170833"
+    )
     raid_name: str = "Vault of Glass"
     location_name: str = "Ishtar Sink, Venus"
 

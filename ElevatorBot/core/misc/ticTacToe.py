@@ -333,9 +333,11 @@ class TicTacToeGame:
         if not self.message:
             embed = embed_message(
                 f"{self.ctx.author.display_name}'s TicTacToe Game",
-                footer=f"""You are green{f" - Easy Mode: On" if self.easy_mode else ""}"""
-                if not self.versus
-                else "First user to press a button plays green, second plays red",
+                footer=(
+                    f"""You are green{f" - Easy Mode: On" if self.easy_mode else ""}"""
+                    if not self.versus
+                    else "First user to press a button plays green, second plays red"
+                ),
             )
             self.message = await self.ctx.send(components=self.buttons, embeds=embed)
         else:
