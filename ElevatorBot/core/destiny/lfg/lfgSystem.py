@@ -166,9 +166,9 @@ class LfgMessage:
             joined_ids=model.joined_members,
             backup_ids=model.backup_members,
             voice_channel=await client.fetch_channel(model.voice_channel_id) if model.voice_channel_id else None,
-            voice_category_channel=await client.fetch_channel(model.voice_category_channel_id)
-            if model.voice_category_channel_id
-            else None,
+            voice_category_channel=(
+                await client.fetch_channel(model.voice_category_channel_id) if model.voice_category_channel_id else None
+            ),
             started=model.started,
         )
 
@@ -280,9 +280,11 @@ class LfgMessage:
             description=description,
             start_time=start_time,
             max_joined_members=max_joined_members,
-            voice_category_channel=await ctx.bot.fetch_channel(result.voice_category_channel_id)
-            if result.voice_category_channel_id
-            else None,
+            voice_category_channel=(
+                await ctx.bot.fetch_channel(result.voice_category_channel_id)
+                if result.voice_category_channel_id
+                else None
+            ),
             joined_ids=[ctx.author.id],
             started=result.started,
         )
@@ -664,12 +666,14 @@ class LfgMessage:
                         creation_time=event.creation_time,
                         joined_ids=event.joined_members,
                         backup_ids=event.backup_members,
-                        voice_channel=await self.client.fetch_channel(event.voice_channel_id)
-                        if event.voice_channel_id
-                        else None,
-                        voice_category_channel=await self.client.fetch_channel(event.voice_category_channel_id)
-                        if event.voice_category_channel_id
-                        else None,
+                        voice_channel=(
+                            await self.client.fetch_channel(event.voice_channel_id) if event.voice_channel_id else None
+                        ),
+                        voice_category_channel=(
+                            await self.client.fetch_channel(event.voice_category_channel_id)
+                            if event.voice_category_channel_id
+                            else None
+                        ),
                         started=event.started,
                     )
                 )

@@ -157,9 +157,9 @@ class RoleModel(CustomBaseModel):
                 RequirementIntegerModel.from_orm(record) for record in db_model.requirement_require_records
             ],
             require_role_ids=[role.role_id for role in db_model.requirement_require_roles],
-            replaced_by_role_id=db_model.requirement_replaced_by_role.role_id
-            if db_model.requirement_replaced_by_role
-            else None,
+            replaced_by_role_id=(
+                db_model.requirement_replaced_by_role.role_id if db_model.requirement_replaced_by_role else None
+            ),
         )
 
 
