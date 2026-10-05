@@ -223,6 +223,7 @@ class ElevatorServers(Base):
 ################################################################
 # Roles
 
+
 # for activities
 class RolesActivity(Base):
     __tablename__ = "rolesActivity"

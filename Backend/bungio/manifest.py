@@ -265,9 +265,9 @@ class CRUDManifest:
                         activity_ids=[activity.hash for activity in activities],
                         mode=mode.value,
                         modes=[m.value for m in modes],
-                        image_url=f"https://www.bungie.net/{activities[0].pgcr_image}"
-                        if activities[0].pgcr_image
-                        else None,
+                        image_url=(
+                            f"https://www.bungie.net/{activities[0].pgcr_image}" if activities[0].pgcr_image else None
+                        ),
                     )
                     for reference_id in model.activity_ids:
                         result[reference_id] = model
@@ -319,9 +319,9 @@ class CRUDManifest:
 
         async with get_seals_lock:
             if not self._manifest_seals:
-                presentation_nodes: list[
-                    DestinyPresentationNodeDefinition
-                ] = await get_bungio_client().manifest.fetch_all(manifest_class=DestinyPresentationNodeDefinition)
+                presentation_nodes: list[DestinyPresentationNodeDefinition] = (
+                    await get_bungio_client().manifest.fetch_all(manifest_class=DestinyPresentationNodeDefinition)
+                )
 
                 seals = []
                 for node in presentation_nodes:
@@ -428,9 +428,11 @@ class CRUDManifest:
                             activity_ids=reference_ids,
                             mode=mode.value,
                             modes=[m.value for m in modes],
-                            image_url=f"https://www.bungie.net/{activities[0].pgcr_image}"
-                            if activities[0].pgcr_image
-                            else None,
+                            image_url=(
+                                f"https://www.bungie.net/{activities[0].pgcr_image}"
+                                if activities[0].pgcr_image
+                                else None
+                            ),
                         )
                     )
 
@@ -516,9 +518,11 @@ class CRUDManifest:
                                         activity_ids=[activity.hash],
                                         mode=mode.value,
                                         modes=[m.value for m in modes],
-                                        image_url=f"https://www.bungie.net/{activity.pgcr_image}"
-                                        if activity.pgcr_image
-                                        else None,
+                                        image_url=(
+                                            f"https://www.bungie.net/{activity.pgcr_image}"
+                                            if activity.pgcr_image
+                                            else None
+                                        ),
                                     )
                                 else:
                                     data.activity_ids.append(activity.hash)
