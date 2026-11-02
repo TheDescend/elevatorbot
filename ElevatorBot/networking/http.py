@@ -27,20 +27,22 @@ backend_cache = aiohttp_client_cache.RedisBackend(
     address=f"""redis://{os.environ.get("REDIS_HOST")}:{os.environ.get("REDIS_PORT")}""",
     allowed_methods=["GET", "POST"] if not get_setting("ENABLE_DEBUG_MODE") else [],
     expire_after=0,  # only save selected stuff
-    urls_expire_after={
-        "**/destiny/account": timedelta(minutes=30),
-        "**/destiny/activities/**/last": 0,  # never save last activity
-        "**/destiny/activities/**/get/all": 0,  # never activity ids
-        "**/destiny/activities/**/get/grandmaster": 0,  # never grandmaster ids
-        "**/destiny/activities": timedelta(minutes=30),
-        "**/destiny/items/lore/get/all": 0,  # never save lore ids
-        "**/destiny/roles/*/*/get/all": timedelta(minutes=30),  # user roles
-        "**/destiny/roles/*/*/get/missing": timedelta(minutes=30),  # user roles
-        "**/destiny/weapons/**/top": timedelta(minutes=60),  # user top weapons
-        "**/destiny/weapons/**/weapon": timedelta(minutes=60),  # user weapon
-    }
-    if not get_setting("ENABLE_DEBUG_MODE")
-    else {},
+    urls_expire_after=(
+        {
+            "**/destiny/account": timedelta(minutes=30),
+            "**/destiny/activities/**/last": 0,  # never save last activity
+            "**/destiny/activities/**/get/all": 0,  # never activity ids
+            "**/destiny/activities/**/get/grandmaster": 0,  # never grandmaster ids
+            "**/destiny/activities": timedelta(minutes=30),
+            "**/destiny/items/lore/get/all": 0,  # never save lore ids
+            "**/destiny/roles/*/*/get/all": timedelta(minutes=30),  # user roles
+            "**/destiny/roles/*/*/get/missing": timedelta(minutes=30),  # user roles
+            "**/destiny/weapons/**/top": timedelta(minutes=60),  # user top weapons
+            "**/destiny/weapons/**/weapon": timedelta(minutes=60),  # user weapon
+        }
+        if not get_setting("ENABLE_DEBUG_MODE")
+        else {}
+    ),
 )
 _no_default = object()
 
