@@ -45,9 +45,11 @@ class Overview(BaseModule):
         obj = handy_dict["clan_join_request"] if "clan_join_request" in handy_dict else None
         embed.add_field(
             name="Clan Join Button",
-            value=f"[Click To View The Linked Message](https://canary.discord.com/channels/{obj.guild_id}/{obj.channel_id}/{obj.message_id})"
-            if obj
-            else "Not Set-Up",
+            value=(
+                f"[Click To View The Linked Message](https://canary.discord.com/channels/{obj.guild_id}/{obj.channel_id}/{obj.message_id})"
+                if obj
+                else "Not Set-Up"
+            ),
             inline=True,
         )
 
@@ -75,9 +77,11 @@ class Overview(BaseModule):
         obj = handy_dict["increment_button"] if "increment_button" in handy_dict else None
         embed.add_field(
             name="Increment Button",
-            value=f"[Click To View The Linked Message](https://canary.discord.com/channels/{obj.guild_id}/{obj.channel_id}/{obj.message_id})"
-            if obj
-            else "Not Set-Up",
+            value=(
+                f"[Click To View The Linked Message](https://canary.discord.com/channels/{obj.guild_id}/{obj.channel_id}/{obj.message_id})"
+                if obj
+                else "Not Set-Up"
+            ),
             inline=True,
         )
 
@@ -91,9 +95,11 @@ class Overview(BaseModule):
         obj = handy_dict["registration"] if "registration" in handy_dict else None
         embed.add_field(
             name="Registration Button",
-            value=f"[Click To View The Linked Message](https://canary.discord.com/channels/{obj.guild_id}/{obj.channel_id}/{obj.message_id})"
-            if obj
-            else "Not Set-Up",
+            value=(
+                f"[Click To View The Linked Message](https://canary.discord.com/channels/{obj.guild_id}/{obj.channel_id}/{obj.message_id})"
+                if obj
+                else "Not Set-Up"
+            ),
             inline=True,
         )
 
@@ -117,18 +123,22 @@ class Overview(BaseModule):
             obj = handy_dict["other_game_roles"] if "other_game_roles" in handy_dict else None
             embed.add_field(
                 name="Miscellaneous Roles Message",
-                value=f"[Click To View The Linked Message](https://canary.discord.com/channels/{obj.guild_id}/{obj.channel_id}/{obj.message_id})"
-                if obj
-                else "Not Set-Up",
+                value=(
+                    f"[Click To View The Linked Message](https://canary.discord.com/channels/{obj.guild_id}/{obj.channel_id}/{obj.message_id})"
+                    if obj
+                    else "Not Set-Up"
+                ),
                 inline=False,
             )
 
             obj = handy_dict["status"] if "status" in handy_dict else None
             embed.add_field(
                 name="ElevatorBot Status Message",
-                value=f"[Click To View The Linked Message](https://canary.discord.com/channels/{obj.guild_id}/{obj.channel_id}/{obj.message_id})"
-                if obj
-                else "Not Set-Up",
+                value=(
+                    f"[Click To View The Linked Message](https://canary.discord.com/channels/{obj.guild_id}/{obj.channel_id}/{obj.message_id})"
+                    if obj
+                    else "Not Set-Up"
+                ),
                 inline=True,
             )
 

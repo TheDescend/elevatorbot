@@ -101,8 +101,7 @@ This guide is meant to help you navigate this channel and my LFG functionality.
 - You can use the `Searching...` filter to only find events that are not full or filter by activity.
 - To join / leave, click on the post and use the matching button at the bottom of the message.
 """,
-                embed=embed_message(
-                    description=f"""
+                embed=embed_message(description=f"""
 If you want to feel like an [expert](https://www.youtube.com/watch?v=BKorP55Aqvg), there are a bunch of additional commands you can use to interact with LFG events:
 ⁣
 {custom_emojis.enter} {ctx.client.get_command_by_name("lfg create").mention()} - Create a new event
@@ -113,8 +112,7 @@ If you want to feel like an [expert](https://www.youtube.com/watch?v=BKorP55Aqvg
 {custom_emojis.enter} {ctx.client.get_command_by_name("lfg share").mention()} - Share the event to a different channel
 {custom_emojis.enter} {ctx.client.get_command_by_name("lfg alert").mention()} - Message all members in an event
 {custom_emojis.enter} {ctx.client.get_command_by_name("lfg joined").mention()} - Shows you your joined events
-"""
-                ),
+"""),
             )
 
             # pin it
